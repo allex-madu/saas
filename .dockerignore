@@ -1,0 +1,36 @@
+# Ignore node_modules em ambos os diretórios
+node_modules/
+**/node_modules/
+
+# Ignore arquivos temporários de IDE (ex: VSCode, IntelliJ)
+.vscode/
+.idea/
+
+# Ignore arquivos de logs
+*.log
+
+# Ignore arquivos de build/compilação do frontend
+frontend/dist/
+frontend/build/
+
+# Ignore arquivos de build do backend (Laravel)
+backend/vendor/
+backend/storage/
+backend/public/
+
+# Ignore arquivos de configuração local (por exemplo, .env local)
+*.env
+*.local
+
+# Ignore outros arquivos temporários
+*.tmp
+*.swp
+*.bak
+
+# Ignore arquivos de compilação do frontend (Vue + Vite)
+frontend/.vite/
+frontend/.nuxt/
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db

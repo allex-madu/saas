@@ -1,0 +1,17 @@
+# Ignore node_modules do backend (se houver)
+node_modules/
+
+# Ignore vendor do Composer (não precisa ser copiado para o contêiner)
+vendor/
+
+# Ignore arquivos de logs e cache
+storage/
+public/
+
+# Ignore arquivos de configuração local
+*.env
+*.local
+
+# Ignore arquivos temporários de IDE
+.vscode/
+.idea/

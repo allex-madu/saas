@@ -1,0 +1,16 @@
+# Ignore node_modules do frontend
+node_modules/
+
+# Ignore arquivos de build do frontend
+dist/
+build/
+.vite/
+.nuxt/
+
+# Ignore arquivos de configuração local
+*.env
+*.local
+
+# Ignore arquivos temporários de IDE
+.vscode/
+.idea/
