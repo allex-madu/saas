@@ -4,8 +4,17 @@ import guest from "@/middleware/guest";
 const routes = [
   {
     path: "/",
-    name: "Login",
+    name: "login",
     component: () => import("@/views/auth/login/index.vue"),
+    meta: {
+      middleware: [guest],
+    },
+  },
+  {
+    path: '/admin/users',
+    name: 'admin.users',
+    component: () => import('@/views/admin/UsersRoles.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: "/login2",
@@ -94,6 +103,7 @@ const routes = [
         name: "home",
         component: () => import("@/views/home/index.vue"),
         meta: {
+          requiresAuth: true, // Adicione esta linha
           hide: true,
         },
       },

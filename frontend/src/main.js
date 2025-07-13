@@ -21,15 +21,17 @@ import { createPinia } from "pinia";
 import "v-calendar/dist/style.css";
 //import { makeServer } from "./server";
 import { VueQueryPlugin } from "@tanstack/vue-query";
-import axios from 'axios';
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-
+import { useThemeSettingsStore } from "@/store/themeSettings";
 
 // perfect scrollbar
 import PerfectScrollbar from "vue3-perfect-scrollbar";
 import "vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css";
+import api from '@/plugins/axios'
+import { useAuthStore } from '@/store/authStore'
 
 const pinia = createPinia();
+
 pinia.use(piniaPluginPersistedstate);
 
 // vue use
@@ -49,43 +51,44 @@ const app = createApp(App)
   .use(PerfectScrollbar)
   .use(VCalendar);
 
+const auth = useAuthStore();
+
+// Escuta alterações no localStorage feitas em outras abas
+window.addEventListener('storage', (e) => {
+  if (e.key === 'activeUser' && !e.newValue) {
+    // Usuário saiu em outra aba, limpar estado local também
+    auth.user = null
+    console.log('Logout detectado em outra aba, limpando usuário local');
+  }
+});
+
+async function initializeApp() {
+  try {
+    // Passo 1: Requisição ao CSRF para garantir que o cookie será configurado
+    await api.get('/sanctum/csrf-cookie'); // Essa chamada garante que o cookie CSRF seja configurado
+    
+    // Passo 2: Verifica se há um token no localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Passo 3: Se houver token, tenta buscar os dados do usuário
+      await auth.fetchUser();
+    }
+  } catch (error) {
+    console.error('Erro durante a inicialização do aplicativo:', error);
+  } finally {
+      // Passo 4: Monta o app apenas depois de garantir que o CSRF e o token estão configurados
+    app.mount('#app');
+  }
+}
+
+// Inicia o processo
+initializeApp();
+
 app.config.globalProperties.$store = {};
 
-// Configuração do Axios
-axios.defaults.baseURL = 'http://localhost:8080'
-axios.defaults.withCredentials = true;
-
-// Garante envio automático do token CSRF como header X-XSRF-TOKEN
-axios.interceptors.request.use(config => {
-  const token = getCookie('XSRF-TOKEN')
-  if (token) {
-    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token)
-  }
-  return config
-})
-
-// Função auxiliar para pegar o cookie
-function getCookie(name) {
-  const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'))
-  return match ? match[3] : null
-}
-
-
-app.mount("#app");
 app.use(VueQueryPlugin);
 
-import { useThemeSettingsStore } from "@/store/themeSettings";
 const themeSettingsStore = useThemeSettingsStore();
-if (localStorage.users === undefined) {
-  let users = [
-    {
-      name: "dashcode",
-      email: "dashcode@gmail.com",
-      password: "dashcode",
-    },
-  ];
-  localStorage.setItem("users", JSON.stringify(users));
-}
 
 // check localStorage theme for dark light bordered
 if (localStorage.theme === "dark") {

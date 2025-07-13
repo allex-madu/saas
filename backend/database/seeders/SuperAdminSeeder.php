@@ -2,35 +2,39 @@
 
 namespace Database\Seeders;
 
-use App\Models\Person;
-use Illuminate\Database\Seeder;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Seeder;
+use App\Models\Person;
+use App\Models\User;
 
-class AdminUserSeeder extends Seeder
+
+class SuperAdminSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-       $person = Person::create([
+        $person = Person::create([
             'name' => 'Allex',
-            'email' => 'allex@gmail.com',
-            'nickname' => 'Allex Dev',
-            'nif' => '11.901.522/0001-21',
+            'email' => 'alexsuper@gmail.com',
+            'nickname' => 'Alex Super',
+            'nif' => '40.908.122/0001-21',
             'phone' => '(43) 99873-6040',
             'address' => 'Rua São Pedro, Vila Jurandir',
             'reference' => 'Perto da praça',
-            'number' => 28,
+            'number' => 43,
             'zip_code' => '18460-009',
             'city_id' => '3531'
         ]);
 
         $user = User::create([
             'person_id' => $person->id,
-            'email' => 'alexadmin@gmail.com',
+            'email' => 'alexsuper@gmail.com',
             'password' => Hash::make('12345678'),
+            'is_super_admin' => true,
         ]);
 
-        $user->assignRole('admin-padaria');
+        $user->assignRole('super-admin');
     }
 }
-

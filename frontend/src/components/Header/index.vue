@@ -118,6 +118,8 @@ const borderSwitchClass = computed(() => {
     return 'dark:border-b dark:border-slate-700 dark:border-opacity-60'
   }
 })
+
+  
 </script>
 
 <style lang="scss" scoped>

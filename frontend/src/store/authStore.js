@@ -1,52 +1,102 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
-// import axios from '@/axios'; 
-import router from '@/router';
+import { defineStore } from 'pinia'      
+import { ref, computed } from 'vue'     
+import api from '@/plugins/axios'       
 
-export const useAuthStore = defineStore('auth', () => {
-  const user = ref(null);
+export const useAuthStore = defineStore('auth', () => 
+{
+  const user = ref(null)
+  const error = ref(null)
+  const loading = ref(false)
 
-  const authStore = useAuthStore();
-console.log(authStore.user);
+  // Getters computados
+  const isAuthenticated = computed(() => !!user.value)
+  const isSuperAdmin = computed(() => user.value?.is_super_admin === true)
+  const roles = computed(() => user.value?.roles || [])
 
-  // const login = async (email, password) => {
-  //   try {
-  //     // 1. Obter o CSRF cookie
-  //     await axios.get('/sanctum/csrf-cookie');
+  // Helpers
+  const hasRole = (role) => roles.value.includes(role)
 
-  //     // 2. Enviar credenciais para login
-  //     await axios.post('/api/login', { email, password });
 
-  //     // 3. Buscar o usuário autenticado
-  //     await fetchUser();
-      
-  //   } catch (error) {
-  //     console.error('Erro ao fazer login', error);
-      
-  //     throw error;
-  //   }
-  // };
+  const login = async (email, password) => 
+  {
+    loading.value = true
+    error.value = null
+    try {
+      await api.get('/sanctum/csrf-cookie')
+      const response = await api.post('/api/v1/login', { email, password })
+      user.value = response.data.user
+      localStorage.setItem('activeUser', JSON.stringify(user.value))
 
-  // const fetchUser = async () => {
-  //   try {
-  //     const response = await axios.get('/api/user');
-  //     user.value = response.data;
-  //   } catch (error) {
-  //     user.value = null;
-  //     console.error('Erro ao buscar usuário', error);
-  //   }
-  // };
+      await fetchUser() // busca usuário completo com relação person
 
-  // const logout = async () => {
-  //   try {
-  //     await axios.post('/api/logout');
-  //     user.value = null;
-  //   } catch (error) {
-  //     console.error('Erro ao fazer logout', error);
-  //   }
-  // };
+      return true
+    } catch (err) {
+      error.value = 'Falha ao fazer login'
+      console.error('Erro no login:', err)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
 
-  //return { user, login, fetchUser, logout };
-}, {
-  persist: true, // <- isso persiste no localStorage
-});
+  const fetchUser = async () => 
+  {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await api.get('/api/v1/user')
+      user.value = response.data 
+      //console.log('Resultado fetchUser:', response.data)
+      localStorage.setItem('activeUser', JSON.stringify(user.value))
+      return true
+    } catch (err) {
+      if (err.response?.status === 401) {
+        user.value = null
+        localStorage.removeItem('activeUser')
+        console.warn('Sessão expirou')
+        return false
+      }
+      error.value = 'Erro ao buscar usuário'
+      console.error(err)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const logout = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      await api.get('/sanctum/csrf-cookie')
+      await api.post('/api/v1/logout')
+      user.value = null
+      localStorage.removeItem('activeUser')
+    } catch (err) {
+      error.value = 'Erro ao fazer logout'
+      console.error(err)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Retorna os estados, getters e ações para uso em componentes
+  return {
+    // state
+    user,
+    error,
+    
+    // getters
+    isAuthenticated,
+    isSuperAdmin,
+    roles,
+    
+    // helpers
+    hasRole,
+
+    // actions
+    login,
+    fetchUser,
+    logout
+  }
+})

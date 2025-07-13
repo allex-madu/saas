@@ -1,7 +1,20 @@
 <template>
   <div>
     <Breadcrumb />
-    <div class="grid grid-cols-12 gap-5 mb-5">
+
+
+
+
+  <div v-if="auth.user?.roles?.includes('super-admin')">
+    <RouterLink to="/admin/users">Gerenciar Papéis</RouterLink>
+  </div>
+
+
+
+    <div
+      v-if="auth.user?.roles.includes('super-admin') || auth.user?.roles.includes('admin-padaria')"
+      class="grid grid-cols-12 gap-5 mb-5"
+    >
       <div class="2xl:col-span-3 lg:col-span-4 col-span-12">
         <div
           class="bg-no-repeat bg-cover bg-center p-4 rounded-[6px] relative"
@@ -53,6 +66,8 @@
         </Card>
       </div>
     </div>
+
+
 
     <div class="grid grid-cols-12 gap-5">
       <div class="lg:col-span-8 col-span-12">
@@ -172,6 +187,19 @@ const columnCharthomeComputed = computed(() => {
     },
   }
 })
+
+import { useAuthStore } from '@/store/authStore'
+
+const auth = useAuthStore()
+
+const handleLogout = async () => {
+  
+  await auth.logout()
+  
+  // Redirecionar para login, por exemplo
+  
+  
+}
 </script>
 
 <style scoped></style>

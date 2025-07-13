@@ -1,75 +1,87 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-100">
-    <form @submit.prevent="handleLogin" class="bg-white p-8 rounded shadow-md w-full max-w-sm">
-      <h2 class="text-2xl font-bold mb-6 text-center">Login</h2>
+  <div class="loginwrapper">
+    <div class="lg-inner-column">
+      <div class="left-column relative z-[1]">
+        <div class="max-w-[520px] pt-20 ltr:pl-20 rtl:pr-20">
+          <router-link to="/">
+            <img :src="logo" alt="" class="mb-10" v-if="!themeSettingsStore.isDark" />
+            <img :src="logoWhite" alt="" class="mb-10" v-else />
+          </router-link>
 
-      <div class="mb-4">
-        <label class="block mb-1 font-semibold">Email</label>
-        <input
-          type="email"
-          v-model="email"
-          required
-          class="w-full border px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
-        />
+          <h4>
+            Unlock your Project
+            <span class="text-slate-800 dark:text-slate-400 font-bold">performance</span>
+          </h4>
+        </div>
+        <div
+          class="absolute left-0 2xl:bottom-[-160px] bottom-[-130px] h-full w-full z-[-1]"
+        >
+          <img :src="sideImg" alt="" class="h-full w-full object-contain" />
+        </div>
       </div>
 
-      <div class="mb-6">
-        <label class="block mb-1 font-semibold">Senha</label>
-        <input
-          type="password"
-          v-model="password"
-          required
-          class="w-full border px-4 py-2 rounded focus:outline-none focus:ring focus:border-blue-300"
-        />
+      <div class="right-column relative">
+        <div class="inner-content h-full flex flex-col bg-white dark:bg-slate-800">
+          <div class="auth-box h-full flex flex-col justify-center">
+            <div class="mobile-logo text-center mb-6 lg:hidden block">
+              <router-link to="/">
+                <img :src="logo" alt="" class="mx-auto" v-if="!themeSettingsStore.isDark" />
+                <img :src="logoWhite" alt="" class="mx-auto" v-else />
+              </router-link>
+            </div>
+
+            <div class="text-center 2xl:mb-10 mb-4">
+              <h4 class="font-medium">Entrar</h4>
+              <div class="text-slate-500 text-base">
+                Entre na sua conta para começar a usar Pão.com
+              </div>
+            </div>
+
+            <Signin />
+
+            <div class="relative border-b-[#9AA2AF] border-opacity-[16%] border-b pt-6">
+              <div
+                class="absolute inline-block bg-white dark:bg-slate-800 dark:text-slate-400 left-1/2 top-1/2 transform -translate-x-1/2 px-4 min-w-max text-sm text-slate-500 font-normal"
+              >
+                Cadastre-se
+              </div>
+            </div>
+
+            <div class="max-w-[242px] mx-auto mt-8 w-full">
+              <Social />
+            </div>
+
+            <div
+              class="md:max-w-[345px] mx-auto font-normal text-slate-500 dark:text-slate-400 mt-12 uppercase text-sm"
+            >
+              Não tem uma conta? Cadastre-se
+              <router-link
+                to="/register"
+                class="text-slate-900 dark:text-white font-medium hover:underline"
+              >
+                Cadastre-se
+              </router-link>
+            </div>
+          </div>
+
+          <div class="auth-footer text-center">
+            Copyright 2025, Pao.com All Rights Reserved.
+          </div>
+        </div>
       </div>
-
-      <button
-        type="submit"
-        class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
-      >
-        Entrar
-      </button>
-
-      <p v-if="error" class="text-red-600 mt-4 text-sm text-center">{{ error }}</p>
-    </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import axios from 'axios'
+import Signin from "../common/Signin"
+import Social from "../common/Social"
+import { useThemeSettingsStore } from '@/store/themeSettings'
 
-const email = ref('pedro@gmail.com')
-const password = ref('123456')
-const error = ref('')
+// imagens
+import logoWhite from "@/assets/images/logo/logo-white.svg"
+import logo from "@/assets/images/logo/logo.svg"
+import sideImg from "@/assets/images/auth/ils1.svg"
 
-// garante que todas as requisições Axios incluam os cookies
-axios.defaults.withCredentials = true
-
-const handleLogin = async () => {
-  error.value = ''
-
-  try {
-    // 1. CSRF Token
-    await axios.get('/sanctum/csrf-cookie')
-
-    // 2. Login
-    const response = await axios.post('/api/login', {
-      email: email.value,
-      password: password.value
-    })
-
-    console.log('✅ Login bem-sucedido', response.data)
-    // redirecionar, salvar token, etc.
-  } catch (err) {
-    console.error('Erro ao logar:', err)
-    if (err.response?.status === 419) {
-      error.value = 'Token CSRF inválido ou expirado.'
-    } else if (err.response?.status === 401) {
-      error.value = 'Credenciais inválidas.'
-    } else {
-      error.value = 'Erro inesperado. Tente novamente.'
-    }
-  }
-}
+const themeSettingsStore = useThemeSettingsStore()
 </script>

@@ -1,0 +1,44 @@
+
+services:
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    working_dir: /app
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - laravel-app
+
+  laravel-app:
+    build: ./docker/php
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - laravel-app
+
+  db:
+    image: mariadb:10.9
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: pao-com
+    ports:
+      - "3306:3306"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080
