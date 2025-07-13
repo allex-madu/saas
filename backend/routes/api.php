@@ -18,12 +18,18 @@ Route::prefix('v1')->group(function () {
         
     });
 
+    // Route::middleware(['auth:sanctum', 'role:super-admin'])->prefix('admin')->group(function () {
+    //     Route::get('/users', [UserRoleController::class, 'index']);
+    //     Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
+    // });
     Route::middleware(['auth:sanctum', 'role:super-admin'])->prefix('admin')->group(function () {
-        Route::get('/users', [UserRoleController::class, 'index']);
-        Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
-    });
+        // CRUD completo de usuários
+        Route::apiResource('users', UserController::class);
 
-});
+        // Sincronização de papéis do usuário
+        Route::post('users/{user}/roles', [UserController::class, 'syncRoles']);
+
+    });
 
 /*
 
@@ -42,5 +48,3 @@ Exemplo de rota protegida por permissão
 
     
 */
-
-
