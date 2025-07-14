@@ -1,4 +1,3 @@
-// store/adminUserStore.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/plugins/axios'
@@ -10,6 +9,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
   const currentPage = ref(1)
   const loading = ref(false)
   const error = ref(null)
+  const perPage = ref(10)
 
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
@@ -18,7 +18,11 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
 
     try {
       const response = await api.get('/api/v1/admin/users', {
-        params: { page, search }
+        params: {
+          page,
+          search,
+          per_page: perPage.value,
+        },
       })
 
       const res = response.data
@@ -45,6 +49,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     currentPage,
     loading,
     error,
+    perPage,
     fetchUsers,
   }
 })

@@ -27,7 +27,7 @@ class UserController extends Controller
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
         }
 
-        $users = $query->paginate($request->get('perPage', 1));
+        $users = $query->paginate($request->get('perPage', 10));
 
         $roles = Role::all();
 

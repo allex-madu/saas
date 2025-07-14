@@ -12,10 +12,19 @@
         />
       </div>
 
+      <!-- Mensagens de erro ou vazio -->
+      <div v-if="error" class="text-red-500 p-4">
+        {{ error }}
+      </div>
+      <div v-else-if="!loading && users.length === 0" class="p-4 text-center text-gray-500">
+        Nenhum usuário encontrado.
+      </div>
+
       <vue-good-table
+        v-if="!error && users.length > 0"
         :columns="columns"
         styleClass="vgt-table bordered centered"
-        :rows="filteredUsers"
+        :rows="users"
         :pagination-options="{
           enabled: true,
           perPage: perPage,
@@ -27,7 +36,7 @@
         :loading="loading"
         :total-rows="pagination.total"
         :paginate="true"
-        :current-page="pagination.current_page"
+        :current-page="currentPage"
         @on-page-change="handlePageChange"
         @on-per-page-change="handlePerPageChange"
       >
@@ -97,7 +106,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import debounce from 'lodash.debounce'
 import Card from '@/components/Card'
 import InputGroup from '@/components/InputGroup'
 import Dropdown from '@/components/Dropdown'
@@ -109,23 +119,30 @@ import { useAdminUserStore } from '@/store/adminUserStore'
 const store = useAdminUserStore()
 
 const searchTerm = ref('')
-const perPage = ref(10)
 
+const error = computed(() => store.error)
+
+const perPage = computed(() => store.perPage.value)
+
+
+// Função debounced para busca
+const debouncedSearch = debounce(() => {
+  store.fetchUsers(1, searchTerm.value, perPage.value)
+}, 500)
+
+
+watch(searchTerm, debouncedSearch, { immediate: true })
+
+
+// Primeira chamada
 onMounted(() => {
-  store.fetchUsers()
+  store.fetchUsers(1, '', perPage.value)
 })
 
 const users = computed(() => store.users)
 const pagination = computed(() => store.pagination)
 const loading = computed(() => store.loading)
-
-const filteredUsers = computed(() => {
-  const term = searchTerm.value.toLowerCase()
-  return users.value.filter(user =>
-    user.person?.name?.toLowerCase().includes(term) ||
-    user.email?.toLowerCase().includes(term)
-  )
-})
+const currentPage = computed(() => store.currentPage.value)
 
 const columns = [
   { label: 'ID', field: 'id' },
@@ -141,12 +158,12 @@ const actions = [
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
-function handlePageChange({ currentPage }) {
-  store.fetchUsers(currentPage)
+function handlePageChange(page) {
+  store.fetchUsers(page, searchTerm.value, perPage.value)
 }
 
 function handlePerPageChange({ currentPerPage }) {
-  perPage.value = currentPerPage
-  store.fetchUsers(1)
+  store.perPage.value = currentPerPage
+  store.fetchUsers(1, searchTerm.value, store.perPage.value)
 }
 </script>

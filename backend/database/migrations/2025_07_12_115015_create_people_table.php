@@ -21,7 +21,7 @@ return new class extends Migration
             $table->bigInteger('number')->nullable(); 
             $table->string('zip_code', 20)->nullable();
             $table->bigInteger('city_id')->unsigned()->nullable();
-            $table->string('phone', 15)->nullable();
+            $table->string('phone', 30)->nullable();
             $table->string('email', 90)->nullable();
             $table->timestamps();
 
