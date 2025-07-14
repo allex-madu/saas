@@ -9,6 +9,10 @@
     <RouterLink to="/admin/users">Gerenciar Papéis</RouterLink>
   </div>
 
+  <RouterLink to="/admin/users" class="text-blue-600 hover:underline">
+    Gerenciar Usuários
+  </RouterLink>
+
 
 
     <div

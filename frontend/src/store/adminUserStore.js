@@ -1,45 +1,50 @@
-
+// store/adminUserStore.js
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/plugins/axios'
 
 export const useAdminUserStore = defineStore('adminUsers', () => {
   const users = ref([])
+  const pagination = ref({})
   const roles = ref([])
-  const isLoading = ref(false) // útil para loading spinners ou desabilitar botões
+  const currentPage = ref(1)
+  const loading = ref(false)
+  const error = ref(null)
 
-  // Buscar usuários e papéis
-  async function fetchUsers() {
-    isLoading.value = true
-    try {
-      const res = await api.get('/api/v1/admin/users')
-      users.value = res.data.users ?? []
-      roles.value = res.data.roles ?? []
-    } catch (error) {
-      console.error('Erro ao buscar usuários e papéis:', error)
-    } finally {
-      isLoading.value = false
-    }
-  }
+  async function fetchUsers(page = 1, search = '') {
+    loading.value = true
+    error.value = null
+    currentPage.value = page
 
-  // Sincronizar papéis de um usuário específico
-  async function syncRoles(userId, selectedRoles) {
-    isLoading.value = true
     try {
-      await api.post(`/api/v1/admin/users/${userId}/roles`, { roles: selectedRoles })
-      await fetchUsers()
-    } catch (error) {
-      console.error(`Erro ao sincronizar papéis do usuário ${userId}:`, error)
+      const response = await api.get('/api/v1/admin/users', {
+        params: { page, search }
+      })
+
+      const res = response.data
+
+      users.value = res.users.data
+      roles.value = res.roles
+
+      pagination.value = {
+        current_page: res.users.current_page,
+        last_page: res.users.last_page,
+        total: res.users.total,
+      }
+    } catch (err) {
+      error.value = 'Erro ao carregar usuários.'
     } finally {
-      isLoading.value = false
+      loading.value = false
     }
   }
 
   return {
     users,
     roles,
-    isLoading,
+    pagination,
+    currentPage,
+    loading,
+    error,
     fetchUsers,
-    syncRoles,
   }
 })

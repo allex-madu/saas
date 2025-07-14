@@ -16,6 +16,7 @@ const routes = [
     component: () => import('@/views/admin/UsersRoles.vue'),
     meta: { requiresAuth: true },
   },
+  
   {
     path: "/login2",
     name: "login2",
@@ -85,6 +86,15 @@ const routes = [
       middleware: [auth],
     },
     children: [
+      {
+        path: '/admin/users',
+        name: 'admin.users',
+        component: () => import('@/views/admin/index.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['super-admin'] // opcional: só super-admins podem ver
+        }
+      },
       {
         path: "blank-page",
         name: "blank-page",
