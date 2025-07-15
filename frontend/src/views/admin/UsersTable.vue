@@ -69,6 +69,7 @@
               <template #menus>
                 <MenuItem v-for="(item, i) in actions" :key="i">
                   <div
+                    @click="handleAction(item.name, props.row)"
                     :class="[
                       'w-full border-b border-b-gray-500 border-opacity-10 px-4 py-2 text-sm cursor-pointer flex items-center space-x-2',
                       item.name === 'delete'
@@ -115,6 +116,8 @@ import Pagination from '@/components/Pagination'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
 import { useAdminUserStore } from '@/store/adminUserStore'
+import { useRouter } from 'vue-router'
+
 
 const store = useAdminUserStore()
 
@@ -122,8 +125,9 @@ const searchTerm = ref('')
 
 const error = computed(() => store.error)
 
-const perPage = computed(() => store.perPage.value)
+const perPage = computed(() => store.perPage)
 
+const router = useRouter()
 
 // Função debounced para busca
 const debouncedSearch = debounce(() => {
@@ -157,6 +161,19 @@ const actions = [
   { name: 'editar', icon: 'heroicons:pencil-square' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
+
+function handleAction(action, user) {
+  if (action === 'ver') {
+    router.push({ name: 'admin.users.show', params: { id: user.id } })
+  }
+  // Aqui você pode implementar as outras ações
+  else if (action === 'editar') {
+    router.push({ name: 'admin.users.edit', params: { id: user.id } })
+  } else if (action === 'delete') {
+    // Exemplo: SweetAlert2 para confirmar e deletar
+    console.log('Excluir usuário:', user)
+  }
+}
 
 function handlePageChange(page) {
   store.fetchUsers(page, searchTerm.value, perPage.value)

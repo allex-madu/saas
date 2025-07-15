@@ -1,15 +1,12 @@
 <template>
-  <router-view />
+  <router-view v-slot="{ Component }">
+    <transition name="router-animation" mode="out-in" appear>
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
 
-<script>
-import { useThemeSettingsStore } from "@/store/themeSettings";
-
-export default {
-  mounted() {
-    this.$store.themeSettingsStore = useThemeSettingsStore()
-  }
-}
+<script setup>
+// Aqui não precisa atribuir o store globalmente
+// Quem precisar do themeSettings, importa o useThemeSettingsStore direto
 </script>
-
-<style></style>

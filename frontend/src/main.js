@@ -19,10 +19,10 @@ import router from "./router";
 import VCalendar from "v-calendar";
 import { createPinia } from "pinia";
 import "v-calendar/dist/style.css";
-//import { makeServer } from "./server";
 import { VueQueryPlugin } from "@tanstack/vue-query";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { useThemeSettingsStore } from "@/store/themeSettings";
+import { setupThemeFromLocalStorage } from '@/utils/theme'
 
 // perfect scrollbar
 import PerfectScrollbar from "vue3-perfect-scrollbar";
@@ -90,53 +90,6 @@ app.use(VueQueryPlugin);
 
 const themeSettingsStore = useThemeSettingsStore();
 
-// check localStorage theme for dark light bordered
-if (localStorage.theme === "dark") {
-  document.body.classList.add("dark");
-  themeSettingsStore.theme = "dark";
-  themeSettingsStore.isDark = true;
-} else {
-  document.body.classList.add("light");
-  themeSettingsStore.theme = "light";
-  themeSettingsStore.isDark = false;
-}
-if (localStorage.semiDark === "true") {
-  document.body.classList.add("semi-dark");
-  themeSettingsStore.semidark = true;
-  themeSettingsStore.semiDarkTheme = "semi-dark";
-} else {
-  document.body.classList.add("semi-light");
-  themeSettingsStore.semidark = false;
-  themeSettingsStore.semiDarkTheme = "semi-light";
-}
-// check loacl storege for menuLayout
-if (localStorage.menuLayout === "horizontal") {
-  themeSettingsStore.menuLayout = "horizontal";
-} else {
-  themeSettingsStore.menuLayout = "vertical";
-}
+setupThemeFromLocalStorage(themeSettingsStore);
 
-// check skin  for localstorage
-if (localStorage.skin === "bordered") {
-  themeSettingsStore.skin = "bordered";
-  document.body.classList.add("skin--bordered");
-} else {
-  themeSettingsStore.skin = "default";
-  document.body.classList.add("skin--default");
-}
-// check direction for localstorage
-if (localStorage.direction === "true") {
-  themeSettingsStore.direction = true;
-  document.documentElement.setAttribute("dir", "rtl");
-} else {
-  themeSettingsStore.direction = false;
-  document.documentElement.setAttribute("dir", "ltr");
-}
 
-// Check if the monochrome mode is set or not
-if (localStorage.getItem("monochrome") !== null) {
-  themeSettingsStore.monochrome = true;
-  document.getElementsByTagName("html")[0].classList.add("grayscale");
-}
-// fake server
-//makeServer();

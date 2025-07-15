@@ -5,28 +5,22 @@
   >
     <Icon
       icon="heroicons-outline:moon"
-      v-if="!this.$store.themeSettingsStore.isDark"
+      v-if="!themeStore.isDark"
     />
     <Icon
       icon="heroicons-outline:sun"
-      v-else-if="this.$store.themeSettingsStore.isDark"
+      v-else
     />
   </span>
 </template>
-<script>
+
+<script setup>
 import Icon from "@/components/Icon";
 import { useThemeSettingsStore } from "@/store/themeSettings";
-const themeSettingsStore = useThemeSettingsStore();
 
-export default {
-  components: {
-    Icon,
-  },
-  methods: {
-    toogleDark() {
-      themeSettingsStore.toogleDark();
-    },
-  },
-};
+const themeStore = useThemeSettingsStore();
+
+function toogleDark() {
+  themeStore.toogleDark();
+}
 </script>
-<style lang=""></style>

@@ -3,14 +3,19 @@
     <img
       src="@/assets/images/logo/logo-c.svg"
       alt=""
-      v-if="!this.$store.themeSettingsStore.isDark"
+      v-if="!themeStore.isDark"
     />
 
     <img
       src="@/assets/images/logo/logo-c-white.svg"
       alt=""
-      v-if="this.$store.themeSettingsStore.isDark"
+      v-if="themeStore.isDark"
     />
   </router-link>
 </template>
-<script></script>
+
+<script setup>
+import { useThemeSettingsStore } from '@/store/themeSettings'
+
+const themeStore = useThemeSettingsStore()
+</script>

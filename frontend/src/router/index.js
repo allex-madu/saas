@@ -5,7 +5,6 @@ import { makeServer } from "../server";
 
 const router = createRouter({
   history: createWebHistory(import.meta.BASE_URL),
-  base: import.meta.BASE_URL,
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
@@ -15,21 +14,20 @@ const router = createRouter({
     }
   },
 });
-router.beforeEach((to, from, next) => {
-  const titleText = to.name;
-  const words = titleText.split(" ");
-  const wordslength = words.length;
-  for (let i = 0; i < wordslength; i++) {
-    words[i] = words[i][0].toUpperCase() + words[i].substr(1);
-  }
-  document.title = "Dashcode  - " + words;
 
-  /** Navigate to next if middleware is not applied */
-  if (!to.meta.middleware) {
+router.beforeEach((to, from, next) => {
+  // Atualizar título da aba
+  const titleText = to.name ? String(to.name) : "Página";
+  const words = titleText.split(/[-_]/);
+  const capitalized = words.map(w => w[0].toUpperCase() + w.slice(1));
+  document.title = "Dashcode - " + capitalized.join(" ");
+
+  // Middleware
+  const middleware = to.meta.middleware;
+  if (!middleware || middleware.length === 0) {
     return next();
   }
 
-  const middleware = to.meta.middleware;
   const context = { to, from, next };
   return middleware[0]({
     ...context,
@@ -38,12 +36,11 @@ router.beforeEach((to, from, next) => {
 });
 
 router.afterEach(() => {
-  // Remove initial loading
   const appLoading = document.getElementById("loading-bg");
   if (appLoading) {
     appLoading.style.display = "none";
   }
-  makeServer();
+  makeServer(); // MirageJS
 });
 
 export default router;

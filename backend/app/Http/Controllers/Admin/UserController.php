@@ -51,10 +51,18 @@ class UserController extends Controller
         return response()->json(['message' => 'Usuário criado com sucesso', 'user' => $user->load('roles')]);
     }
 
-    public function show(User $user)
-    {
-        return response()->json($user->load('roles', 'person'));
-    }
+    // public function show(User $user)
+    // {
+    //     return response()->json($user->load('roles', 'person'));
+    // }
+    public function show($id)
+{
+    $user = User::with(['person', 'roles'])->findOrFail($id);
+
+    return response()->json([
+        'user' => $user,
+    ]);
+}
 
     public function update(UpdateUserRequest $request, User $user)
     {

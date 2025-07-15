@@ -6,7 +6,6 @@ function middlewarePipeline(context, middleware, index) {
   }
 
   return (...parameters) => {
-    context.next(...parameters)
     const nextPipeline = middlewarePipeline(context, middleware, index + 1)
     nextMiddleware({ ...context, next: nextPipeline })
   }
