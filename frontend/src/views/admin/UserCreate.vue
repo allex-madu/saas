@@ -11,12 +11,15 @@
           <Combobox v-model="selectedPerson">
             <div class="relative">
               <ComboboxInput
+                :modelValue="query"
+                @update:modelValue="onInput"
+                :displayValue="() => query"
                 class="w-full rounded border border-gray-300 dark:border-slate-600 px-3 py-2 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-primary-500"
-                :displayValue="person => person ? `${person.name} - ${person.email}` : ''"
-                @input="onInput"
                 placeholder="Digite nome ou email"
                 autocomplete="off"
               />
+
+
               <ComboboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white dark:bg-slate-800 shadow-lg">
                 <template v-if="loading">
                   <div class="px-4 py-2 text-gray-500 dark:text-gray-400">Carregando...</div>
@@ -148,6 +151,8 @@ const loadPeople = async (search = '') => {
       params: { search }
     })
     people.value = response.data.data
+    console.log('Busca por pessoas com:', search, response.data.data)
+
   } catch (error) {
     console.error('Erro ao buscar pessoas', error)
   } finally {
@@ -170,6 +175,7 @@ function onInput(event) {
   query.value = event.target.value
   debouncedLoadPeople(query.value)
 }
+
 
 watch(selectedPerson, (newPerson) => {
   if (newPerson) {
