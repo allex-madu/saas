@@ -97,6 +97,17 @@ const routes = [
         },
       },
       {
+        path: '/admin/users/create',
+        name: 'admin.users.create',
+        component: () => import('@/views/admin/UserCreate.vue'),
+        meta: {
+          groupParent: 'Usuários',
+          title: 'Criar Usuário',
+          requiresAuth: true,
+          role: ['super-admin']
+        }
+      },
+      {
         path: "blank-page",
         name: "blank-page",
         component: () => import("@/views/blank-page.vue"),

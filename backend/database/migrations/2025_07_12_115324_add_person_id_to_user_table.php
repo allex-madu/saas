@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('is_verified')->default(false);
             $table->date('verified_date')->nullable();
-            $table->foreign('person_id')->references('id')->on('people');
+            $table->foreignId('person_id')->unique()->constrained('people')->onDelete('cascade');
         });
     }
 

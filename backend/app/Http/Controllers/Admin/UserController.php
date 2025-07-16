@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,19 +14,26 @@ class UserController extends Controller
     {
         $query = User::with(['roles', 'person']);
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('email', 'like', "%$search%")
-                  ->orWhereHas('person', fn($q) => $q->where('name', 'like', "%$search%"));
-            });
-        }
+  if ($request->filled('search')) {
+    $search = $request->search;
+
+    $query->where(function ($q) use ($search) {
+  $q->where('email', 'like', "%$search%")
+    ->orWhereHas('person', function ($personQ) use ($search) {
+      $personQ->where('name', 'like', "%$search%")
+        ->orWhere('nickname', 'like', "%$search%")
+        ->orWhere('email', 'like', "%$search%");
+    });
+});
+
+}
+
 
         if ($request->filled('role')) {
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
         }
 
-        $users = $query->paginate($request->get('perPage', 10));
+        $users = $query->paginate($request->get('per_page', 10));
 
         $roles = Role::all();
 
@@ -37,32 +43,39 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(StoreUserRequest $request)
+    public function store(Request $request)
     {
-        $user = User::create([
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
+        $validated = $request->validate([
+            'person_id' => 'required|exists:people,id|unique:users,person_id',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role' => 'required|string|exists:roles,name'
         ]);
 
-        if ($request->has('roles')) {
-            $user->syncRoles($request->roles);
-        }
+        $user = User::create([
+            'person_id' => $validated['person_id'],
+            'email' => $validated['email'],
+            'password' => bcrypt($validated['password']),
+        ]);
 
-        return response()->json(['message' => 'Usuário criado com sucesso', 'user' => $user->load('roles')]);
+        try {
+                $user->assignRole($validated['role']);
+            } catch (\Exception $e) {
+                report($e); // loga o erro
+                return response()->json(['message' => 'Usuário criado, mas erro ao atribuir papel'], 500);
+            }
+
+            return response()->json(['message' => 'Usuário criado com sucesso'], 201);
     }
-
-    // public function show(User $user)
-    // {
-    //     return response()->json($user->load('roles', 'person'));
-    // }
+    
     public function show($id)
-{
-    $user = User::with(['person', 'roles'])->findOrFail($id);
+    {
+        $user = User::with(['person', 'roles'])->findOrFail($id);
 
-    return response()->json([
-        'user' => $user,
-    ]);
-}
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
 
     public function update(UpdateUserRequest $request, User $user)
     {

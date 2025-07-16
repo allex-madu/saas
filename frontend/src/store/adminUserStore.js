@@ -11,10 +11,14 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
   const error = ref(null)
   const perPage = ref(10)
 
+  let lastFetchId = 0 // contador incremental
+
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
     error.value = null
     currentPage.value = page
+
+    const fetchId = ++lastFetchId // incrementa o id da requisição
 
     try {
       const response = await api.get('/api/v1/admin/users', {
@@ -24,6 +28,11 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
           per_page: perPage.value,
         },
       })
+
+      if (fetchId !== lastFetchId) {
+        // Checa se essa resposta é a última; caso contrário, ignora
+        return
+      }
 
       const res = response.data
 
@@ -36,9 +45,10 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
         total: res.users.total,
       }
     } catch (err) {
+      if (fetchId !== lastFetchId) return
       error.value = 'Erro ao carregar usuários.'
     } finally {
-      loading.value = false
+      if (fetchId === lastFetchId) loading.value = false
     }
   }
 

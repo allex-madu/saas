@@ -24,6 +24,9 @@ class User extends Authenticatable
         'password',
         'backery_id',
         'is_super_admin',
+        'person_id',
+        'is_verified',
+        'is_verified'
     ];
 
     /**

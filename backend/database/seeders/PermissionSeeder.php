@@ -11,6 +11,8 @@ class PermissionSeeder extends Seeder
 {
     public function run(): void
     {
+        $guard = 'sanctum';
+
         // Permissões básicas
         $permissions = [
             'view_products',
@@ -23,16 +25,19 @@ class PermissionSeeder extends Seeder
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => $guard,
+            ]);
         }
 
         // Papéis (roles)
-        $admin = Role::firstOrCreate(['name' => 'super-admin']);
-        $manager = Role::firstOrCreate(['name' => 'gerente']);
-        $cashier = Role::firstOrCreate(['name' => 'caixa']);
+        $admin = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => $guard]);
+        $manager = Role::firstOrCreate(['name' => 'gerente', 'guard_name' => $guard]);
+        $cashier = Role::firstOrCreate(['name' => 'caixa', 'guard_name' => $guard]);
 
         // Super-admin recebe todas as permissões
-        $admin->syncPermissions(Permission::all());
+        $admin->syncPermissions(Permission::where('guard_name', $guard)->get());
 
         // Gerente recebe permissões limitadas
         $manager->syncPermissions([
@@ -49,7 +54,7 @@ class PermissionSeeder extends Seeder
             'view_dashboard',
         ]);
 
-        // Atribui papéis para usuários existentes (opcional)
+        // Atribui papéis para usuários existentes
         if ($user = User::where('email', 'admin@padaria.com')->first()) {
             $user->assignRole('super-admin');
         }

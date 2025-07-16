@@ -1,5 +1,14 @@
 <template>
+
   <div>
+    <div class="mb-5 -mt-3">
+     <Button
+        text="Voltar"
+        icon="heroicons-outline:arrow-left"
+        @click="$router.back()"
+        btnClass="bg-primary-500 hover:bg-primary-600 text-white"
+      />
+    </div>
     <Card title="Detalhes do Usuário">
       <div class="w-full p-8 bg-[#F5F7FC] dark:bg-slate-700 rounded-lg">
         <div v-if="loading" class="text-gray-500 dark:text-slate-300 py-4">
@@ -63,6 +72,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/plugins/axios'
 import Card from '@/components/Card'
+import Icon from '@/components/Icon'
+import Button from "@/components/Button";
+
 
 const route = useRoute()
 const user = ref(null)
