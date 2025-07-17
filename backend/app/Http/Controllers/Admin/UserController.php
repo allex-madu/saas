@@ -14,20 +14,19 @@ class UserController extends Controller
     {
         $query = User::with(['roles', 'person']);
 
-  if ($request->filled('search')) {
-    $search = $request->search;
+            if ($request->filled('search')) {
+                $search = $request->search;
 
-    $query->where(function ($q) use ($search) {
-  $q->where('email', 'like', "%$search%")
-    ->orWhereHas('person', function ($personQ) use ($search) {
-      $personQ->where('name', 'like', "%$search%")
-        ->orWhere('nickname', 'like', "%$search%")
-        ->orWhere('email', 'like', "%$search%");
-    });
-});
+                $query->where(function ($q) use ($search) {
+            $q->where('email', 'like', "%$search%")
+                ->orWhereHas('person', function ($personQ) use ($search) {
+                $personQ->where('name', 'like', "%$search%")
+                    ->orWhere('nickname', 'like', "%$search%")
+                    ->orWhere('email', 'like', "%$search%");
+                });
+            });
 
-}
-
+        }
 
         if ($request->filled('role')) {
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
@@ -76,6 +75,22 @@ class UserController extends Controller
             'user' => $user,
         ]);
     }
+
+
+    public function edit($id)
+{
+    // Carregar o usuário com o relacionamento 'person'
+    $user = User::with('person')->findOrFail($id);  // Carregar o relacionamento "person" junto com o "user"
+   
+
+
+    return response()->json([
+        'user' => $user,
+    ]);
+}
+
+
+
 
     public function update(UpdateUserRequest $request, User $user)
     {

@@ -1,15 +1,12 @@
 <template>
   <div>
-    <Breadcrumb />
+    
 
 
 
 
-  <div v-if="auth.user?.roles?.includes('super-admin')">
-    <RouterLink to="/admin/users">Gerenciar Papéis</RouterLink>
-  </div>
 
-  <RouterLink to="/admin/users" class="text-blue-600 hover:underline">
+  <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
     Gerenciar Usuários
   </RouterLink>
 

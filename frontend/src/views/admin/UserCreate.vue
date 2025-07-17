@@ -138,7 +138,7 @@ const form = ref({
 
 const roles = [
   { label: 'Super admin', value: 'super-admin' },
-  { label: 'Admin', value: 'admin-padaria' },
+  { label: 'Admin', value: 'admin' },
   { label: 'Usuário', value: 'usuario' },
   { label: 'Gerente', value: 'gerente' },
   { label: 'Caixa', value: 'caixa' }

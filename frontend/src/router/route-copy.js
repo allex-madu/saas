@@ -11,6 +11,70 @@ const routes = [
     },
   },
   {
+    path: "/login2",
+    name: "login2",
+    component: () => import("@/views/auth/login/login2.vue"),
+  },
+  {
+    path: "/login3",
+    name: "login3",
+    component: () => import("@/views/auth/login/login3.vue"),
+  },
+  {
+    path: "/register",
+    name: "reg",
+    component: () => import("@/views/auth/register"),
+  },
+  {
+    path: "/register2",
+    name: "reg2",
+    component: () => import("@/views/auth/register/register2"),
+  },
+  {
+    path: "/register3",
+    name: "reg3",
+    component: () => import("@/views/auth/register/register3"),
+  },
+  {
+    path: "/forgot-password",
+    name: "forgot-password",
+    component: () => import("@/views/auth/forgot-password.vue"),
+  },
+  {
+    path: "/forgot-password2",
+    name: "forgot-password2",
+    component: () => import("@/views/auth/forgot-password2.vue"),
+  },
+  {
+    path: "/forgot-password3",
+    name: "forgot-password3",
+    component: () => import("@/views/auth/forgot-password3.vue"),
+  },
+  {
+    path: "/lock-screen",
+    name: "lock-screen",
+    component: () => import("@/views/auth/lock-screen.vue"),
+  },
+  {
+    path: "/lock-screen2",
+    name: "lock-screen2",
+    component: () => import("@/views/auth/lock-screen2.vue"),
+  },
+  {
+    path: "/lock-screen3",
+    name: "lock-screen3",
+    component: () => import("@/views/auth/lock-screen3.vue"),
+  },
+  {
+    path: "/success-500",
+    name: "success-500",
+    component: () => import("@/views/auth/success.vue"),
+  },
+  {
+    path: '/app',
+    redirect: '/app/home'
+  },
+  {
     path: "/app",
     name: "Layout",
     component: () => import("@/Layout/index.vue"),
@@ -23,11 +87,12 @@ const routes = [
         name: "home",
         component: () => import("@/views/home/index.vue"),
         meta: {
-         // hide: false,
+          requiresAuth: true, // Adicione esta linha
+          hide: true,
         },
       },
       {
-        path: 'admin/users',
+        path: '/admin/users',
         name: 'admin.users',
         component: () => import('@/views/admin/index.vue'),
         meta: {
@@ -35,7 +100,7 @@ const routes = [
         }
       },
       {
-        path: 'admin/users/:id',
+        path: '/admin/users/:id',
         name: 'admin.users.show',
         component: () => import('@/views/admin/Show.vue'),
         meta: {
@@ -43,7 +108,7 @@ const routes = [
         },
       },
       {
-        path: 'admin/users/create',
+        path: '/admin/users/create',
         name: 'admin.users.create',
         component: () => import('@/views/admin/UserCreate.vue'),
         meta: {

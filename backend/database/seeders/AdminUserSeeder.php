@@ -30,7 +30,6 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('12345678'),
         ]);
 
-        $user->assignRole('admin-padaria');
+        $user->assignRole('admin');
     }
 }
-

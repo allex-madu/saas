@@ -19,11 +19,12 @@ Route::prefix('v1')->group(function () {
     });
 
    
-    Route::middleware(['auth:sanctum', 'role:super-admin'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
         //Route::get('/users', [UserRoleController::class, 'index']);
         Route::apiResource('users', \App\Http\Controllers\Admin\UserController::class);
         Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
         Route::get('/people', [PersonController::class, 'index']);
+        Route::get('roles', [UserRoleController::class, 'index']);
     });
     
     
