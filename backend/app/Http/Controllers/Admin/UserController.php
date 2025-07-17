@@ -78,30 +78,39 @@ class UserController extends Controller
 
 
     public function edit($id)
-{
-    // Carregar o usuário com o relacionamento 'person'
-    $user = User::with('person')->findOrFail($id);  // Carregar o relacionamento "person" junto com o "user"
-   
+    {
+        // Carregar o usuário com o relacionamento 'person'
+        $user = User::with('person')->findOrFail($id);  
 
+        return response()->json([
+            'user' => $user,
+        ]);
+    }
+
+
+
+
+   public function update(UpdateUserRequest $request, User $user)
+{
+    // Atualiza email e senha se enviado
+    $user->update($request->only(['email', 'password']));
+
+    // Atualiza o nome se enviado
+    if ($request->has('name')) {
+        $user->person()->update(['name' => $request->name]);
+    }
+
+    // Atualiza os papéis se enviados
+    if ($request->has('roles')) {
+        $user->syncRoles($request->roles);
+    }
 
     return response()->json([
-        'user' => $user,
+        'message' => 'Usuário atualizado com sucesso',
+        'user' => $user->load('person', 'roles'),
     ]);
 }
 
-
-
-
-    public function update(UpdateUserRequest $request, User $user)
-    {
-        $user->update($request->only(['email', 'password']));
-
-        if ($request->has('roles')) {
-            $user->syncRoles($request->roles);
-        }
-
-        return response()->json(['message' => 'Usuário atualizado com sucesso', 'user' => $user->load('roles')]);
-    }
 
     public function destroy(User $user)
     {

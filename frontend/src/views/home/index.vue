@@ -9,11 +9,13 @@
   <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
     Gerenciar Usuários
   </RouterLink>
+  
+  
 
 
 
     <div
-      v-if="auth.user?.roles.includes('super-admin') || auth.user?.roles.includes('admin-padaria')"
+      v-if="auth.user?.roles.includes('super-admin') || auth.user?.roles.includes('admin')"
       class="grid grid-cols-12 gap-5 mb-5"
     >
       <div class="2xl:col-span-3 lg:col-span-4 col-span-12">

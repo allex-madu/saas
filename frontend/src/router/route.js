@@ -4,26 +4,98 @@ import guest from "@/middleware/guest";
 const routes = [
   {
     path: "/",
-    name: "login",
+    name: "Login",
     component: () => import("@/views/auth/login/index.vue"),
-    meta: {
-      middleware: [guest],
-    },
+  },
+  {
+    path: "/login2",
+    name: "login2",
+    component: () => import("@/views/auth/login/login2.vue"),
+  },
+  {
+    path: "/login3",
+    name: "login3",
+    component: () => import("@/views/auth/login/login3.vue"),
+  },
+  {
+    path: "/register",
+    name: "reg",
+    component: () => import("@/views/auth/register"),
+  },
+  {
+    path: "/register2",
+    name: "reg2",
+    component: () => import("@/views/auth/register/register2"),
+  },
+  {
+    path: "/register3",
+    name: "reg3",
+    component: () => import("@/views/auth/register/register3"),
+  },
+  {
+    path: "/forgot-password",
+    name: "forgot-password",
+    component: () => import("@/views/auth/forgot-password.vue"),
+  },
+  {
+    path: "/forgot-password2",
+    name: "forgot-password2",
+    component: () => import("@/views/auth/forgot-password2.vue"),
+  },
+  {
+    path: "/forgot-password3",
+    name: "forgot-password3",
+    component: () => import("@/views/auth/forgot-password3.vue"),
+  },
+  {
+    path: "/lock-screen",
+    name: "lock-screen",
+    component: () => import("@/views/auth/lock-screen.vue"),
+  },
+  {
+    path: "/lock-screen2",
+    name: "lock-screen2",
+    component: () => import("@/views/auth/lock-screen2.vue"),
+  },
+  {
+    path: "/lock-screen3",
+    name: "lock-screen3",
+    component: () => import("@/views/auth/lock-screen3.vue"),
+  },
+  {
+    path: "/success-500",
+    name: "success-500",
+    component: () => import("@/views/auth/success.vue"),
   },
   {
     path: "/app",
     name: "Layout",
+    redirect: "/app/home",
     component: () => import("@/Layout/index.vue"),
     meta: {
+      //middleware: [auth],
       requiresAuth: true,
     },
     children: [
+      {
+        path: "blank-page",
+        name: "blank-page",
+        component: () => import("@/views/blank-page.vue"),
+      },
+      {
+        path: "notifications",
+        name: "notifications",
+        component: () => import("@/views/notifications.vue"),
+        meta: {
+          hide: true,
+        },
+      },
       {
         path: "home",
         name: "home",
         component: () => import("@/views/home/index.vue"),
         meta: {
-         // hide: false,
+          hide: true,
         },
       },
       {
@@ -52,33 +124,13 @@ const routes = [
           role: ['admin', 'super-admin']
         }
       },
-
-
-
       {
         path: 'admin/users/edit/:id',
         name: 'admin.users.edit',
         component: () => import('@/views/admin/EditUser.vue'),
         meta: {
-          requiresAuth: true,
           role: ['admin', 'super-admin']
         }
-      },
-
-
-
-      {
-        path: "blank-page",
-        name: "blank-page",
-        component: () => import("@/views/blank-page.vue"),
-      },
-      {
-        path: "notifications",
-        name: "notifications",
-        component: () => import("@/views/notifications.vue"),
-        meta: {
-          hide: true,
-        },
       },
       {
         path: "ecommerce",
@@ -94,6 +146,7 @@ const routes = [
         component: () => import("@/views/home/banking.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -102,6 +155,7 @@ const routes = [
         component: () => import("@/views/home/crm.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -110,12 +164,16 @@ const routes = [
         component: () => import("@/views/home/project.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin'] 
         },
       },
       {
         path: "changelog",
         name: "changelog",
         component: () => import("@/views/changelog.vue"),
+        meta: {
+          role: ['admin', 'super-admin'] 
+        },
       },
 
       // components
@@ -125,6 +183,7 @@ const routes = [
         component: () => import("@/views/components/button/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -133,6 +192,7 @@ const routes = [
         component: () => import("@/views/components/alert/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -141,6 +201,7 @@ const routes = [
         component: () => import("@/views/components/card/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -149,6 +210,7 @@ const routes = [
         component: () => import("@/views/components/carousel.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -157,6 +219,7 @@ const routes = [
         component: () => import("@/views/components/dropdown/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -173,6 +236,7 @@ const routes = [
         component: () => import("@/views/components/tab-accordion/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -181,6 +245,7 @@ const routes = [
         component: () => import("@/views/components/badges.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -189,6 +254,7 @@ const routes = [
         component: () => import("@/views/components/tooltip-popover.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -197,6 +263,7 @@ const routes = [
         component: () => import("@/views/components/typography.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -205,6 +272,7 @@ const routes = [
         component: () => import("@/views/components/colors.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -213,6 +281,7 @@ const routes = [
         component: () => import("@/views/components/image/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -221,6 +290,7 @@ const routes = [
         component: () => import("@/views/components/video.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -229,6 +299,7 @@ const routes = [
         component: () => import("@/views/components/pagination"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -237,6 +308,7 @@ const routes = [
         component: () => import("@/views/components/progress-bar/index.vue"),
         meta: {
           groupParent: "components",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -245,6 +317,7 @@ const routes = [
         component: () => import("@/views/components/placeholder.vue"),
         meta: {
           groupParent: "placeholder",
+          role: ['admin', 'super-admin'] 
         },
       },
       // widgets
@@ -254,6 +327,7 @@ const routes = [
         component: () => import("@/views/widgets/basic.vue"),
         meta: {
           groupParent: "widgets",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -262,6 +336,7 @@ const routes = [
         component: () => import("@/views/widgets/statistic.vue"),
         meta: {
           groupParent: "widgets",
+          role: ['admin', 'super-admin'] 
         },
       },
 
@@ -272,6 +347,7 @@ const routes = [
         component: () => import("@/views/forms/input"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -280,6 +356,7 @@ const routes = [
         component: () => import("@/views/forms/input-group"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -288,6 +365,7 @@ const routes = [
         component: () => import("@/views/forms/input-layout"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -296,6 +374,7 @@ const routes = [
         component: () => import("@/views/forms/form-validation"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -304,6 +383,7 @@ const routes = [
         component: () => import("@/views/forms/form-wizard"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -312,6 +392,7 @@ const routes = [
         component: () => import("@/views/forms/form-repeater"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -320,6 +401,7 @@ const routes = [
         component: () => import("@/views/forms/input-mask"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -328,6 +410,7 @@ const routes = [
         component: () => import("@/views/forms/file-input"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -336,6 +419,7 @@ const routes = [
         component: () => import("@/views/forms/checkbox.vue"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -344,6 +428,7 @@ const routes = [
         component: () => import("@/views/forms/radio-button.vue"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -352,6 +437,7 @@ const routes = [
         component: () => import("@/views/forms/textarea"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -360,6 +446,7 @@ const routes = [
         component: () => import("@/views/forms/switch"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -368,6 +455,7 @@ const routes = [
         component: () => import("@/views/forms/select"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -376,6 +464,7 @@ const routes = [
         component: () => import("@/views/forms/date-time-picker"),
         meta: {
           groupParent: "forms",
+          role: ['admin', 'super-admin'] 
         },
       },
       // table view
@@ -385,6 +474,7 @@ const routes = [
         component: () => import("@/views/table/basic"),
         meta: {
           groupParent: "Table",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -393,6 +483,7 @@ const routes = [
         component: () => import("@/views/table/advanced"),
         meta: {
           groupParent: "Table",
+          role: ['admin', 'super-admin'] 
         },
       },
       // chart
@@ -402,6 +493,7 @@ const routes = [
         component: () => import("@/views/chart/appex-chart"),
         meta: {
           groupParent: "charts",
+          role: ['admin', 'super-admin'] 
         },
       },
       {
@@ -410,6 +502,7 @@ const routes = [
         component: () => import("@/views/chart/chartjs"),
         meta: {
           groupParent: "charts",
+          role: ['admin', 'super-admin'] 
         },
       },
       // app
@@ -417,6 +510,10 @@ const routes = [
         path: "calender",
         name: "calender",
         component: () => import("@/views/app/calendar"),
+        meta: {
+          role: ['admin', 'super-admin'] 
+        },
+        
       },
       {
         path: "todo",
@@ -425,6 +522,7 @@ const routes = [
         meta: {
           hide: true,
           appheight: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -433,6 +531,7 @@ const routes = [
         component: () => import("@/views/app/kanban"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -443,6 +542,7 @@ const routes = [
           groupParent: "Project",
           hide: true,
           appheight: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -451,6 +551,7 @@ const routes = [
         component: () => import("@/views/app/projects"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -459,6 +560,7 @@ const routes = [
         component: () => import("@/views/app/projects/project-details.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -467,6 +569,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/index.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -475,6 +578,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/product-details.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -483,6 +587,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/cart.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -491,6 +596,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/wishlist.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
 
@@ -500,6 +606,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/add-product.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -508,6 +615,7 @@ const routes = [
         component: () => import("@/views/app/ecommerce/edit-product.vue"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
 
@@ -518,6 +626,7 @@ const routes = [
         meta: {
           hide: true,
           appheight: true,
+          role: ['admin', 'super-admin']
         },
       },
       // normal pages
@@ -527,6 +636,7 @@ const routes = [
         component: () => import("@/views/utility/invoice"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -535,6 +645,7 @@ const routes = [
         component: () => import("@/views/utility/invoice/invoice-preview"),
         meta: {
           hide: true,
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -543,6 +654,7 @@ const routes = [
         component: () => import("@/views/utility/invoice/invoice-edit"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -551,6 +663,7 @@ const routes = [
         component: () => import("@/views/utility/invoice/invoice-add"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -559,6 +672,7 @@ const routes = [
         component: () => import("@/views/utility/pricing"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -567,6 +681,7 @@ const routes = [
         component: () => import("@/views/utility/faq"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -575,6 +690,7 @@ const routes = [
         component: () => import("@/views/utility/blog"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -583,6 +699,7 @@ const routes = [
         component: () => import("@/views/utility/blog/blog-details"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
@@ -591,12 +708,16 @@ const routes = [
         component: () => import("@/views/utility/testimonial"),
         meta: {
           groupParent: "Utility",
+          role: ['admin', 'super-admin']
         },
       },
       {
         path: "map",
         name: "map",
         component: () => import("@/views/map"),
+        meta: {
+          role: ['admin', 'super-admin']
+        },
       },
       {
         path: "profile",

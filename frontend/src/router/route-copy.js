@@ -4,11 +4,8 @@ import guest from "@/middleware/guest";
 const routes = [
   {
     path: "/",
-    name: "login",
+    name: "Login",
     component: () => import("@/views/auth/login/index.vue"),
-    meta: {
-      middleware: [guest],
-    },
   },
   {
     path: "/login2",
@@ -71,67 +68,15 @@ const routes = [
     component: () => import("@/views/auth/success.vue"),
   },
   {
-    path: '/app',
-    redirect: '/app/home'
-  },
-  {
     path: "/app",
     name: "Layout",
+    redirect: "/app/home",
     component: () => import("@/Layout/index.vue"),
     meta: {
+      //middleware: [auth],
       requiresAuth: true,
     },
     children: [
-      {
-        path: "home",
-        name: "home",
-        component: () => import("@/views/home/index.vue"),
-        meta: {
-          requiresAuth: true, // Adicione esta linha
-          hide: true,
-        },
-      },
-      {
-        path: '/admin/users',
-        name: 'admin.users',
-        component: () => import('@/views/admin/index.vue'),
-        meta: {
-          role: ['admin', 'super-admin'] 
-        }
-      },
-      {
-        path: '/admin/users/:id',
-        name: 'admin.users.show',
-        component: () => import('@/views/admin/Show.vue'),
-        meta: {
-          role: ['admin', 'super-admin']
-        },
-      },
-      {
-        path: '/admin/users/create',
-        name: 'admin.users.create',
-        component: () => import('@/views/admin/UserCreate.vue'),
-        meta: {
-          groupParent: 'Usuários',
-          title: 'Criar Usuário',
-          role: ['admin', 'super-admin']
-        }
-      },
-
-
-
-      {
-        path: 'admin/users/edit/:id',
-        name: 'admin.users.edit',
-        component: () => import('@/views/admin/EditUser.vue'),
-        meta: {
-          requiresAuth: true,
-          role: ['admin', 'super-admin']
-        }
-      },
-
-
-
       {
         path: "blank-page",
         name: "blank-page",
@@ -144,6 +89,48 @@ const routes = [
         meta: {
           hide: true,
         },
+      },
+      {
+        path: "home",
+        name: "home",
+        component: () => import("@/views/home/index.vue"),
+        meta: {
+          hide: true,
+        },
+      },
+      {
+        path: 'admin/users',
+        name: 'admin.users',
+        component: () => import('@/views/admin/index.vue'),
+        meta: {
+          role: ['admin', 'super-admin'] 
+        }
+      },
+      {
+        path: 'admin/users/:id',
+        name: 'admin.users.show',
+        component: () => import('@/views/admin/Show.vue'),
+        meta: {
+          role: ['admin', 'super-admin']
+        },
+      },
+      {
+        path: 'admin/users/create',
+        name: 'admin.users.create',
+        component: () => import('@/views/admin/UserCreate.vue'),
+        meta: {
+          groupParent: 'Usuários',
+          title: 'Criar Usuário',
+          role: ['admin', 'super-admin']
+        }
+      },
+      {
+        path: 'admin/users/edit/:id',
+        name: 'admin.users.edit',
+        component: () => import('@/views/admin/EditUser.vue'),
+        meta: {
+          role: ['admin', 'super-admin']
+        }
       },
       {
         path: "ecommerce",

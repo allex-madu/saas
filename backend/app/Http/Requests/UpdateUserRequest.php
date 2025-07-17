@@ -9,10 +9,12 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'sometimes|required|email|unique:users,email,' . $this->user->id,
-            'password' => 'nullable|min:6',
-            'roles' => 'array',
-            'roles.*' => 'string|exists:roles,name',
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $this->user->id,
+            'password' => 'nullable|string|min:6',
+            'roles' => 'sometimes|array',
+            'roles.*' => 'integer|exists:roles,id',
         ];
+       
     }
 }

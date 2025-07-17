@@ -72,7 +72,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/plugins/axios'
 import Card from '@/components/Card'
-import Icon from '@/components/Icon'
 import Button from "@/components/Button";
 
 
