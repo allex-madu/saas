@@ -105,7 +105,7 @@ const routes = [
         name: 'admin.users',
         component: () => import('@/views/admin/index.vue'),
         meta: {
-          middleware: [auth],         // ← importante
+          middleware: [auth],         
           role: ['admin'],
           title: 'Lista de Usuários',
         }
@@ -115,7 +115,7 @@ const routes = [
         name: 'admin.users.show',
         component: () => import('@/views/admin/Show.vue'),
         meta: {
-          middleware: [auth],         // ← importante
+          middleware: [auth],        
           role: ['admin'],
           title: 'Detalhes do Usuário',
         },
@@ -125,7 +125,7 @@ const routes = [
         name: 'admin.users.create',
         component: () => import('@/views/admin/UserCreate.vue'),
         meta: {
-          middleware: [auth],         // ← já estava certo
+          middleware: [auth],         
           role: ['admin'],
           title: 'Criar Usuário',
         },
@@ -135,7 +135,7 @@ const routes = [
         name: 'admin.users.edit',
         component: () => import('@/views/admin/EditUser.vue'),
         meta: {
-          middleware: [auth],         // ← importante
+          middleware: [auth],        
           role: ['admin'],
           title: 'Editar Usuário',
         }
