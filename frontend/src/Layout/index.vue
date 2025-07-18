@@ -102,7 +102,6 @@ export default {
 </script>
 
 <style lang="scss">
-/* animações existentes */
 .router-animation-enter-active {
   animation: coming 0.2s;
   animation-delay: 0.1s;
@@ -144,6 +143,7 @@ export default {
 .mobilemenu-enter-active {
   animation: slideLeftTransition 0.24s;
 }
+
 .mobilemenu-leave-active {
   animation: slideLeftTransition 0.24s reverse;
 }

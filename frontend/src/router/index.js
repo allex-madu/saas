@@ -1,46 +1,49 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '@/store/authStore'; // Importar o store corretamente
-import routes from './route';
+import { createRouter, createWebHistory } from "vue-router";
+import middlewarePipeline from "../middleware/middlewarePipeline";
+import routes from "./route";
+import { makeServer } from "../server";
 
 const router = createRouter({
   history: createWebHistory(import.meta.BASE_URL),
+  base: import.meta.BASE_URL,
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition;
+    } else {
+      return { top: 0 };
     }
-    return { top: 0 };
   },
 });
+router.beforeEach((to, from, next) => {
+  const titleText = to.name;
+  const words = titleText.split(" ");
+  const wordslength = words.length;
+  for (let i = 0; i < wordslength; i++) {
+    words[i] = words[i][0].toUpperCase() + words[i].substr(1);
+  }
+  document.title = "Dashcode  - " + words;
 
-router.beforeEach(async (to, from, next) => {
-  const authStore = useAuthStore();
-
-  // Aguardar até que a store de autenticação seja completamente carregada
-  await authStore.fetchUser(); // Certifique-se de que a store tenha os dados do usuário
-  //console.log("Usuário autenticado:", authStore.isAuthenticated);
-
-  // Verificar se a rota exige autenticação
-  if (to.meta.requiresAuth) {
-    // Se não estiver autenticado, redireciona para a página de login
-    if (!authStore.isAuthenticated) {
-      return next({ name: 'login' });
-    }
-
-    // Verifica se a rota exige papéis específicos
-    const userRoles = authStore.user?.roles || [];
-    const requiredRoles = to.meta.role || [];
-    //console.log("Papéis exigidos:", requiredRoles);
-    //console.log("Credencial do usuário:", userRoles);
-
-    // Se o usuário não tiver o papel necessário, redireciona para a home ou outra página
-    if (requiredRoles.length > 0 && !requiredRoles.some(role => userRoles.includes(role))) {
-      //console.log("Usuário não tem o papel necessário, redirecionando para home...");
-      return next({ name: 'home' });
-    }
+  /** Navigate to next if middleware is not applied */
+  if (!to.meta.middleware) {
+    return next();
   }
 
-  next();  // Continua com a navegação
+  const middleware = to.meta.middleware;
+  const context = { to, from, next };
+  return middleware[0]({
+    ...context,
+    next: middlewarePipeline(context, middleware, 1),
+  });
+});
+
+router.afterEach(() => {
+  // Remove initial loading
+  const appLoading = document.getElementById("loading-bg");
+  if (appLoading) {
+    appLoading.style.display = "none";
+  }
+  makeServer();
 });
 
 export default router;

@@ -4,14 +4,13 @@
 
 
 
-
+ <div v-if="auth.hasRole(['admin', 'super-admin'])">
 
   <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
     Gerenciar Usuários
   </RouterLink>
-  
-  
 
+</div>
 
 
     <div
@@ -106,12 +105,10 @@
 </template>
 
 <script setup>
+import { useAuthStore } from '@/store/authStore'
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useThemeSettingsStore } from '@/store/themeSettings.js'
-
-
 import Card from "@/components/Card"
-import Breadcrumb from "./Analytics-Component/Breadcrumbs"
 import DropEvent from "./Analytics-Component/DropEvent"
 import {
   gearradil,
@@ -192,9 +189,11 @@ const columnCharthomeComputed = computed(() => {
   }
 })
 
-import { useAuthStore } from '@/store/authStore'
 
 const auth = useAuthStore()
+
+
+
 
 const handleLogout = async () => {
   

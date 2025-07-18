@@ -22,22 +22,18 @@
           label="Senha"
           v-model="form.password"
           type="password"
-          placeholder="Crie uma senha"
+          placeholder="Crie uma nova senha (ou deixe em branco)"
         />
 
         <!-- Papéis -->
         <div>
-          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Papel</label>
-          <select
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Papéis</label>
+          <VueSelect
             v-model="form.roles"
-            required
-            class="w-full rounded border border-gray-300 dark:border-slate-600 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-800 dark:text-white"
-          >
-            <option disabled value="">Selecione um papel</option>
-            <option v-for="role in roles" :key="role.value" :value="role.value">
-              {{ role.label }}
-            </option>
-          </select>
+            :options="roles"
+            multiple
+            placeholder="Selecione os papéis"
+          />
         </div>
 
         <div class="flex justify-end gap-2">
@@ -54,9 +50,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/plugins/axios'
 import { useToast } from 'vue-toastification'
+
 import InputGroup from '@/components/InputGroup'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import VueSelect from '@/components/Select/VueSelect.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,8 +63,8 @@ const toast = useToast()
 const form = ref({
   name: '',
   email: '',
-  roles: [],
-  password: ''
+  password: '',
+  roles: [], // será array de objetos {label, value}
 })
 
 const roles = ref([])
@@ -79,10 +77,14 @@ const loadUser = async (id) => {
 
     form.value.name = user.person?.name || ''
     form.value.email = user.email || ''
-    form.value.roles = (user.roles || []).map(role => role.id)
     form.value.password = ''
+
+    form.value.roles = (user.roles || []).map(role => ({
+      label: role.name,
+      value: role.id,
+    }))
   } catch (error) {
-    toast.error(`Erro ao carregar dados: ${error.message}`)
+    toast.error(`Erro ao carregar dados do usuário.`)
     console.error(error)
   } finally {
     loading.value = false
@@ -93,11 +95,11 @@ const loadRoles = async () => {
   try {
     const { data } = await api.get('/api/v1/admin/roles')
     roles.value = data.roles.map(role => ({
+      label: role.name,
       value: role.id,
-      label: role.name
     }))
   } catch (error) {
-    toast.error(`Erro ao carregar papéis: ${error.message}`)
+    toast.error(`Erro ao carregar papéis`)
     console.error(error)
   }
 }
@@ -110,12 +112,12 @@ const submitForm = async () => {
       name: form.value.name,
       email: form.value.email,
       password: form.value.password || undefined,
-      roles: Array.isArray(form.value.roles) ? form.value.roles : [form.value.roles],
+      roles: form.value.roles.map(role => role.value),
     }
 
     await api.put(`/api/v1/admin/users/${userId}`, payload)
     toast.success('Usuário atualizado com sucesso')
-    router.push({ name: 'admin.users', params: { id: userId } })
+    router.push({ name: 'admin.users' })
   } catch (error) {
     toast.error('Erro ao atualizar usuário')
     console.error(error)
@@ -126,7 +128,7 @@ const submitForm = async () => {
 
 onMounted(() => {
   const userId = route.params.id
-  loadUser(userId)
   loadRoles()
+  loadUser(userId)
 })
 </script>

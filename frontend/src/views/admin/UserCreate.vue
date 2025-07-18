@@ -2,12 +2,9 @@
   <div>
     <Card title="Criar Novo Usuário">
       <form @submit.prevent="handleSubmit" class="space-y-6">
-
         <!-- Pessoa -->
         <div>
-          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">
-            Pessoa
-          </label>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Pessoa</label>
           <Combobox v-model="selectedPerson">
             <div class="relative">
               <ComboboxInput
@@ -18,8 +15,6 @@
                 placeholder="Digite nome ou email"
                 autocomplete="off"
               />
-
-
               <ComboboxOptions class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white dark:bg-slate-800 shadow-lg">
                 <template v-if="loading">
                   <div class="px-4 py-2 text-gray-500 dark:text-gray-400">Carregando...</div>
@@ -78,125 +73,115 @@
         />
         <span v-if="errors.password" class="text-sm text-red-500">{{ errors.password[0] }}</span>
 
-        <!-- Papel -->
-        <div>
-          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Papel</label>
-          <select
-            v-model="form.role"
-            class="w-full rounded border border-gray-300 dark:border-slate-600 px-3 py-2 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-800 dark:text-white"
-            required
-          >
-            <option disabled value="">Selecione um papel</option>
-            <option v-for="role in roles" :key="role.value" :value="role.value">
-              {{ role.label }}
-            </option>
-          </select>
-          <span v-if="errors.role" class="text-sm text-red-500">{{ errors.role[0] }}</span>
-        </div>
+        <!-- Papéis -->
+        <VueSelect
+          v-model="form.roles"
+          :options="roles"
+          multiple
+          name="roles"
+          label="Papéis"
+          placeholder="Selecione os papéis"
+          :error="errors?.roles?.[0]"
+        />
+        <span v-if="errors.roles" class="text-sm text-red-500">{{ errors.roles[0] }}</span>
 
         <!-- Botões -->
         <div class="flex justify-end gap-2">
           <Button variant="outline" @click="$router.back()">Cancelar</Button>
           <Button type="submit" :loading="loading">Salvar</Button>
         </div>
-
       </form>
     </Card>
   </div>
 </template>
 
 <script setup>
-import {
-  ref, watch, computed, onMounted
-} from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/plugins/axios'
 import debounce from 'lodash.debounce'
-import { useToast } from "vue-toastification";
+import { useToast } from 'vue-toastification'
+
 import InputGroup from '@/components/InputGroup'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import VueSelect from '@/components/Select/VueSelect.vue'
+
+
 import {
-  Combobox, ComboboxInput, ComboboxOptions, ComboboxOption
+  Combobox,
+  ComboboxInput,
+  ComboboxOptions,
+  ComboboxOption,
 } from '@headlessui/vue'
 
 const router = useRouter()
+const toast = useToast()
 const loading = ref(false)
-const people = ref([])
+const errors = ref({})
 const query = ref('')
 const selectedPerson = ref(null)
-const errors = ref({})
-const toast = useToast();
+const people = ref([])
 
 const form = ref({
   person_id: '',
   name: '',
   email: '',
   password: '',
-  role: ''
+  roles: [],
 })
 
-const roles = [
-  { label: 'Super admin', value: 'super-admin' },
-  { label: 'Admin', value: 'admin' },
-  { label: 'Usuário', value: 'usuario' },
-  { label: 'Gerente', value: 'gerente' },
-  { label: 'Caixa', value: 'caixa' }
-]
+const roles = ref([
+  { label: 'Super admin', value: 1 },
+  { label: 'Admin', value: 2 },
+  { label: 'Usuário', value: 3 },
+  { label: 'Gerente', value: 4 },
+  { label: 'Caixa', value: 5 },
+])
+
+watch(selectedPerson, (person) => {
+  if (person) {
+    form.value.person_id = person.id
+    form.value.name = person.name
+    form.value.email = person.email
+    query.value = `${person.name} - ${person.email}`
+  } else {
+    form.value = { person_id: '', name: '', email: '', password: '', roles: [] }
+    query.value = ''
+  }
+})
 
 const loadPeople = async (search = '') => {
   loading.value = true
   try {
-    const response = await api.get('/api/v1/admin/people', {
-      params: { search }
-    })
-    people.value = response.data.data
-    console.log('Busca por pessoas com:', search, response.data.data)
-
-  } catch (error) {
-    console.error('Erro ao buscar pessoas', error)
+    const { data } = await api.get('/api/v1/admin/people', { params: { search } })
+    people.value = data.data
+  } catch (err) {
+    console.error('Erro ao buscar pessoas:', err)
   } finally {
     loading.value = false
   }
 }
 
-const filteredPeople = computed(() => {
-  if (!query.value) return people.value
-  const lowerQuery = query.value.toLowerCase()
-  return people.value.filter(person =>
-    person.name.toLowerCase().includes(lowerQuery) ||
-    person.email.toLowerCase().includes(lowerQuery)
-  )
-})
-
 const debouncedLoadPeople = debounce(loadPeople, 300)
-
 function onInput(event) {
   query.value = event.target.value
   debouncedLoadPeople(query.value)
 }
 
-
-watch(selectedPerson, (newPerson) => {
-  if (newPerson) {
-    form.value.person_id = newPerson.id
-    form.value.name = newPerson.name
-    form.value.email = newPerson.email
-    query.value = `${newPerson.name} - ${newPerson.email}`
-  } else {
-    form.value.person_id = ''
-    form.value.name = ''
-    form.value.email = ''
-    query.value = ''
-  }
+const filteredPeople = computed(() => {
+  if (!query.value) return people.value
+  const lower = query.value.toLowerCase()
+  return people.value.filter(p =>
+    p.name.toLowerCase().includes(lower) || p.email.toLowerCase().includes(lower)
+  )
 })
 
-onMounted(() => {
-  loadPeople()
-})
+onMounted(() => loadPeople())
 
 const handleSubmit = async () => {
   errors.value = {}
+
   if (!form.value.person_id) {
     errors.value.person_id = ['Selecione uma pessoa para vincular ao usuário.']
     return
@@ -204,19 +189,24 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
-    await api.post('/api/v1/admin/users', form.value)
-    //console.log('Form a ser enviado:', form.value)
-    toast.success('Usuário registrado com sucesso', { timeout: 2000 });
+    const payload = {
+      ...form.value,
+      roles: form.value.roles.map(role => role.value), // transforma [{label, value}] em [value]
+    }
+
+    await api.post('/api/v1/admin/users', payload)
+    toast.success('Usuário registrado com sucesso', { timeout: 2000 })
     router.push({ name: 'admin.users' })
-  } catch (error) {
-     toast.error(error.response?.data?.message || 'Erro ao registrar usuário.', { timeout: 2000 });
-    if (error.response?.status === 422) {
-      errors.value = error.response.data.errors || {}
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Erro ao registrar usuário.', { timeout: 2000 })
+    if (err.response?.status === 422) {
+      errors.value = err.response.data.errors || {}
     } else {
-      console.error(error)
+      console.error(err)
     }
   } finally {
     loading.value = false
   }
+
 }
 </script>

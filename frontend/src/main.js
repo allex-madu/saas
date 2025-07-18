@@ -1,95 +1,98 @@
+// CSS externos
 import "animate.css";
 import "flatpickr/dist/flatpickr.css";
 import "sweetalert2/dist/sweetalert2.min.css";
-import { createApp } from "vue";
 import "simplebar-vue/dist/simplebar.min.css";
+import "vue-good-table-next/dist/vue-good-table-next.css";
+import "vue-toastification/dist/index.css";
+import "v-calendar/dist/style.css";
+import "vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css";
+
+// SCSS internos
+import "./assets/scss/auth.scss";
+import "./assets/scss/tailwind.scss";
+
+// Core Vue
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import { createPinia } from "pinia";
+
+// Plugins Vue
 import VueFlatPickr from "vue-flatpickr-component";
 import VueGoodTablePlugin from "vue-good-table-next";
-import "vue-good-table-next/dist/vue-good-table-next.css";
 import VueSweetalert2 from "vue-sweetalert2";
 import VueTippy from "vue-tippy";
 import Toast from "vue-toastification";
-import "vue-toastification/dist/index.css";
 import VueApexCharts from "vue3-apexcharts";
 import VueClickAway from "vue3-click-away";
-import App from "./App.vue";
-import "./assets/scss/auth.scss";
-import "./assets/scss/tailwind.scss";
-import router from "./router";
 import VCalendar from "v-calendar";
-import { createPinia } from "pinia";
-import "v-calendar/dist/style.css";
-import { VueQueryPlugin } from "@tanstack/vue-query";
-import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
-import { useThemeSettingsStore } from "@/store/themeSettings";
-import { setupThemeFromLocalStorage } from '@/utils/theme'
-
-// perfect scrollbar
 import PerfectScrollbar from "vue3-perfect-scrollbar";
-import "vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css";
-import api from '@/plugins/axios'
-import { useAuthStore } from '@/store/authStore'
+import { VueQueryPlugin } from "@tanstack/vue-query";
 
+// Plugins App
+import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import api from "@/plugins/axios";
+import { setupThemeFromLocalStorage } from "@/utils/theme";
+
+// Stores
+import { useAuthStore } from "@/store/authStore";
+import { useThemeSettingsStore } from "@/store/themeSettings";
+
+// Instância Pinia
 const pinia = createPinia();
-
 pinia.use(piniaPluginPersistedstate);
 
-// vue use
+// App instance
 const app = createApp(App)
   .use(pinia)
+  .use(router)
   .use(VueSweetalert2)
   .use(Toast, {
     toastClassName: "dashcode-toast",
     bodyClassName: "dashcode-toast-body",
   })
-  .use(router)
   .use(VueClickAway)
   .use(VueTippy)
   .use(VueFlatPickr)
   .use(VueGoodTablePlugin)
   .use(VueApexCharts)
   .use(PerfectScrollbar)
-  .use(VCalendar);
+  .use(VCalendar)
+  .use(VueQueryPlugin);
 
+// Global store (evita erro com $store antigo)
+app.config.globalProperties.$store = {};
+
+// Store de autenticação
 const auth = useAuthStore();
 
-// Escuta alterações no localStorage feitas em outras abas
-window.addEventListener('storage', (e) => {
-  if (e.key === 'activeUser' && !e.newValue) {
-    // Usuário saiu em outra aba, limpar estado local também
-    auth.user = null
-    console.log('Logout detectado em outra aba, limpando usuário local');
+// Sincroniza logout entre abas
+window.addEventListener("storage", (e) => {
+  if (e.key === "activeUser" && !e.newValue) {
+    auth.user = null;
+    console.log("Logout detectado em outra aba. Limpando usuário local.");
   }
 });
 
+// Inicialização do app (tema, csrf, auth)
 async function initializeApp() {
   try {
-    // Passo 1: Requisição ao CSRF para garantir que o cookie será configurado
-    await api.get('/sanctum/csrf-cookie'); // Essa chamada garante que o cookie CSRF seja configurado
-    
-    // Passo 2: Verifica se há um token no localStorage
-    const token = localStorage.getItem('token');
+    await api.get("/sanctum/csrf-cookie");
+
+    const token = localStorage.getItem("token");
     if (token) {
-      // Passo 3: Se houver token, tenta buscar os dados do usuário
       await auth.fetchUser();
     }
+
+    const themeSettingsStore = useThemeSettingsStore();
+    setupThemeFromLocalStorage(themeSettingsStore);
   } catch (error) {
-    console.error('Erro durante a inicialização do aplicativo:', error);
+    console.error("Erro durante a inicialização do aplicativo:", error);
   } finally {
-      // Passo 4: Monta o app apenas depois de garantir que o CSRF e o token estão configurados
-    app.mount('#app');
+    app.mount("#app");
   }
 }
 
-// Inicia o processo
+// Start
 initializeApp();
-
-app.config.globalProperties.$store = {};
-
-app.use(VueQueryPlugin);
-
-const themeSettingsStore = useThemeSettingsStore();
-
-setupThemeFromLocalStorage(themeSettingsStore);
-
-

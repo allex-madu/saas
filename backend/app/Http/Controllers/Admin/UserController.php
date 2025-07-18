@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -42,31 +43,26 @@ class UserController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'person_id' => 'required|exists:people,id|unique:users,person_id',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-            'role' => 'required|string|exists:roles,name'
-        ]);
 
-        $user = User::create([
-            'person_id' => $validated['person_id'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-        ]);
-
-        try {
-                $user->assignRole($validated['role']);
-            } catch (\Exception $e) {
-                report($e); // loga o erro
-                return response()->json(['message' => 'Usuário criado, mas erro ao atribuir papel'], 500);
-            }
-
-            return response()->json(['message' => 'Usuário criado com sucesso'], 201);
-    }
     
+    public function store(StoreUserRequest $request)
+    {
+        $user = User::create([
+            'person_id' => $request->person_id,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        // Sincroniza papéis corretamente
+        $user->syncRoles($request->roles);
+
+        return response()->json(['message' => 'Usuário criado com sucesso']);
+    }
+
+    
+
+
+
     public function show($id)
     {
         $user = User::with(['person', 'roles'])->findOrFail($id);
@@ -91,25 +87,33 @@ class UserController extends Controller
 
 
    public function update(UpdateUserRequest $request, User $user)
-{
-    // Atualiza email e senha se enviado
-    $user->update($request->only(['email', 'password']));
+    {
+        // Atualiza e-mail
+        $user->email = $request->email;
 
-    // Atualiza o nome se enviado
-    if ($request->has('name')) {
-        $user->person()->update(['name' => $request->name]);
+        // Atualiza a senha apenas se enviada
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
+        $user->save();
+
+        // Atualiza nome da pessoa, se enviado
+        if ($request->has('name')) {
+            $user->person()->update(['name' => $request->name]);
+        }
+
+        // Atualiza papéis se enviados
+        if ($request->has('roles')) {
+            $user->syncRoles($request->roles);
+        }
+
+        return response()->json([
+            'message' => 'Usuário atualizado com sucesso',
+            'user' => $user->load('person', 'roles'),
+        ]);
     }
 
-    // Atualiza os papéis se enviados
-    if ($request->has('roles')) {
-        $user->syncRoles($request->roles);
-    }
-
-    return response()->json([
-        'message' => 'Usuário atualizado com sucesso',
-        'user' => $user->load('person', 'roles'),
-    ]);
-}
 
 
     public function destroy(User $user)

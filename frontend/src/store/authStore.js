@@ -1,24 +1,46 @@
-import { defineStore } from 'pinia'      
-import { ref, computed } from 'vue'     
-import api from '@/plugins/axios'       
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import api from '@/plugins/axios'
 
-export const useAuthStore = defineStore('auth', () => 
-{
+export const useAuthStore = defineStore('auth', () => {
+  // State
   const user = ref(null)
   const error = ref(null)
   const loading = ref(false)
 
-  // Getters computados
+  // Getters
   const isAuthenticated = computed(() => !!user.value)
   const isSuperAdmin = computed(() => user.value?.is_super_admin === true)
-  const roles = computed(() => user.value?.roles || [])
 
   // Helpers
-  const hasRole = (role) => roles.value.includes(role)
 
+  /*
+    hasRole  
+    exemplo de uso | ideal para menus, botões, componentes ou controle de rotas visíveis.
+    
+    <template>
+      <Button v-if="auth.hasRole('admin')">Botão só para admin</Button>
+      <Button v-if="auth.hasRole(['admin', 'super-admin'])">Botão para ambos</Button>
+    </template>
+  */
+  const hasRole = (rolesToCheck) => {
+  if (!user.value?.roles) return false
 
-  const login = async (email, password) => 
-  {
+  const userRoles = user.value.roles // já são strings como ['admin', 'super-admin']
+
+  if (typeof rolesToCheck === 'string') {
+    return userRoles.includes(rolesToCheck)
+  }
+
+  if (Array.isArray(rolesToCheck)) {
+    return rolesToCheck.some(role => userRoles.includes(role))
+  }
+
+  return false
+}
+
+  // Actions
+  const login = async (email, password) => {
     loading.value = true
     error.value = null
     try {
@@ -27,8 +49,7 @@ export const useAuthStore = defineStore('auth', () =>
       user.value = response.data.user
       localStorage.setItem('activeUser', JSON.stringify(user.value))
 
-      await fetchUser() // busca usuário completo com relação person
-
+      await fetchUser() // Busca o usuário completo (com relações)
       return true
     } catch (err) {
       error.value = 'Falha ao fazer login'
@@ -39,14 +60,12 @@ export const useAuthStore = defineStore('auth', () =>
     }
   }
 
-  const fetchUser = async () => 
-  {
+  const fetchUser = async () => {
     loading.value = true
     error.value = null
     try {
       const response = await api.get('/api/v1/user')
-      user.value = response.data 
-      //console.log('Resultado fetchUser:', response.data)
+      user.value = response.data
       localStorage.setItem('activeUser', JSON.stringify(user.value))
       return true
     } catch (err) {
@@ -80,21 +99,20 @@ export const useAuthStore = defineStore('auth', () =>
     }
   }
 
-  // Retorna os estados, getters e ações para uso em componentes
   return {
-    // state
+    // State
     user,
     error,
-    
-    // getters
+    loading,
+
+    // Getters
     isAuthenticated,
     isSuperAdmin,
-    roles,
-    
-    // helpers
+
+    // Helpers
     hasRole,
 
-    // actions
+    // Actions
     login,
     fetchUser,
     logout
