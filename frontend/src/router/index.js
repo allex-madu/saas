@@ -24,13 +24,13 @@ router.beforeEach((to, from, next) => {
   }
   document.title = "Dashcode  - " + words;
 
-  /** Navigate to next if middleware is not applied */
   if (!to.meta.middleware) {
     return next();
   }
 
   const middleware = to.meta.middleware;
-  const context = { to, from, next };
+  const context = { to, from, next, router }; 
+
   return middleware[0]({
     ...context,
     next: middlewarePipeline(context, middleware, 1),

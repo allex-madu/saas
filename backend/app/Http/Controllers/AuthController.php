@@ -58,19 +58,24 @@ class AuthController extends Controller
      * Retorna os dados do usuário autenticado.
      */
     public function user(Request $request)
-    {
-        $user = $request->user()?->load('person');
+{
+    $user = $request->user()?->load('person', 'roles'); // ← Adiciona o eager loading
 
-        if (!$user) {
-            return response()->json(['message' => 'Não autenticado'], 401);
-        }
-
-        return response()->json([
-            'id' => $user->id,
-            'email' => $user->email,
-            'person' => $user->person,
-            'is_super_admin' => $user->is_super_admin,
-            'roles' => $user->getRoleNames(), // Garante que papéis sejam enviados
-        ]);
+    if (!$user) {
+        return response()->json(['message' => 'Não autenticado'], 401);
     }
+
+    // Retorna os dados com roles como objetos
+    return response()->json([
+        'id' => $user->id,
+        'email' => $user->email,
+        'person' => $user->person,
+        'is_super_admin' => $user->is_super_admin,
+        'roles' => $user->roles->map(fn($role) => [
+            'id' => $role->id,
+            'name' => $role->name,
+        ]),
+    ]);
+}
+
 }

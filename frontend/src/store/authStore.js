@@ -24,20 +24,27 @@ export const useAuthStore = defineStore('auth', () => {
     </template>
   */
   const hasRole = (rolesToCheck) => {
-  if (!user.value?.roles) return false
+    try {
+      if (!user.value?.roles) return false
 
-  const userRoles = user.value.roles // já são strings como ['admin', 'super-admin']
+      const userRoles = user.value.roles.map(role => role.name)
 
-  if (typeof rolesToCheck === 'string') {
-    return userRoles.includes(rolesToCheck)
+      if (typeof rolesToCheck === 'string') {
+        return userRoles.includes(rolesToCheck)
+      }
+
+      if (Array.isArray(rolesToCheck)) {
+        return rolesToCheck.some(role => userRoles.includes(role))
+      }
+
+      return false
+    } catch (e) {
+      console.warn('Erro em hasRole:', e)
+      return false
+    }
   }
 
-  if (Array.isArray(rolesToCheck)) {
-    return rolesToCheck.some(role => userRoles.includes(role))
-  }
 
-  return false
-}
 
   // Actions
   const login = async (email, password) => {

@@ -11,22 +11,22 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+
     public function index(Request $request)
     {
         $query = User::with(['roles', 'person']);
 
-            if ($request->filled('search')) {
-                $search = $request->search;
+        if ($request->filled('search')) {
+            $search = $request->search;
 
-                $query->where(function ($q) use ($search) {
-            $q->where('email', 'like', "%$search%")
+            $query->where(function ($q) use ($search) {
+                $q->where('email', 'like', "%$search%")
                 ->orWhereHas('person', function ($personQ) use ($search) {
-                $personQ->where('name', 'like', "%$search%")
-                    ->orWhere('nickname', 'like', "%$search%")
-                    ->orWhere('email', 'like', "%$search%");
+                    $personQ->where('name', 'like', "%$search%")
+                            ->orWhere('nickname', 'like', "%$search%")
+                            ->orWhere('email', 'like', "%$search%");
                 });
             });
-
         }
 
         if ($request->filled('role')) {
@@ -35,13 +35,23 @@ class UserController extends Controller
 
         $users = $query->paginate($request->get('per_page', 10));
 
+        // Transforma os papéis em array de objetos por usuário
+        $users->getCollection()->transform(function ($user) {
+            // Mantém os objetos de papel (ex: {id, name})
+            $user->roles = $user->roles->map(fn($role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+            ]);
+            return $user;
+        });
         $roles = Role::all();
-
         return response()->json([
             'users' => $users,
             'roles' => $roles,
         ]);
     }
+
+
 
 
     

@@ -73,7 +73,7 @@ const routes = [
     redirect: "/app/home",
     component: () => import("@/Layout/index.vue"),
     meta: {
-      //middleware: [auth],
+      middleware: [auth],
       requiresAuth: true,
     },
     children: [
@@ -98,12 +98,16 @@ const routes = [
           hide: true,
         },
       },
+
+
       {
         path: 'admin/users',
         name: 'admin.users',
         component: () => import('@/views/admin/index.vue'),
         meta: {
-          role: ['admin', 'super-admin'] 
+          middleware: [auth],         // ← importante
+          role: ['admin'],
+          title: 'Lista de Usuários',
         }
       },
       {
@@ -111,7 +115,9 @@ const routes = [
         name: 'admin.users.show',
         component: () => import('@/views/admin/Show.vue'),
         meta: {
-          role: ['admin', 'super-admin']
+          middleware: [auth],         // ← importante
+          role: ['admin'],
+          title: 'Detalhes do Usuário',
         },
       },
       {
@@ -119,19 +125,24 @@ const routes = [
         name: 'admin.users.create',
         component: () => import('@/views/admin/UserCreate.vue'),
         meta: {
-          groupParent: 'Usuários',
+          middleware: [auth],         // ← já estava certo
+          role: ['admin'],
           title: 'Criar Usuário',
-          role: ['admin', 'super-admin']
-        }
+        },
       },
       {
         path: 'admin/users/edit/:id',
         name: 'admin.users.edit',
         component: () => import('@/views/admin/EditUser.vue'),
         meta: {
-          role: ['admin', 'super-admin']
+          middleware: [auth],         // ← importante
+          role: ['admin'],
+          title: 'Editar Usuário',
         }
       },
+
+
+
       {
         path: "ecommerce",
         name: "ecommerce",
@@ -763,4 +774,19 @@ const routes = [
   },
 ];
 
-export default routes;
+// Aplica middleware automaticamente nas rotas que têm meta.role mas não têm meta.middleware
+function applyMiddlewareToRoleRoutes(routeArray) {
+  return routeArray.map(route => {
+    if (route.children) {
+      route.children = applyMiddlewareToRoleRoutes(route.children)
+    }
+
+    if (route.meta?.role && !route.meta?.middleware) {
+      route.meta.middleware = [auth]
+    }
+
+    return route
+  })
+}
+
+export default applyMiddlewareToRoleRoutes(routes)
