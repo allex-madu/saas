@@ -115,14 +115,15 @@ class UserController extends Controller
     }
 
 
-
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(['message' => 'Usuário excluído com sucesso']);
+        return response()->json(['message' => 'Usuário deletado com sucesso.']);
     }
 
+   
     public function syncRoles(Request $request, User $user)
     {
         $request->validate([

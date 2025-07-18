@@ -40,9 +40,9 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
       roles.value = res.roles
 
       pagination.value = {
-        current_page: res.users.current_page,
-        last_page: res.users.last_page,
-        total: res.users.total,
+      current_page: res.users.current_page,
+      last_page: res.users.last_page,
+      total: res.users.total,
       }
     } catch (err) {
       if (fetchId !== lastFetchId) return
@@ -51,6 +51,18 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
       if (fetchId === lastFetchId) loading.value = false
     }
   }
+
+  async function deleteUser(id) {
+    try {
+      await api.delete(`/api/v1/admin/users/${id}`) 
+      users.value = users.value.filter(user => user.id !== id)
+      //toast.success('Usuário deletado com sucesso!')
+    } catch (error) {
+      console.error('Erro ao deletar:', error)
+      //toast.error('Erro ao deletar usuário.')
+    }
+  }
+
 
   return {
     users,
@@ -61,5 +73,6 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     error,
     perPage,
     fetchUsers,
+    deleteUser,
   }
 })

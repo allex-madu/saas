@@ -80,11 +80,10 @@ async function initializeApp() {
   try {
     await api.get("/sanctum/csrf-cookie");
 
-    const token = localStorage.getItem("token");
-    if (token) {
-      await auth.fetchUser();
-    }
+    // Sempre tenta recuperar o usuário autenticado via sessão
+    await auth.fetchUser();
 
+    // Tema
     const themeSettingsStore = useThemeSettingsStore();
     setupThemeFromLocalStorage(themeSettingsStore);
   } catch (error) {

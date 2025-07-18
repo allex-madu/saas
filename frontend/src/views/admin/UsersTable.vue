@@ -129,6 +129,10 @@ import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
 
 import { useAdminUserStore } from '@/store/adminUserStore'
+import Swal from 'sweetalert2'
+import { useToast } from "vue-toastification";
+
+const adminUserStore = useAdminUserStore()
 
 const router = useRouter()
 const store = useAdminUserStore()
@@ -140,6 +144,7 @@ const loading = computed(() => store.loading)
 const error = computed(() => store.error)
 const perPage = computed(() => store.perPage)
 const currentPage = computed(() => store.currentPage)
+const toast = useToast()
 
 // Busca com debounce
 const debouncedSearch = debounce(() => {
@@ -175,11 +180,29 @@ function handleAction(action, user) {
       router.push({ name: 'admin.users.edit', params: { id: user.id } })
       break
     case 'delete':
-      // TODO: confirmar antes de excluir com SweetAlert2
-      console.log('Excluir usuário:', user)
+      Swal.fire({
+        title: 'Tem certeza?',
+        text: `Deseja excluir o usuário ${user.person?.name}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await adminUserStore.deleteUser(user.id)
+            toast.success(`Usuário ${user.person?.name ?? user.name ?? 'desconhecido'} deletado com sucesso!`)
+
+          } catch (error) {
+            toast.error('Erro ao deletar o usuário.')
+          }
+        }
+      })
       break
   }
-}
+} 
 
 function handlePageChange(page) {
   store.currentPage = page
@@ -191,3 +214,5 @@ function handlePerPageChange({ currentPerPage }) {
   store.fetchUsers(1, searchTerm.value, currentPerPage)
 }
 </script>
+
+
