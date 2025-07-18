@@ -120,30 +120,26 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import debounce from 'lodash.debounce'
 import { useRouter } from 'vue-router'
-
 import Card from '@/components/Card'
 import InputGroup from '@/components/InputGroup'
 import Dropdown from '@/components/Dropdown'
 import Pagination from '@/components/Pagination'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
-
 import { useAdminUserStore } from '@/store/adminUserStore'
 import Swal from 'sweetalert2'
 import { useToast } from "vue-toastification";
 
 const adminUserStore = useAdminUserStore()
-
 const router = useRouter()
 const store = useAdminUserStore()
-
 const searchTerm = ref('')
 const users = computed(() => store.users)
 const pagination = computed(() => store.pagination)
 const loading = computed(() => store.loading)
 const error = computed(() => store.error)
 const perPage = computed(() => store.perPage)
-const currentPage = computed(() => store.currentPage)
+//const currentPage = computed(() => store.currentPage)
 const toast = useToast()
 
 // Busca com debounce

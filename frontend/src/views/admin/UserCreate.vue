@@ -131,13 +131,20 @@ const form = ref({
   roles: [],
 })
 
-const roles = ref([
-  { label: 'Super admin', value: 1 },
-  { label: 'Admin', value: 2 },
-  { label: 'Usuário', value: 3 },
-  { label: 'Gerente', value: 4 },
-  { label: 'Caixa', value: 5 },
-])
+const roles = ref([])
+
+const loadRoles = async () => {
+  try {
+    const { data } = await api.get('/api/v1/admin/roles')
+    roles.value = data.map(role => ({
+      label: role.name,
+      value: role.id,
+    }))
+  } catch (err) {
+    console.error('Erro ao carregar papéis:', err)
+    toast.error('Erro ao carregar papéis.')
+  }
+}
 
 watch(selectedPerson, (person) => {
   if (person) {
@@ -177,7 +184,10 @@ const filteredPeople = computed(() => {
   )
 })
 
-onMounted(() => loadPeople())
+onMounted(() => {
+  loadPeople()
+  loadRoles()
+})
 
 const handleSubmit = async () => {
   errors.value = {}
