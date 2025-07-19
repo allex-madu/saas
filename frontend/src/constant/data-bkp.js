@@ -36,48 +36,12 @@ export const menuItems = [
       },
     ],
   },
-
-  
-   {
-    title: "Gerenciamento",
-    icon: "heroicons:clipboard-document-check",
-    isOpen: true,
-    child: [
-      {
-        childtitle: "Atribuições",
-        childlink: "admin.users",
-      },
-      {
-        childtitle: "Permissões",
-        childlink: "admin.users",
-      },
-    ],
-  },
-
   {
-    isHeadr: true,
-    title: "Cadastros",
+    title: "changelog",
+    icon: "heroicons:arrow-trending-up",
+    link: "changelog",
+    badge: "2.0.1",
   },
-  {
-    title: "Pessoas",
-    icon: "heroicons:user-group",
-    isOpen: true,
-    child: [
-      {
-        childtitle: "Perfil de Usuário",
-        childlink: {name:"admin.users"},
-      },
-      {
-        childtitle: "Usuários",
-        childlink: {name:"admin.users.create"},
-      },
-    ],
-  },
-
-
-
-  
-  
   {
     isHeadr: true,
     title: "apps",
@@ -359,12 +323,6 @@ export const menuItems = [
         childlink: "tooltip-popover",
       },
     ],
-  },
-  {
-    title: "changelog",
-    icon: "heroicons:arrow-trending-up",
-    link: "changelog",
-    badge: "2.0.1",
   },
   {
     title: "Forms",

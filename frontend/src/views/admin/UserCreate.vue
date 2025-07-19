@@ -136,7 +136,7 @@ const roles = ref([])
 const loadRoles = async () => {
   try {
     const { data } = await api.get('/api/v1/admin/roles')
-    roles.value = data.map(role => ({
+    roles.value = data.roles.map(role => ({
       label: role.name,
       value: role.id,
     }))
@@ -145,6 +145,7 @@ const loadRoles = async () => {
     toast.error('Erro ao carregar papéis.')
   }
 }
+
 
 watch(selectedPerson, (person) => {
   if (person) {
