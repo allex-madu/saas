@@ -41,7 +41,8 @@ export const menuItems = [
    {
     title: "Gerenciamento",
     icon: "heroicons:clipboard-document-check",
-    isOpen: true,
+    isOpen: false,
+    role: ["admin", "super-admin"], // controla pai e filhos
     child: [
       {
         childtitle: "Atribuições",
@@ -58,21 +59,24 @@ export const menuItems = [
     isHeadr: true,
     title: "Cadastros",
   },
-  {
-    title: "Pessoas",
-    icon: "heroicons:user-group",
-    isOpen: true,
-    child: [
-      {
-        childtitle: "Perfil de Usuário",
-        childlink: {name:"admin.users"},
-      },
-      {
-        childtitle: "Usuários",
-        childlink: {name:"admin.users.create"},
-      },
-    ],
-  },
+
+ {
+  title: "Pessoas",
+  icon: "heroicons:user-group",
+  role: ["admin", "super-admin"], // controla pai e filhos
+  child: [
+    {
+      childtitle: "Perfil de Usuário",
+      childlink: { name: "admin.users" },
+    },
+    {
+      childtitle: "Usuários",
+      childlink: { name: "admin.users.create" },
+    },
+  ],
+},
+
+
 
 
 

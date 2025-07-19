@@ -1,68 +1,63 @@
 <template>
   <ul>
     <li
-      v-for="(item, i) in items"
+      v-for="(item, i) in visibleItems"
       :key="i"
-      :class="`
-      ${item.child ? 'item-has-children' : ''}
-      ${activeSubmenu === i ? 'open' : ''}
-      ${this.$route.name === item.link ? 'menu-item-active' : ''}
-      
-      `"
+      :class="[
+        item.child ? 'item-has-children' : '',
+        activeSubmenu === i ? 'open' : '',
+        route.name === item.link ? 'menu-item-active' : ''
+      ]"
       class="single-sidebar-menu"
     >
-      <!-- ?? single menu with no childred !!  -->
-
+      <!-- Menu simples -->
       <router-link
-        :to="`${item.link}`"
-        class="menu-link"
         v-if="!item.child && !item.isHeadr"
+        :to="item.link"
+        class="menu-link"
       >
         <span class="menu-icon flex-grow-0" v-if="item.icon">
-          <Icon :icon="item.icon"
-        /></span>
-        <div class="text-box flex-grow" v-if="item.title">
-          {{ item.title }}
-        </div>
+          <Icon :icon="item.icon" />
+        </span>
+        <div class="text-box flex-grow" v-if="item.title">{{ item.title }}</div>
         <span
           class="menu-badge"
           v-if="item.badge && !themeSettingsStore.sidebarCollasp"
-          >{{ item.badge }}</span
         >
+          {{ item.badge }}
+        </span>
       </router-link>
 
-      <!-- ?? only for menulabel ??  -->
+      <!-- Cabeçalho -->
       <div v-else-if="item.isHeadr && !item.child" class="menulabel">
         {{ item.title }}
       </div>
-      <!-- !!sub menu parent li !! -->
+
+      <!-- Menu com submenu -->
       <div
-        class="menu-link"
         v-else
-        :class="
-          activeSubmenu === i ? 'parent_active not-collapsed' : 'collapsed'
-        "
+        class="menu-link"
+        :class="activeSubmenu === i ? 'parent_active not-collapsed' : 'collapsed'"
         @click="toggleSubmenu(i)"
       >
         <div class="flex-1 flex items-start">
-          <span class="menu-icon" v-show="item.icon">
-            <Icon :icon="item.icon"
-          /></span>
+          <span class="menu-icon" v-if="item.icon">
+            <Icon :icon="item.icon" />
+          </span>
           <div class="text-box" v-if="item.title">{{ item.title }}</div>
         </div>
         <div class="flex-0">
           <div
             class="menu-arrow transform transition-all duration-300"
-            :class="
-              activeSubmenu === i
-                ? ' ltr:rotate-90 rtl:rotate-90'
-                : 'rtl:rotate-180'
-            "
+            :class="activeSubmenu === i
+              ? 'ltr:rotate-90 rtl:rotate-90'
+              : 'rtl:rotate-180'"
           >
             <Icon icon="heroicons-outline:chevron-right" />
           </div>
         </div>
       </div>
+
       <Transition
         enter-active-class="submenu_enter-active"
         leave-active-class="submenu_leave-active"
@@ -73,8 +68,7 @@
         @leave="leave"
         @after-leave="afterLeave"
       >
-        <!-- !! SubMenu !! -->
-        <ul calss="sub-menu " v-if="i === activeSubmenu">
+        <ul class="sub-menu" v-if="activeSubmenu === i">
           <li
             v-for="(ci, index) in item.child"
             :key="index"
@@ -83,153 +77,148 @@
             <router-link :to="ci.childlink" v-slot="{ isActive }">
               <span
                 class="text-sm flex space-x-3 rtl:space-x-reverse items-center transition-all duration-150"
-                :class="
-                  isActive
-                    ? ' text-slate-900 dark:text-white font-medium'
-                    : 'text-slate-600 dark:text-slate-300'
-                "
+                :class="isActive
+                  ? 'text-slate-900 dark:text-white font-medium'
+                  : 'text-slate-600 dark:text-slate-300'"
               >
                 <span
                   class="h-2 w-2 rounded-full border border-slate-600 dark:border-slate-300 inline-block flex-none"
-                  :class="
-                    isActive
-                      ? ' bg-slate-900 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20'
-                      : ''
-                  "
+                  :class="isActive
+                    ? 'bg-slate-900 dark:bg-slate-300 ring-4 ring-opacity-[15%] ring-black-500 dark:ring-slate-300 dark:ring-opacity-20'
+                    : ''"
                 ></span>
-                <span class="flex-1">
-                  {{ ci.childtitle }}
-                </span>
+                <span class="flex-1">{{ ci.childtitle }}</span>
               </span>
             </router-link>
           </li>
         </ul>
       </Transition>
     </li>
+
+    <!-- Link fixo -->
     <li class="single-sidebar-menu">
       <a
         href="https://dashcode-doc.codeshaper.tech/"
         target="_blank"
         class="menu-link"
       >
-        <span class="menu-icon"><Icon icon="heroicons:document" /></span>
+        <span class="menu-icon">
+          <Icon icon="heroicons:document" />
+        </span>
         <div class="text-box">Documentation</div>
       </a>
     </li>
   </ul>
 </template>
-<script>
-import { useRouter } from "vue-router"
-import { useThemeSettingsStore } from "@/store/themeSettings"
-import Icon from "../Icon";
-// Store
-const themeSettingsStore = useThemeSettingsStore()   
 
 
-export default {
-  components: {
-    Icon,
-  },
+<script setup>
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
+import { useThemeSettingsStore } from '@/store/themeSettings'
+import { useAuthStore } from '@/store/authStore'
+import Icon from '../Icon'
 
-  data() {
-    return {
-      activeSubmenu: null,
-      themeSettingsStore: useThemeSettingsStore()
-    };
-  },
+const props = defineProps({
+  title: { type: String, default: '' },
+  icon: { type: String, default: '' },
+  link: { type: String, default: '' },
+  items: { type: Array, required: true },
+  childrenLinks: { type: Array, default: null },
+})
 
-  props: {
-    title: {
-      type: String,
-      default: "",
-    },
-    icon: {
-      type: String,
-      default: "",
-    },
-    link: {
-      type: String,
-      default: "",
-    },
-    items: { type: Array, required: true },
-    childrenLinks: { type: Array, default: null },
-  },
+const themeSettingsStore = useThemeSettingsStore()
+const authStore = useAuthStore()
+const route = useRoute()
+const activeSubmenu = ref(null)
 
-  methods: {
-    beforeEnter(element) {
-      requestAnimationFrame(() => {
-        if (!element.style.height) {
-          element.style.height = "0px";
-        }
+const toggleSubmenu = (index) => {
+  activeSubmenu.value = activeSubmenu.value === index ? null : index
+}
 
-        element.style.display = null;
-      });
-    },
-    enter(element) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          element.style.height = `${element.scrollHeight}px`;
-        });
-      });
-    },
-    afterEnter(element) {
-      element.style.height = null;
-    },
-    beforeLeave(element) {
-      requestAnimationFrame(() => {
-        if (!element.style.height) {
-          element.style.height = `${element.offsetHeight}px`;
-        }
-      });
-    },
-    leave(element) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          element.style.height = "0px";
-        });
-      });
-    },
-    afterLeave(element) {
-      element.style.height = null;
-    },
-    toggleSubmenu(index) {
-      if (this.activeSubmenu === index) {
-        this.activeSubmenu = null;
-      } else {
-        this.activeSubmenu = index;
+const beforeEnter = (el) => {
+  requestAnimationFrame(() => {
+    if (!el.style.height) el.style.height = '0px'
+    el.style.display = null
+  })
+}
+const enter = (el) => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.height = `${el.scrollHeight}px`
+    })
+  })
+}
+const afterEnter = (el) => {
+  el.style.height = null
+}
+const beforeLeave = (el) => {
+  requestAnimationFrame(() => {
+    if (!el.style.height) el.style.height = `${el.offsetHeight}px`
+  })
+}
+const leave = (el) => {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.height = '0px'
+    })
+  })
+}
+const afterLeave = (el) => {
+  el.style.height = null
+}
+
+const visibleItems = computed(() => {
+  const user = authStore.user
+  if (!user) return []
+
+  const userRoles = user.roles?.map(role => role.name) || []
+  const hasRole = (allowedRoles) => {
+    if (!allowedRoles || allowedRoles.length === 0) return true
+    return userRoles.some(role => allowedRoles.includes(role))
+  }
+
+  return props.items
+    .filter(menu => hasRole(menu.role))
+    .map(menu => {
+      const parentRole = menu.role
+      return {
+        ...menu,
+        child: menu.child?.filter(child => hasRole(child.role ?? parentRole)) || []
       }
-    },
-  },
+    })
+    .filter(menu => !menu.child || menu.child.length > 0)
+})
 
-  watch: {
-    $route() {
-      if (themeSettingsStore.mobielSidebar) {
-        themeSettingsStore.mobielSidebar = false;
-      }
+watch(() => route.name, () => {
+  if (themeSettingsStore.mobielSidebar) {
+    themeSettingsStore.mobielSidebar = false
+  }
 
-      this.items.map((item) => {
-        if (item.link === this.$route.name) {
-          this.activeSubmenu = null;
-        }
-      });
-    },
-  },
+  props.items.forEach((item) => {
+    if (item.link === route.name) {
+      activeSubmenu.value = null
+    }
+  })
+})
 
-  created() {
-    const router = useRouter();
-    this.items.map((item, i) => {
-      item.child?.map((ci) => {
-        if (ci.childlink === router.currentRoute.value.name) {
-          this.activeSubmenu = i;
-        }
-      });
-    });
-  },
-  // update if route chnage then activesubmenu null
-
-  updated() {},
-};
+onMounted(() => {
+  nextTick(() => {
+    const routeName = route.name
+    visibleItems.value.forEach((item, i) => {
+      const isActive = item.child?.some(child => {
+        const childName = typeof child.childlink === 'string'
+          ? child.childlink
+          : child.childlink?.name
+        return childName === routeName
+      })
+      if (isActive) activeSubmenu.value = i
+    })
+  })
+})
 </script>
+
+
 <style lang="scss">
 .submenu_enter-active,
 .submenu_leave-active {

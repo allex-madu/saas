@@ -72,7 +72,7 @@ const toggleMsidebar = () => {
 </script>
 
 <style lang="scss" scoped>
-.mobile-sidebar {
-  @apply fixed ltr:left-0 rtl:right-0 top-0 h-full z-[9999] w-[280px];
-}
+  .mobile-sidebar {
+    @apply fixed ltr:left-0 rtl:right-0 top-0 h-full z-[9999] w-[280px];
+  }
 </style>
