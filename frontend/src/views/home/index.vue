@@ -3,21 +3,20 @@
     
 
 
+  <!-- protecao visual e link protegido -->
+  <div v-if="auth.hasRole(['admin', 'super-admin'])">
 
- <div v-if="auth.hasRole(['admin', 'super-admin'])">
-
+    <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
+      Gerenciar Usuários
+    </RouterLink>
+  </div>
+  
+  <br>
+  
+  <!-- sem protecao visual / porem o link esta protegiodo -->
   <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
     Gerenciar Usuários
   </RouterLink>
-  
-  <br>
-
-  
-
-
-</div>
-
-
 
     <div
       v-if="auth.user?.roles.includes('super-admin') || auth.user?.roles.includes('admin')"
