@@ -16,7 +16,7 @@ export const menuItems = [
     child: [
       {
         childtitle: "Analytics Dashboard",
-        childlink: "home",
+        childlink:  { name: "home" },
       },
       {
         childtitle: "Ecommerce Dashboard",

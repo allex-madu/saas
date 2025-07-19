@@ -15,7 +15,7 @@
   
   <!-- sem protecao visual / porem o link esta protegiodo -->
   <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
-    Gerenciar Usuários
+    Gerenciar Usuários ( link protegido sem proteção visual )
   </RouterLink>
 
     <div
