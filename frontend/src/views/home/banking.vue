@@ -3,17 +3,11 @@
     <Breadcrumb />
     <div class="space-y-5 card-auto">
       <Card>
-        <div
-          class="grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center"
-        >
+        <div class="grid xl:grid-cols-4 lg:grid-cols-2 md:grid-cols-2 grid-cols-1 gap-5 place-content-center">
           <div class="flex space-x-4 h-full items-center rtl:space-x-reverse">
             <div class="flex-none">
               <div class="h-20 w-20 rounded-full">
-                <img
-                  src="@/assets/images/all-img/main-user.png"
-                  alt=""
-                  class="w-full h-full"
-                />
+                <img src="@/assets/images/all-img/main-user.png" alt="" class="w-full h-full" />
               </div>
             </div>
             <div class="flex-1">
@@ -30,14 +24,8 @@
             :key="i"
             class="bg-slate-50 dark:bg-slate-900 rounded p-4"
           >
-            <div
-              class="text-slate-600 dark:text-slate-400 text-sm mb-1 font-medium"
-            >
-              {{ item.title }}
-            </div>
-            <div class="text-slate-900 dark:text-white text-lg font-medium">
-              {{ item.count }}
-            </div>
+            <div class="text-slate-600 dark:text-slate-400 text-sm mb-1 font-medium">{{ item.title }}</div>
+            <div class="text-slate-900 dark:text-white text-lg font-medium">{{ item.count }}</div>
             <div class="ml-auto max-w-[124px]">
               <apexchart
                 type="bar"
@@ -50,33 +38,27 @@
           </div>
         </div>
       </Card>
+
       <div class="grid grid-cols-12 gap-5">
         <div class="lg:col-span-4 col-span-12 space-y-5">
           <Card title="My card">
             <template #header>
-              <Button
-                icon="heroicons-outline:plus"
-                text="Add card"
-                btnClass="btn-dark btn-sm "
-              />
+              <Button icon="heroicons-outline:plus" text="Add card" btnClass="btn-dark btn-sm " />
             </template>
             <div class="max-w-[90%] mx-auto mt-2">
               <CardSlider />
             </div>
           </Card>
+
           <Card title="Quick transfer">
             <div class="space-y-6">
-              <!-- user list start -->
+              <!-- Contacts -->
               <div class="bg-slate-50 dark:bg-slate-900 rounded-md p-4">
                 <div class="flex justify-between mb-2">
-                  <span class="text-lg text-slate-900 dark:text-white"
-                    >Contacts</span
-                  >
-                  <router-link
-                    to="#"
-                    class="font-medium text-slate-900 dark:text-white underline text-sm"
-                    >View all</router-link
-                  >
+                  <span class="text-lg text-slate-900 dark:text-white">Contacts</span>
+                  <router-link to="#" class="font-medium text-slate-900 dark:text-white underline text-sm">
+                    View all
+                  </router-link>
                 </div>
                 <perfect-scrollbar>
                   <ul class="flex space-x-6 py-3 px-1">
@@ -84,7 +66,7 @@
                       v-for="(item, i) in users"
                       :key="i"
                       @click="selectUser(i)"
-                      :class="[
+                     :class="[
                         activeIndex === i
                           ? 'ring-2 ring-primary-500 ring-offset-2 '
                           : '',
@@ -96,27 +78,23 @@
                   </ul>
                 </perfect-scrollbar>
               </div>
-              <!-- amout start -->
+
+              <!-- Amount -->
               <div class="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
-                <span
-                  class="text-xs text-slate-500 dark:text-slate-400 block mb-1 cursor-pointer font-normal"
-                  for="cdp"
-                  >Amount</span
-                >
+                <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1 font-normal" for="cdp">Amount</span>
                 <Textinput
                   placeholder="$6547"
                   name="cdp"
-                  classInput="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium  h-auto font-medium"
+                  classInput="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 placeholder:font-medium h-auto font-medium"
                 />
               </div>
-              <!-- card number -->
+
+              <!-- Account number -->
               <div class="bg-slate-100 dark:bg-slate-900 rounded-md p-4">
                 <label
                   class="text-xs text-slate-500 dark:text-slate-400 block cursor-pointer mb-1"
                   for="cd"
-                  >Recipient account number</label
-                >
-
+                >Recipient account number</label>
                 <Textinput
                   placeholder="3458-3548-6548-3244"
                   isMask
@@ -124,17 +102,12 @@
                   classInput="bg-transparent border-none focus:ring-0 focus:border-none p-0 text-slate-900 dark:text-white text-sm placeholder:text-slate-400 h-auto placeholder:font-medium font-medium"
                 />
               </div>
-              <!-- total amount -->
+
+              <!-- Total -->
               <div class="flex justify-between">
                 <div>
-                  <span
-                    class="text-xs text-slate-500 dark:text-slate-400 block mb-1"
-                    >Total amount</span
-                  >
-                  <span
-                    class="text-lg font-medium text-slate-900 dark:text-white block"
-                    >$6547</span
-                  >
+                  <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Total amount</span>
+                  <span class="text-lg font-medium text-slate-900 dark:text-white block">$6547</span>
                 </div>
                 <div>
                   <button type="button" class="btn btn-dark">Send money</button>
@@ -143,6 +116,7 @@
             </div>
           </Card>
         </div>
+
         <div class="lg:col-span-8 col-span-12">
           <div class="space-y-5 bank-table">
             <BankTable />
@@ -155,11 +129,7 @@
                 <apexchart
                   type="area"
                   height="340"
-                  :options="
-                    this.$store.themeSettingsStore.isDark
-                      ? basicArea2Dark.chartOptions
-                      : basicArea2.chartOptions
-                  "
+                  :options="themeSettingsStore.isDark ? basicArea2Dark.chartOptions : basicArea2.chartOptions"
                   :series="basicArea2.series"
                 />
               </div>
@@ -167,6 +137,7 @@
           </div>
         </div>
       </div>
+
       <div class="grid lg:grid-cols-2 grid-cols-1 gap-5">
         <Card title="Account Receivable">
           <template #header>
@@ -175,14 +146,11 @@
           <apexchart
             type="line"
             height="300"
-            :options="
-              this.$store.themeSettingsStore.isDark
-                ? basiclineOneDark.chartOptions
-                : basiclineOne.chartOptions
-            "
+            :options="themeSettingsStore.isDark ? basiclineOneDark.chartOptions : basiclineOne.chartOptions"
             :series="basiclineOne.series"
           />
         </Card>
+
         <Card title="Account Payable">
           <template #header>
             <DropEvent />
@@ -190,11 +158,7 @@
           <apexchart
             type="line"
             height="300"
-            :options="
-              this.$store.themeSettingsStore.isDark
-                ? basiclintwoDark.chartOptions
-                : basiclintwo.chartOptions
-            "
+            :options="themeSettingsStore.isDark ? basiclintwoDark.chartOptions : basiclintwo.chartOptions"
             :series="basiclintwo.series"
           />
         </Card>
@@ -202,13 +166,20 @@
     </div>
   </div>
 </template>
-<script>
-import Breadcrumb from "./Analytics-Component/Breadcrumbs";
-import Button from "@/components/Button";
-import Card from "@/components/Card";
-import BankTable from "./Analytics-Component/BankTable";
-import CardSlider from "./Analytics-Component/CardSlider";
-import Textinput from "@/components/Textinput";
+
+<script setup>
+import { ref } from 'vue'
+import { useThemeSettingsStore } from '@/store/themeSettings'
+
+import Breadcrumb from './Analytics-Component/Breadcrumbs'
+import Button from '@/components/Button'
+import Card from '@/components/Card'
+import BankTable from './Analytics-Component/BankTable'
+import CardSlider from './Analytics-Component/CardSlider'
+import Textinput from '@/components/Textinput'
+import DropEvent from './Analytics-Component/DropEvent'
+import SelectMonth from './Analytics-Component/SelectMonth'
+
 import {
   basicArea2,
   basicArea2Dark,
@@ -219,87 +190,54 @@ import {
   columnCharthome2,
   columnCharthome3,
   columnCharthome4,
-} from "./Analytics-Component/data";
-import DropEvent from "./Analytics-Component/DropEvent";
-import SelectMonth from "./Analytics-Component/SelectMonth";
-export default {
-  components: {
-    Card,
-    CardSlider,
-    BankTable,
-    Button,
-    SelectMonth,
-    DropEvent,
-    Breadcrumb,
-    Textinput,
+} from './Analytics-Component/data'
+
+const themeSettingsStore = useThemeSettingsStore()
+
+const activeIndex = ref(null)
+
+const statistics = [
+  {
+    name: columnCharthome3,
+    title: 'Current balance ',
+    count: '$34,564',
+    bg: 'bg-[#E5F9FF] dark:bg-slate-900',
+    text: 'text-info-500',
+    icon: 'heroicons:shopping-cart',
   },
-  data() {
-    return {
-      activeIndex: null,
-      basicArea2,
-      basicArea2Dark,
-      basiclineOne,
-      basiclineOneDark,
-      basiclintwo,
-      basiclintwoDark,
-      statistics: [
-        {
-          name: columnCharthome3,
-          title: "Current balance ",
-          count: "$34,564",
-          bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-          text: "text-info-500",
-          icon: "heroicons:shopping-cart",
-        },
-        {
-          name: columnCharthome4,
-          title: "Credit",
-          count: "$3,564",
-          bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-          text: "text-warning-500",
-          icon: "heroicons:cube",
-        },
-        {
-          name: columnCharthome2,
-          title: "Debit",
-          count: "$3,564",
-          bg: "bg-[#E5F9FF] dark:bg-slate-900	",
-          text: "text-[#5743BE]",
-          icon: "heroicons:arrow-trending-up-solid",
-        },
-      ],
-      users: [
-        {
-          name: "Ab",
-        },
-        {
-          name: "Bc",
-        },
-        {
-          name: "Cd",
-        },
-        {
-          name: "Df",
-        },
-        {
-          name: "Ab",
-        },
-        {
-          name: "Sd",
-        },
-        {
-          name: "Sg",
-        },
-      ],
-    };
+  {
+    name: columnCharthome4,
+    title: 'Credit',
+    count: '$3,564',
+    bg: 'bg-[#E5F9FF] dark:bg-slate-900',
+    text: 'text-warning-500',
+    icon: 'heroicons:cube',
   },
-  methods: {
-    selectUser(user) {
-      this.activeIndex = user;
-    },
+  {
+    name: columnCharthome2,
+    title: 'Debit',
+    count: '$3,564',
+    bg: 'bg-[#E5F9FF] dark:bg-slate-900',
+    text: 'text-[#5743BE]',
+    icon: 'heroicons:arrow-trending-up-solid',
   },
-};
+]
+
+const users = [
+  { name: 'Ab' },
+  { name: 'Bc' },
+  { name: 'Cd' },
+  { name: 'Df' },
+  { name: 'Ab' },
+  { name: 'Sd' },
+  { name: 'Sg' },
+]
+
+function selectUser(userIndex) {
+  activeIndex.value = userIndex
+}
 </script>
+
 <style lang="scss">
 .bank-table {
   tr {

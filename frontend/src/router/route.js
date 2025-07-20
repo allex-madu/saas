@@ -141,8 +141,6 @@ const routes = [
         }
       },
 
-
-
       {
         path: "ecommerce",
         name: "ecommerce",
@@ -175,7 +173,8 @@ const routes = [
         component: () => import("@/views/home/project.vue"),
         meta: {
           hide: true,
-          role: ['admin', 'super-admin'] 
+          middleware: [auth],
+          requiresAuth: true,
         },
       },
       {

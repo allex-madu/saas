@@ -44,9 +44,13 @@
       <div
         v-else
         class="menu-link"
-        :class="activeSubmenu === i ? 'parent_active not-collapsed' : 'collapsed'"
-        @click="toggleSubmenu(i)" 
+        :class="[
+          activeSubmenu === i ? 'parent_active not-collapsed' : 'collapsed',
+          item.isHeadr ? 'pointer-events-none cursor-default' : ''
+        ]"
+        @click="!item.isHeadr && toggleSubmenu(i)"
       >
+
         <div class="flex-1 flex items-start">
           <!-- Ícone do item pai -->
           <span class="menu-icon" v-if="item.icon">
@@ -58,7 +62,7 @@
         </div>
 
         <!-- Ícone de seta com rotação dinâmica (indica aberto ou fechado) -->
-        <div class="flex-0">
+        <div class="flex-0" v-if="!item.isHeadr">
           <div
             class="menu-arrow transform transition-all duration-300"
             :class="activeSubmenu === i

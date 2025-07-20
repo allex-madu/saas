@@ -12,23 +12,23 @@ export const menuItems = [
   {
     title: "Dashboard",
     icon: "heroicons-outline:home",
-    isOpen: true,
+    //role: ["admin", "super-admin"], 
     child: [
       {
-        childtitle: "Analytics Dashboard",
+        childtitle: "Home",
         childlink:  { name: "home" },
       },
       {
         childtitle: "Ecommerce Dashboard",
-        childlink: "ecommerce",
+        childlink: { name: "ecommerce" },
       },
       {
         childtitle: "Project  Dashbaord",
-        childlink: "project",
+        childlink: { name: "project" },
       },
       {
         childtitle: " CRM Dashbaord",
-        childlink: "crm",
+        childlink: { name: "crm" },
       },
       {
         childtitle: "Banking Dashboard",
@@ -41,7 +41,6 @@ export const menuItems = [
    {
     title: "Gerenciamento",
     icon: "heroicons:clipboard-document-check",
-    isOpen: false,
     role: ["admin", "super-admin"], // controla pai e filhos
     child: [
       {
@@ -63,7 +62,7 @@ export const menuItems = [
  {
   title: "Pessoas",
   icon: "heroicons:user-group",
-  role: ["admin", "super-admin"], // controla pai e filhos
+  role: ["admin", "super-admin"], 
   child: [
     {
       childtitle: "Perfil de Usuário",

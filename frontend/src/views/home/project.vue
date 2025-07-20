@@ -43,11 +43,7 @@
                   <apexchart
                     type="donut"
                     height="113"
-                    :options="
-                      this.$store.themeSettingsStore.isDark
-                        ? donutTwoDark.chartOptions
-                        : donutTwo.chartOptions
-                    "
+                    :options="isDark ? donutTwoDark.chartOptions : donutTwo.chartOptions"
                     :series="donutTwo.series"
                   />
                 </div>
@@ -61,11 +57,7 @@
             <apexchart
               type="area"
               height="310"
-              :options="
-                this.$store.themeSettingsStore.isDark
-                  ? basicAreaDark.chartOptions
-                  : basicArea.chartOptions
-              "
+              :options="isDark ? basicAreaDark.chartOptions : basicArea.chartOptions"
               :series="basicArea.series"
             />
           </Card>
@@ -81,7 +73,8 @@
               <v-calendar
                 is-expanded
                 :attributes="attributes"
-                :is-dark="this.$store.themeSettingsStore.isDark"
+                :is-dark="isDark"
+
               />
             </div>
             <ul class="divide-y divide-slate-100 dark:divide-slate-700">
@@ -323,189 +316,75 @@
     </div>
   </div>
 </template>
-<script>
-import Breadcrumb from "./Analytics-Component/Breadcrumbs";
-import Card from "@/components/Card";
-import Checkbox from "@/components/Checkbox";
-import Icon from "@/components/Icon";
-import { message, TodoList, trackingParcel } from "../../constant/data"; 
-import {
-  basicArea,
-  basicAreaDark,
-  donutTwo,
-  donutTwoDark,
-  pieChart,
-} from "./Analytics-Component/data";
-import DropEvent from "./Analytics-Component/DropEvent";
-import SelectMonth from "./Analytics-Component/SelectMonth";
-import Teamtable from "./Analytics-Component/Teamtable";
 
-import sk from "@/assets/images/svg/sk.svg";
-import path from "@/assets/images/svg/path.svg";
-import dc from "@/assets/images/svg/dc.svg";
+<script setup>
+import { ref, computed } from 'vue'
+import { useThemeSettingsStore } from '@/store/themeSettings'
 
-import file1Img from '@/assets/images/icon/file-1.svg';
-import file2Img from '@/assets/images/icon/pdf-1.svg';
-import file3Img from '@/assets/images/icon/zip-1.svg';
-import file4Img from '@/assets/images/icon/pdf-2.svg';
-import file5Img from '@/assets/images/icon/scr-1.svg';
+import Breadcrumb from './Analytics-Component/Breadcrumbs'
+import Card from '@/components/Card'
+import Checkbox from '@/components/Checkbox'
+import Icon from '@/components/Icon'
+import DropEvent from './Analytics-Component/DropEvent'
+import SelectMonth from './Analytics-Component/SelectMonth'
+import Teamtable from './Analytics-Component/Teamtable'
 
+import { message as messageData, TodoList as todoData, trackingParcel as trackingData } from '@/constant/data'
+import { basicArea, basicAreaDark, donutTwo, donutTwoDark, pieChart } from './Analytics-Component/data'
 
-export default {
-  components: {
-    Card,
-    Icon,
-    Checkbox,
-    Teamtable,
-    DropEvent,
-    Breadcrumb,
-    SelectMonth,
-  },
-  data() {
-    return {
-      basicArea,
-      basicAreaDark,
-      pieChart,
-      donutTwo,
-      donutTwoDark,
-      trackingParcel,
-      message,
-      TodoList,
+import sk from '@/assets/images/svg/sk.svg'
+import path from '@/assets/images/svg/path.svg'
+import dc from '@/assets/images/svg/dc.svg'
 
-      attributes: [
-        {
-          key: "today",
-          highlight: {
-            color: "gray-500",
-            fillMode: "solid",
-          },
+import file1Img from '@/assets/images/icon/file-1.svg'
+import file2Img from '@/assets/images/icon/pdf-1.svg'
+import file3Img from '@/assets/images/icon/zip-1.svg'
+import file4Img from '@/assets/images/icon/pdf-2.svg'
+import file5Img from '@/assets/images/icon/scr-1.svg'
 
-          dates: new Date(),
-        },
-        {},
-      ],
-      meets: [
-        {
-          img: sk,
-          title: "Meeting with client",
-          date: "01 Nov 2021",
-          meet: "Zoom meeting",
-        },
-        {
+const themeSettingsStore = useThemeSettingsStore()
+const isDark = computed(() => themeSettingsStore.isDark)
 
-          img: path,
-          title: "Design meeting (team)",
-          date: "01 Nov 2021",
-          meet: "Skyp meeting",
-        },
-        {
-          img:dc,
-          title: "Background research",
-          date: "01 Nov 2021",
-          meet: "Google meeting",
-        },
-        {
-          img: sk,
-          title: "Meeting with client",
-          date: "01 Nov 2021",
-          meet: "Zoom meeting",
-        },
-      ],
-      files: [
-        {
-          img: file1Img,
-          title: "Dashboard.fig",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file2Img,
-          title: "Ecommerce.pdf",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file3Img,
-          title: "Job portal_app.zip",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file4Img,
-          title: "Ecommerce.pdf",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file5Img,
-          title: "Screenshot.jpg",
-          date: "06 June 2021 / 155MB",
-        },
-      ],
-      statistics: [
-        {
-          title: "Total Task",
-          count: "64",
-          bg: "bg-info-500",
-          text: "text-info-500",
-          percent: "25.67% ",
-          icon: "heroicons-outline:menu-alt-1",
-        },
-        {
-          title: "Completed ",
-          count: "45",
+const statistics = ref([
+  { title: 'Total Task', count: '64', bg: 'bg-info-500', text: 'text-info-500', percent: '25.67%', icon: 'heroicons-outline:menu-alt-1' },
+  { title: 'Completed', count: '45', bg: 'bg-warning-500', text: 'text-warning-500', percent: '8.67%', icon: 'heroicons-outline:chart-pie' },
+  { title: 'Hours', count: '190', bg: 'bg-primary-500', text: 'text-primary-500', percent: '1.67%', icon: 'heroicons-outline:clock' },
+  { title: 'Spendings', count: '$3,564', bg: 'bg-success-500', text: 'text-success-500', percent: '11.67%', icon: 'heroicons-outline:calculator' }
+])
 
-          bg: "bg-warning-500",
-          text: "text-warning-500",
-          percent: "8.67%",
-          icon: "heroicons-outline:chart-pie",
-        },
-        {
-          title: "Hours",
-          count: "190",
-          bg: "bg-primary-500",
-          text: "text-primary-500",
-          percent: "1.67%  ",
-          icon: "heroicons-outline:clock",
-        },
-        {
-          title: "Spendings",
-          count: "$3,564",
-          bg: "bg-success-500",
-          text: "text-success-500",
-          percent: "11.67%  ",
-          icon: "heroicons-outline:calculator",
-        },
-      ],
-      Campaigns: [
-        {
-          name: "Channel",
-          value: "roi",
-        },
-        {
-          name: "Email",
-          value: "40%",
-        },
-        {
-          name: "Website",
-          value: "28%",
-        },
-        {
-          name: "Facebook",
-          value: "34%",
-        },
-        {
-          name: "Offline",
-          value: "17%",
-        },
-      ],
-    };
-  },
-  methods: {
-    removeTodo(i) {
-      this.TodoList = this.TodoList.filter((todo) => {
-        return todo.id !== i;
-      });
-    },
-  },
-};
+const attributes = ref([
+  { key: 'today', highlight: { color: 'gray-500', fillMode: 'solid' }, dates: new Date() },
+  {}
+])
+
+const meets = ref([
+  { img: sk, title: 'Meeting with client', date: '01 Nov 2021', meet: 'Zoom meeting' },
+  { img: path, title: 'Design meeting (team)', date: '01 Nov 2021', meet: 'Skyp meeting' },
+  { img: dc, title: 'Background research', date: '01 Nov 2021', meet: 'Google meeting' },
+  { img: sk, title: 'Meeting with client', date: '01 Nov 2021', meet: 'Zoom meeting' }
+])
+
+const files = ref([
+  { img: file1Img, title: 'Dashboard.fig', date: '06 June 2021 / 155MB' },
+  { img: file2Img, title: 'Ecommerce.pdf', date: '06 June 2021 / 155MB' },
+  { img: file3Img, title: 'Job portal_app.zip', date: '06 June 2021 / 155MB' },
+  { img: file4Img, title: 'Ecommerce.pdf', date: '06 June 2021 / 155MB' },
+  { img: file5Img, title: 'Screenshot.jpg', date: '06 June 2021 / 155MB' }
+])
+
+const TodoList = ref([...todoData])
+const message = ref([...messageData])
+const trackingParcel = ref([...trackingData])
+
+function removeTodo(id) {
+  TodoList.value = TodoList.value.filter(todo => todo.id !== id)
+}
 </script>
+
+<style lang="scss">
+/* permanece igual */
+</style>
+
 <style lang="scss">
 .custom-calender {
   .vc-pane-container,
