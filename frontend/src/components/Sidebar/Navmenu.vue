@@ -217,9 +217,13 @@ const visibleItems = computed(() => {
         child: menu.child?.filter(child => hasRole(child.role ?? parentRole)) || []
       }
     })
-    // Remove menus com submenu vazio
-    .filter(menu => !menu.child || menu.child.length > 0)
-})
+    // Mantém cabeçalhos (isHeadr) e menus com filhos visíveis
+  .filter(menu =>
+      menu.isHeadr ||
+      !menu.child ||
+      (Array.isArray(menu.child) && menu.child.length > 0)
+    )
+  })
 
 // Fecha o sidebar mobile ao navegar para nova rota
 watch(() => route.name, () => {
