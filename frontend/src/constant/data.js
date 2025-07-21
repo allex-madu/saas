@@ -57,6 +57,7 @@ export const menuItems = [
   {
     isHeadr: true,
     title: "Cadastros",
+    role: ["admin", "super-admin"], 
   },
 
  {

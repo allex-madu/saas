@@ -94,4 +94,32 @@ class PermissionController extends Controller
 
         return response()->json(['message' => 'Permissão removida com sucesso.']);
     }
+
+
+    public function grouped()
+    {
+        $permissions = \Spatie\Permission\Models\Permission::all();
+
+        $grouped = [];
+
+        foreach ($permissions as $permission) {
+            $parts = explode('.', $permission->name);
+            $group = $parts[0] ?? 'Outros';
+
+            if (!isset($grouped[$group])) {
+                $grouped[$group] = [
+                    'title' => ucfirst($group), // ex: 'Usuários'
+                    'children' => [],
+                ];
+            }
+
+            $grouped[$group]['children'][] = [
+                'name' => $permission->name,
+                'description' => $permission->description ?? $permission->name,
+            ];
+        }
+
+        return response()->json(array_values($grouped));
+    }
+
 }
