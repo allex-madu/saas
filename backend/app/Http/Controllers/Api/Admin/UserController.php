@@ -1,6 +1,6 @@
 <?php 
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
@@ -18,7 +18,6 @@ class UserController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-
             $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%$search%")
                 ->orWhereHas('person', function ($personQ) use ($search) {
@@ -33,23 +32,40 @@ class UserController extends Controller
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
         }
 
-        $users = $query->paginate($request->get('per_page', 10));
+        $perPage = $request->get('per_page', 10);
+        $users = $query->paginate($perPage);
 
         // Transforma os papéis em array de objetos por usuário
         $users->getCollection()->transform(function ($user) {
-            // Mantém os objetos de papel (ex: {id, name})
             $user->roles = $user->roles->map(fn($role) => [
                 'id' => $role->id,
                 'name' => $role->name,
             ]);
             return $user;
         });
-        $roles = Role::all();
+
+        $roles = Role::select('id', 'name')->get();
+
         return response()->json([
-            'users' => $users,
-            'roles' => $roles,
+            'data' => $users->items(), // lista de usuários
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ],
+            'links' => [
+                'first' => $users->url(1),
+                'last' => $users->url($users->lastPage()),
+                'prev' => $users->previousPageUrl(),
+                'next' => $users->nextPageUrl(),
+            ],
+            'extra' => [
+                'roles' => $roles,
+            ],
         ]);
     }
+
 
 
 

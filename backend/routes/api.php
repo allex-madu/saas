@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\UserRoleController;
-use App\Http\Controllers\Admin\PersonController;
+use App\Http\Controllers\Api\Admin\PermissionController;
+use App\Http\Controllers\Api\Admin\UserController;
+use App\Http\Controllers\Api\Admin\PersonController;
+use App\Http\Controllers\Api\Admin\UserRoleController;
 
 Route::prefix('v1')->group(function () {
     
@@ -21,7 +23,8 @@ Route::prefix('v1')->group(function () {
    
     Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
 
-        Route::apiResource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::apiResource('users', UserController::class);
+        Route::apiResource('permissions', PermissionController::class);
         Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
         Route::get('/people', [PersonController::class, 'index']);
         Route::get('roles', [UserRoleController::class, 'index']);
