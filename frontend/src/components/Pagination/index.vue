@@ -30,71 +30,55 @@
           placeholder="Go"
           classInput=" w-[60px] h-9 "
           :options="options"
-        >
-        </Select>
-
+        />
         <span class="text-sm text-slate-500 inline-block ltr:ml-2 rtl:mr-2">
-          of {{ perPage }} entries</span
-        >
+          of {{ perPage }} entries
+        </span>
       </div>
     </div>
+
     <ul class="pagination" :class="paginationClass">
-      <li
-        class="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180"
-      >
+      <li class="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
         <button
           @click.prevent="changePage(prevPage)"
           :disabled="current === 1"
           :class="current === 1 ? ' opacity-50 cursor-not-allowed' : ''"
         >
           <Icon icon="heroicons-outline:chevron-left" v-if="!enableText" />
-          <span v-if="enableText" class="text-sm inline-block rtl:-rotate-180"
-            >Previous</span
-          >
+          <span v-if="enableText" class="text-sm inline-block rtl:-rotate-180">Previous</span>
         </button>
       </li>
-      <li class="" v-if="hasFirst()">
+
+      <li v-if="hasFirst()">
         <button @click.prevent="changePage(1)">
-          <div>
-            <span> 1 </span>
-          </div>
+          <div><span>1</span></div>
         </button>
       </li>
       <li class="text-slate-600 dark:text-slate-300" v-if="hasFirst()">...</li>
-      <li class="" v-for="(page, i) in pages" :key="i">
+
+      <li v-for="(page, i) in pages" :key="i">
         <button @click.prevent="changePage(page)">
-          <div
-            :class="{
-              active: current === page,
-            }"
-            class=""
-          >
-            <span class="">{{ page }}</span>
+          <div :class="{ active: current === page }">
+            <span>{{ page }}</span>
           </div>
         </button>
       </li>
+
       <li class="text-slate-600 dark:text-slate-300" v-if="hasLast()">...</li>
-      <li class="" v-if="hasLast()">
+      <li v-if="hasLast()">
         <button @click.prevent="changePage(totalPages)">
-          <div>
-            <span> {{ totalPages }} </span>
-          </div>
+          <div><span>{{ totalPages }}</span></div>
         </button>
       </li>
-      <li
-        class="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180"
-      >
+
+      <li class="text-xl leading-4 text-slate-900 dark:text-white rtl:rotate-180">
         <button
           @click.prevent="changePage(nextPage)"
           :disabled="current === totalPages"
-          :class="
-            current === totalPages ? ' opacity-50 cursor-not-allowed' : ''
-          "
+          :class="current === totalPages ? ' opacity-50 cursor-not-allowed' : ''"
         >
           <Icon icon="heroicons-outline:chevron-right" v-if="!enableText" />
-          <span v-if="enableText" class="text-sm rtl:-rotate-180 inline-block"
-            >Next</span
-          >
+          <span v-if="enableText" class="text-sm rtl:-rotate-180 inline-block">Next</span>
         </button>
       </li>
     </ul>
@@ -105,75 +89,27 @@
 import Icon from "@/components/Icon";
 import Select from "@/components/Select";
 import { defineComponent } from "vue";
+
 export default defineComponent({
   name: "Pagination",
-  components: {
-    Icon,
-    Select,
-  },
+  components: { Icon, Select },
   props: {
-    options: {
-      type: Array,
-      default: () => [{}],
-    },
-    enableText: {
-      type: Boolean,
-      default: false,
-    },
-    enableInput: {
-      type: Boolean,
-      default: false,
-    },
-    enableSelect: {
-      type: Boolean,
-      default: false,
-    },
-    enableSearch: {
-      type: Boolean,
-      default: false,
-    },
-    pageChanged: {
-      type: Function,
-    },
-    perPageChanged: {
-      type: Function,
-    },
-    current: {
-      type: Number,
-      default: 1,
-    },
-    total: {
-      type: Number,
-      default: 0,
-    },
-    perPage: {
-      type: Number,
-      default: 10,
-    },
-    pageRange: {
-      type: Number,
-      default: 2,
-    },
-    textBeforeInput: {
-      type: String,
-      default: "Go to page",
-    },
-    textAfterInput: {
-      type: String,
-      default: "Go",
-    },
-    paginationClass: {
-      type: String,
-      default: "default",
-    },
-    searchClasss: {
-      type: String,
-      default: "default",
-    },
-    wrapperClass: {
-      type: String,
-      default: "justify-between",
-    },
+    options: { type: Array, default: () => [{}] },
+    enableText: { type: Boolean, default: false },
+    enableInput: { type: Boolean, default: false },
+    enableSelect: { type: Boolean, default: false },
+    enableSearch: { type: Boolean, default: false },
+    pageChanged: { type: Function },
+    perPageChanged: { type: Function },
+    current: { type: Number, default: 1 },
+    total: { type: Number, default: 0 },
+    perPage: { type: Number, default: 10 },
+    pageRange: { type: Number, default: 2 },
+    textBeforeInput: { type: String, default: "Go to page" },
+    textAfterInput: { type: String, default: "Go" },
+    paginationClass: { type: String, default: "default" },
+    searchClasss: { type: String, default: "default" },
+    wrapperClass: { type: String, default: "justify-between" },
   },
   data() {
     return {
@@ -181,59 +117,50 @@ export default defineComponent({
       input2: null,
     };
   },
+  computed: {
+    pages() {
+      const pages = [];
+      for (let i = this.rangeStart; i <= this.rangeEnd; i++) {
+        pages.push(i);
+      }
+      return pages;
+    },
+    rangeStart() {
+      return Math.max(this.current - this.pageRange, 1);
+    },
+    rangeEnd() {
+      return Math.min(this.current + this.pageRange, this.totalPages);
+    },
+    totalPages() {
+      return Math.ceil(this.total / this.perPage);
+    },
+    nextPage() {
+      return this.current + 1;
+    },
+    prevPage() {
+      return this.current - 1;
+    },
+  },
   methods: {
-    hasFirst: function () {
+    hasFirst() {
       return this.rangeStart !== 1;
     },
-    hasLast: function () {
+    hasLast() {
       return this.rangeEnd < this.totalPages;
     },
-    hasPrev: function () {
-      return this.current > 1;
-    },
-    hasNext: function () {
-      return this.current < this.totalPages;
-    },
-    changePage: function (page) {
+    changePage(page) {
       if (page > 0 && page <= this.totalPages) {
         this.$emit("page-changed", page);
-      }
-      if (this.pageChanged) {
-        this.pageChanged({ currentPage: page });
+        if (typeof this.pageChanged === "function") {
+          this.pageChanged({ currentPage: page });
+        }
       }
     },
     customPerPageChange(page) {
-      this.perPageChanged({ currentPerPage: page });
-    },
-  },
-  computed: {
-    pages: function () {
-      var pages = [];
-
-      for (var i = this.rangeStart; i <= this.rangeEnd; i++) {
-        pages.push(i);
+      this.$emit("per-page-change", page);
+      if (typeof this.perPageChanged === "function") {
+        this.perPageChanged({ currentPerPage: page });
       }
-
-      return pages;
-    },
-    rangeStart: function () {
-      var start = this.current - this.pageRange;
-
-      return start > 0 ? start : 1;
-    },
-    rangeEnd: function () {
-      var end = this.current + this.pageRange;
-
-      return end < this.totalPages ? end : this.totalPages;
-    },
-    totalPages: function () {
-      return Math.ceil(this.total / this.perPage);
-    },
-    nextPage: function () {
-      return this.current + 1;
-    },
-    prevPage: function () {
-      return this.current - 1;
     },
   },
 });
@@ -247,7 +174,7 @@ export default defineComponent({
     div {
       @apply bg-slate-100 dark:bg-slate-700 dark:text-slate-400 text-slate-900 text-sm font-normal rounded leading-[16px] flex h-6 w-6 items-center justify-center transition-all duration-150;
       &.active {
-        @apply bg-slate-900 dark:bg-slate-600  dark:text-slate-200 text-white font-medium;
+        @apply bg-slate-900 dark:bg-slate-600 text-white font-medium;
       }
     }
   }
@@ -271,9 +198,9 @@ export default defineComponent({
     }
   }
   &.border-group {
-    @apply border border-[#D8DEE6] rounded-[3px]  px-0 space-x-0 rtl:space-x-reverse;
+    @apply border border-[#D8DEE6] rounded-[3px] px-0 space-x-0 rtl:space-x-reverse;
     li {
-      @apply border-r border-[#D8DEE5] h-full flex flex-col  justify-center px-3  last:border-none text-slate-500;
+      @apply border-r border-[#D8DEE5] h-full flex flex-col justify-center px-3 last:border-none text-slate-500;
       a,
       div {
         @apply bg-transparent text-slate-500 dark:text-white h-auto w-auto;

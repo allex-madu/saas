@@ -49,7 +49,7 @@ export const menuItems = [
       },
       {
         childtitle: "Permissões",
-        childlink: "admin.users",
+        childlink: { name: "admin.permissions.index" },
       },
     ],
   },

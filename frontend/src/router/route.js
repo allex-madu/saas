@@ -98,12 +98,10 @@ const routes = [
           hide: true,
         },
       },
-
-
-      {
+      {/* USERS */
         path: 'admin/users',
         name: 'admin.users',
-        component: () => import('@/views/admin/index.vue'),
+        component: () => import('@/views/admin/users/Index.vue'),
         meta: {
           middleware: [auth],         
           role: ['admin'],
@@ -113,7 +111,7 @@ const routes = [
       {
         path: 'admin/users/:id',
         name: 'admin.users.show',
-        component: () => import('@/views/admin/Show.vue'),
+        component: () => import('@/views/admin/users/Show.vue'),
         meta: {
           middleware: [auth],        
           role: ['admin'],
@@ -123,7 +121,7 @@ const routes = [
       {
         path: 'admin/users/create',
         name: 'admin.users.create',
-        component: () => import('@/views/admin/UserCreate.vue'),
+        component: () => import('@/views/admin/users/Create.vue'),
         meta: {
           middleware: [auth],         
           role: ['admin'],
@@ -133,13 +131,48 @@ const routes = [
       {
         path: 'admin/users/edit/:id',
         name: 'admin.users.edit',
-        component: () => import('@/views/admin/EditUser.vue'),
+        component: () => import('@/views/admin/users/Edit.vue'),
         meta: {
           middleware: [auth],        
           role: ['admin'],
           title: 'Editar Usuário',
         }
       },
+       {/* PERMISSIONS */
+        path: 'admin/permissions',
+        name: 'admin.permissions.index',
+        component: () => import('@/views/admin/permissions/Index.vue'),
+        meta: {
+          middleware: [auth],         
+          role: ['admin'],
+          title: 'Lista de Permissões',
+        }
+      },
+      {
+        path: '/admin/permissions/:id',
+        name: 'admin.permissions.show',
+        component: () => import('@/views/admin/permissions/Show.vue'),
+        meta: { requiresAuth: true, role: ['admin'] }
+      },
+      {
+        path: '/admin/permissions/create',
+        name: 'admin.permissions.create',
+        component: () => import('@/views/admin/permissions/Create.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['admin', 'super-admin']
+        }
+      },
+      {
+        path: 'permissions/:id/edit',
+        name: 'admin.permissions.edit',
+        component: () => import('@/views/admin/permissions/Edit.vue'),
+        meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
+      },
+
+
+
+
 
       {
         path: "ecommerce",

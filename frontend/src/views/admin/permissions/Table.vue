@@ -1,44 +1,44 @@
 <template>
   <div>
     <Card noborder>
-      <!-- Cabeçalho -->
+      <!-- Cabeçalho com botão "Novo" alinhado à direita -->
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
-        <div class="flex items-center justify-between w-full">
-          <h5 class="text-lg font-semibold">Usuários</h5>
-          <router-link :to="{ name: 'admin.users.create' }">
-            <button
-              type="button"
-              class="btn btn-primary h-[40px] text-sm font-medium flex items-center space-x-2"
-            >
-              <Icon icon="heroicons-outline:plus" />
-              <span>Novo Usuário</span>
-            </button>
-          </router-link>
-        </div>
+        <!-- Título à esquerda -->
+        <h5 class="text-lg font-semibold">Permissões</h5>
 
-        <InputGroup
-          v-model="searchTerm"
-          placeholder="Buscar usuário"
-          type="text"
-          prependIcon="heroicons-outline:search"
-          merged
-          class="ml-1"
-        />
+        <!-- Ações à direita -->
+        <div class="flex items-center gap-2">
+          <InputGroup
+            v-model="searchTerm"
+            placeholder="Buscar permissão"
+            type="text"
+            prependIcon="heroicons-outline:search"
+            merged
+            class="ml-1"
+          />
+
+          <Button
+            text="Novo"
+            icon="heroicons-outline:plus"
+            btnClass="btn-primary h-[40px] px-4"
+            @click="$router.push({ name: 'admin.permissions.create' })"
+          />
+        </div>
       </div>
 
       <!-- Estado: Erro ou sem resultados -->
       <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
-      <div v-else-if="!loading && users.length === 0" class="p-4 text-center text-gray-500">
-        Nenhum usuário encontrado.
+      <div v-else-if="!loading && permissions.length === 0" class="p-4 text-center text-gray-500">
+        Nenhuma permissão encontrada.
       </div>
 
       <!-- Tabela -->
       <vue-good-table
-        v-if="!error && users.length > 0"
+        v-if="!error && permissions.length > 0"
         :columns="columns"
-        styleClass="vgt-table bordered centered"
-        :rows="users"
+        :rows="permissions"
         :pagination-options="{ enabled: true, perPage }"
+        styleClass="vgt-table bordered centered"
         :loading="loading"
         :total-rows="pagination.total"
         :paginate="true"
@@ -53,25 +53,14 @@
           </template>
 
           <template v-else-if="props.column.field === 'name'">
-            <span>{{ props.row.person?.name || '-' }}</span>
+            <span class="font-medium">{{ props.row.name }}</span>
           </template>
 
-          <template v-else-if="props.column.field === 'email'">
-            <span>{{ props.row.email }}</span>
+          <template v-else-if="props.column.field === 'description'">
+            <span>{{ props.row.description || '-' }}</span>
           </template>
 
-          <template v-else-if="props.column.field === 'roles'">
-            <div>
-              <span
-                v-for="role in props.row.roles"
-                :key="role.id"
-                class="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded mr-1"
-              >
-                {{ role.name }}
-              </span>
-            </div>
-          </template>
-
+          <!-- Ações -->
           <template v-else-if="props.column.field === 'actions'">
             <Dropdown classMenuItems="w-[140px]">
               <span class="text-xl">
@@ -103,11 +92,9 @@
             <Pagination
               :total="pagination.total"
               :current="pagination.current_page"
-              :per-page="perPage"
-              :pageRange="5"
+              :perPage="perPage"
               @page-changed="handlePageChange"
-              :pageChanged="props.pageChanged"
-              :perPageChanged="props.perPageChanged"
+              @per-page-change="handlePerPageChange"
             />
           </div>
         </template>
@@ -117,68 +104,68 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import debounce from 'lodash.debounce'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import Swal from 'sweetalert2'
+import { storeToRefs } from 'pinia'
+import debounce from 'lodash.debounce'
+import { usePermissionStore } from '@/store/permissionsStore'
+import Button from "@/components/Button"
+
+// Componentes
 import Card from '@/components/Card'
 import InputGroup from '@/components/InputGroup'
-import Dropdown from '@/components/Dropdown'
 import Pagination from '@/components/Pagination'
+import Dropdown from '@/components/Dropdown'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
-import { useAdminUserStore } from '@/store/adminUserStore'
-import Swal from 'sweetalert2'
-import { useToast } from "vue-toastification";
 
-const adminUserStore = useAdminUserStore()
+// Stores e router
 const router = useRouter()
-const store = useAdminUserStore()
-const searchTerm = ref('')
-const users = computed(() => store.users)
-const pagination = computed(() => store.pagination)
-const loading = computed(() => store.loading)
-const error = computed(() => store.error)
-const perPage = computed(() => store.perPage)
-//const currentPage = computed(() => store.currentPage)
 const toast = useToast()
+const permissionStore = usePermissionStore()
+const { permissions, loading, error, pagination, perPage } = storeToRefs(permissionStore)
 
-// Busca com debounce
+// Busca
+const searchTerm = ref('')
 const debouncedSearch = debounce(() => {
-  store.fetchUsers(1, searchTerm.value, perPage.value)
+  permissionStore.fetchPermissions(1, searchTerm.value, perPage.value)
 }, 500)
-
 watch(searchTerm, debouncedSearch, { immediate: true })
 
 onMounted(() => {
-  store.fetchUsers(1, '', perPage.value)
+  permissionStore.fetchPermissions(1, '', perPage.value)
 })
 
+// Colunas
 const columns = [
   { label: 'ID', field: 'id' },
   { label: 'Nome', field: 'name' },
-  { label: 'Email', field: 'email' },
-  { label: 'Papéis', field: 'roles' },
+  { label: 'Descrição', field: 'description' },
   { label: 'Ações', field: 'actions' },
 ]
 
+// Ações do dropdown
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
   { name: 'editar', icon: 'heroicons:pencil-square' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
-function handleAction(action, user) {
+// Handler das ações
+function handleAction(action, permission) {
   switch (action) {
     case 'ver':
-      router.push({ name: 'admin.users.show', params: { id: user.id } })
+      router.push({ name: 'admin.permissions.show', params: { id: permission.id } })
       break
     case 'editar':
-      router.push({ name: 'admin.users.edit', params: { id: user.id } })
+      router.push({ name: 'admin.permissions.edit', params: { id: permission.id } })
       break
     case 'delete':
       Swal.fire({
         title: 'Tem certeza?',
-        text: `Deseja excluir o usuário ${user.person?.name}?`,
+        text: `Deseja excluir a permissão "${permission.name}"?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, excluir',
@@ -188,27 +175,24 @@ function handleAction(action, user) {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await adminUserStore.deleteUser(user.id)
-            toast.success(`Usuário ${user.person?.name ?? user.name ?? 'desconhecido'} deletado com sucesso!`)
-
+            await permissionStore.deletePermission(permission.id)
+            toast.success(`Permissão "${permission.name}" deletada com sucesso!`)
+            await permissionStore.fetchPermissions(1, searchTerm.value, perPage.value)
           } catch (error) {
-            toast.error('Erro ao deletar o usuário.')
+            toast.error('Erro ao deletar a permissão.')
           }
         }
       })
       break
   }
-} 
+}
 
+// Paginação
 function handlePageChange(page) {
-  store.currentPage = page
-  store.fetchUsers(page, searchTerm.value, perPage.value)
+  permissionStore.fetchPermissions(page, searchTerm.value, perPage.value)
 }
 
 function handlePerPageChange({ currentPerPage }) {
-  store.perPage = currentPerPage
-  store.fetchUsers(1, searchTerm.value, currentPerPage)
+  permissionStore.fetchPermissions(1, searchTerm.value, currentPerPage)
 }
 </script>
-
-

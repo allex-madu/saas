@@ -9,6 +9,11 @@
     <RouterLink :to="{ name: 'admin.users' }" class="text-blue-600 hover:underline">
       Gerenciar Usuários
     </RouterLink>
+    <br>
+    <RouterLink :to="{ name: 'admin.permissions.index' }" class="text-blue-600 hover:underline">
+      Permissões Usuários
+    </RouterLink>
+    
   </div>
   
   <br>
