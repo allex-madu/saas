@@ -10,7 +10,7 @@
         <div class="flex items-center gap-2">
           <InputGroup
             v-model="searchTerm"
-            placeholder="Buscar permissão"
+            placeholder="Buscar"
             type="text"
             prependIcon="heroicons-outline:search"
             merged

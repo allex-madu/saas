@@ -1,113 +1,184 @@
 <template>
   <div>
-    <div class="mb-4 flex justify-between items-center">
-      <h1 class="text-xl font-bold">Papéis</h1>
-      <router-link :to="{ name: 'roles.create' }" class="btn btn-primary">
-        Criar Papel
-      </router-link>
-    </div>
+    <Card noborder>
+      <!-- Cabeçalho -->
+      <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
+        <h5 class="text-lg font-semibold">Papéis</h5>
+        <div class="flex items-center gap-2">
+          <InputGroup
+            v-model="searchTerm"
+            placeholder="Buscar"
+            type="text"
+            prependIcon="heroicons-outline:search"
+            merged
+            class="ml-1"
+          />
+          <Button
+            text="Novo"
+            icon="heroicons-outline:plus"
+            btnClass="btn-primary h-[40px] px-4"
+            @click="$router.push({ name: 'admin.roles.create' })"
+          />
+        </div>
+      </div>
 
-    <vue-good-table
-      :columns="columns"
-      :rows="roles"
-      :pagination-options="{
-        enabled: true,
-        perPage: perPage,
-        perPageDropdownEnabled: true,
-        dropdownAllowAll: false,
-        setCurrentPage: currentPage,
-        nextLabel: 'Próximo',
-        prevLabel: 'Anterior'
-      }"
-      :totalRows="pagination.total"
-      :search-options="{ enabled: true, externalQuery: searchQuery }"
-      :line-numbers="true"
-      @on-page-change="onPageChange"
-      @on-per-page-change="onPerPageChange"
-    >
-      <template v-slot:table-actions>
-        <input
-          v-model="searchQuery"
-          @input="handleSearch"
-          placeholder="Buscar papel..."
-          class="form-input"
-        />
-      </template>
+      <!-- Estado vazio / erro -->
+      <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
+      <div v-else-if="!loading && roles.length === 0" class="p-4 text-center text-gray-500">
+        Nenhum papel encontrado.
+      </div>
 
-      <template #table-row="props">
-        <span v-if="props.column.field === 'actions'">
-          <Dropdown classMenuItems="w-[140px]">
-            <span class="text-xl">
-              <Icon icon="heroicons-outline:dots-vertical" />
-            </span>
-            <template #menus>
-              <MenuItem @click="router.push({ name: 'roles.show', params: { id: props.row.id } })">
-                Ver
-              </MenuItem>
-              <MenuItem @click="router.push({ name: 'roles.edit', params: { id: props.row.id } })">
-                Editar
-              </MenuItem>
-              <MenuItem @click="confirmDelete(props.row.id)">
-                <span class="text-danger-500">Excluir</span>
-              </MenuItem>
-            </template>
-          </Dropdown>
-        </span>
-      </template>
-    </vue-good-table>
+      <!-- Tabela -->
+      <vue-good-table
+        v-if="!error && roles.length > 0"
+        :columns="columns"
+        :rows="roles"
+        :pagination-options="{ enabled: true, perPage }"
+        styleClass="vgt-table bordered centered"
+        :loading="loading"
+        :total-rows="pagination.total"
+        :paginate="true"
+        :current-page="pagination.current_page"
+        @on-page-change="handlePageChange"
+        @on-per-page-change="handlePerPageChange"
+      >
+        <template #table-row="props">
+          <template v-if="props.column.field === 'name'">
+            <span class="font-medium">{{ props.row.name }}</span>
+          </template>
+
+          <template v-else-if="props.column.field === 'description'">
+            <span>{{ props.row.description || '-' }}</span>
+          </template>
+
+          <template v-else-if="props.column.field === 'actions'">
+            <Dropdown classMenuItems="w-[140px]">
+              <span class="text-xl">
+                <Icon icon="heroicons-outline:dots-vertical" />
+              </span>
+              <template #menus>
+                <MenuItem v-for="(item, i) in actions" :key="i">
+                  <div
+                    @click="handleAction(item.name, props.row)"
+                    :class="[
+                      'w-full border-b px-4 py-2 text-sm cursor-pointer flex items-center space-x-2',
+                      item.name === 'delete'
+                        ? 'bg-danger-500 text-danger-500 bg-opacity-30 hover:bg-opacity-100 hover:text-white'
+                        : 'hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50'
+                    ]"
+                  >
+                    <span class="text-base"><Icon :icon="item.icon" /></span>
+                    <span>{{ item.name }}</span>
+                  </div>
+                </MenuItem>
+              </template>
+            </Dropdown>
+          </template>
+        </template>
+
+        <template #pagination-bottom>
+          <div class="py-4 px-3">
+            <Pagination
+              :total="pagination.total"
+              :current="pagination.current_page"
+              :perPage="perPage"
+              @page-changed="handlePageChange"
+              @per-page-change="handlePerPageChange"
+            />
+          </div>
+        </template>
+      </vue-good-table>
+    </Card>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoleStore } from '@/stores/adminRoleStore'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
+import { storeToRefs } from 'pinia'
+import debounce from 'lodash.debounce'
+import { useAdminRoleStore } from '@/store/adminRoleStore'
 
+// Components
+import Button from '@/components/Button'
+import Card from '@/components/Card'
+import InputGroup from '@/components/InputGroup'
+import Pagination from '@/components/Pagination'
+import Dropdown from '@/components/Dropdown'
+import Icon from '@/components/Icon'
+import { MenuItem } from '@headlessui/vue'
+
+// Setup
 const router = useRouter()
-const roleStore = useRoleStore()
+const toast = useToast()
+const roleStore = useAdminRoleStore()
+const { roles, loading, error, pagination, perPage } = storeToRefs(roleStore)
 
-const searchQuery = ref('')
-const perPage = ref(10)
-const currentPage = ref(1)
+// Search
+const searchTerm = ref('')
+const debouncedSearch = debounce(() => {
+  roleStore.fetchRoles(1, searchTerm.value, perPage.value)
+}, 500)
+watch(searchTerm, debouncedSearch, { immediate: true })
 
-const { roles, pagination, fetchRoles, deleteRole } = roleStore
+onMounted(() => {
+  roleStore.fetchRoles(1, '', perPage.value)
+})
 
+// Columns
 const columns = [
   { label: 'Nome', field: 'name' },
+  { label: 'Descrição', field: 'description' },
   { label: 'Ações', field: 'actions' },
 ]
 
-const handleSearch = () => {
-  fetchRoles(currentPage.value, searchQuery.value, perPage.value)
+// Dropdown actions
+const actions = [
+  { name: 'ver', icon: 'heroicons-outline:eye' },
+  { name: 'editar', icon: 'heroicons:pencil-square' },
+  { name: 'delete', icon: 'heroicons-outline:trash' },
+]
+
+function handleAction(action, role) {
+  switch (action) {
+    case 'ver':
+      router.push({ name: 'admin.roles.show', params: { id: role.id } })
+      break
+    case 'editar':
+      router.push({ name: 'admin.roles.edit', params: { id: role.id } })
+      break
+    case 'delete':
+      Swal.fire({
+        title: 'Tem certeza?',
+        text: `Deseja excluir o papel "${role.name}"?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+            await roleStore.deleteRole(role.id)
+            toast.success(`Papel "${role.name}" deletado com sucesso!`)
+            await roleStore.fetchRoles(1, searchTerm.value, perPage.value)
+          } catch (error) {
+            toast.error('Erro ao deletar o papel.')
+          }
+        }
+      })
+      break
+  }
 }
 
-const onPageChange = (page) => {
-  currentPage.value = page
-  fetchRoles(page, searchQuery.value, perPage.value)
+function handlePageChange(page) {
+  roleStore.fetchRoles(page, searchTerm.value, perPage.value)
 }
 
-const onPerPageChange = (perPageValue) => {
-  perPage.value = perPageValue
-  fetchRoles(currentPage.value, searchQuery.value, perPageValue)
+function handlePerPageChange({ currentPerPage }) {
+  roleStore.fetchRoles(1, searchTerm.value, currentPerPage)
 }
-
-const confirmDelete = (id) => {
-  Swal.fire({
-    title: 'Excluir papel?',
-    text: 'Essa ação não poderá ser desfeita!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Sim, excluir',
-    cancelButtonText: 'Cancelar'
-  }).then(async (result) => {
-    if (result.isConfirmed) {
-      await deleteRole(id)
-    }
-  })
-}
-
-onMounted(() => {
-  fetchRoles()
-})
 </script>

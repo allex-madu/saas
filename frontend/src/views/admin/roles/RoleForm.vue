@@ -1,107 +1,96 @@
 <template>
-  <div>
-    <h2 class="text-xl font-bold mb-4">{{ isEdit ? 'Editar Papel' : 'Novo Papel' }}</h2>
+  <Card title="Criar Novo Papel">
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Nome e Descrição -->
+      <InputGroup label="Nome" v-model="form.name" type="text" required placeholder="Ex: admin" />
+      <InputGroup label="Descrição" v-model="form.description" type="text" placeholder="Descrição do papel" />
 
-    <form @submit.prevent="submitForm" class="space-y-4">
-      <div>
-        <label class="block font-medium">Nome</label>
-        <input
-          v-model="form.name"
-          type="text"
-          class="form-input w-full"
-          required
-        />
-      </div>
 
+      <!-- Permissões -->
       <div>
-        <label class="block font-medium mb-2">Permissões</label>
-        <div v-if="groupedPermissions">
-          <div v-for="(perms, group) in groupedPermissions" :key="group" class="mb-4 border rounded p-3">
-            <h4 class="font-semibold mb-2 capitalize">{{ group }}</h4>
-            <div class="flex flex-wrap gap-4">
-              <label
-                v-for="perm in perms"
-                :key="perm.name"
-                class="inline-flex items-center gap-2"
-              >
-                <input
-                  type="checkbox"
-                  :value="perm.name"
-                  v-model="form.permissions"
-                />
-                {{ perm.description ?? perm.name }}
-              </label>
-            </div>
-          </div>
+        <h6 class="font-semibold mb-2">Permissões</h6>
+        <div v-if="groupedPermissions.length === 0">Carregando permissões...</div>
+        <div v-else>
+          <PermissionTree v-model="form.permissions" :nodes="groupedPermissions" />
         </div>
       </div>
 
-      <div>
-        <button type="submit" class="btn btn-primary">
-          {{ isEdit ? 'Atualizar' : 'Criar' }}
-        </button>
+
+
+
+
+
+      <!-- Botões -->
+      <div class="flex justify-end gap-2">
+        <Button variant="outline" @click="$router.back()">Cancelar</Button>
+        <Button type="submit" :loading="loading">Salvar</Button>
       </div>
     </form>
-  </div>
+  </Card>
 </template>
 
+
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import api from '@/plugins/axios'
-import { toast } from 'vue3-toastify'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import { useAdminRoleStore } from '@/store/adminRoleStore'
+import PermissionTree from '@/components/PermissionTree.vue'
 
-const route = useRoute()
+
+import InputGroup from '@/components/InputGroup'
+import Button from '@/components/Button'
+import Card from '@/components/Card'
+
 const router = useRouter()
+const toast = useToast()
+const roleStore = useAdminRoleStore()
 
-const isEdit = computed(() => !!route.params.id)
 const form = ref({
   name: '',
-  permissions: [],
+  description: '',
+  permissions: []
 })
-const groupedPermissions = ref(null)
 
-const fetchGroupedPermissions = async () => {
-  try {
-    const { data } = await api.get('/api/v1/admin/permissions/grouped')
-    groupedPermissions.value = data
-  } catch (error) {
-    toast.error('Erro ao carregar permissões')
-    console.error(error)
+const loading = ref(false)
+const errors = ref({})
+const groupedPermissions = ref([]) 
+
+
+const toggleGroup = (actions, module) => {
+  const allSelected = actions.every(p => form.value.permissions.includes(p.name))
+  if (allSelected) {
+    form.value.permissions = form.value.permissions.filter(p => !actions.some(a => a.name === p))
+  } else {
+    const toAdd = actions.map(p => p.name)
+    form.value.permissions = Array.from(new Set([...form.value.permissions, ...toAdd]))
   }
 }
 
-const fetchRole = async (id) => {
-  try {
-    const { data } = await api.get(`/api/v1/admin/roles/${id}`)
-    form.value.name = data.role.name
-    form.value.permissions = data.role.permissions.map(p => p.name)
-  } catch (error) {
-    toast.error('Erro ao carregar papel')
-    console.error(error)
-  }
-}
-
-const submitForm = async () => {
-  try {
-    if (isEdit.value) {
-      await api.put(`/api/v1/admin/roles/${route.params.id}`, form.value)
-      toast.success('Papel atualizado com sucesso!')
-    } else {
-      await api.post('/api/v1/admin/roles', form.value)
-      toast.success('Papel criado com sucesso!')
-    }
-    router.push({ name: 'roles.index' })
-  } catch (error) {
-    toast.error('Erro ao salvar papel')
-    console.error(error)
-  }
-}
 
 onMounted(async () => {
-  await fetchGroupedPermissions()
-  if (isEdit.value) {
-    await fetchRole(route.params.id)
-  }
+  await roleStore.fetchGroupedPermissions()
+  groupedPermissions.value = roleStore.groupedPermissions
 })
+
+
+const handleSubmit = async () => {
+  loading.value = true
+  errors.value = {}
+
+  try {
+    const response = await roleStore.createRole(form.value)
+    toast.success(`Papel "${response.name}" criado com sucesso!`)
+    router.push({ name: 'admin.roles.index' })
+  } catch (err) {
+    toast.error('Erro ao criar papel.')
+    if (err.response?.status === 422) {
+      errors.value = err.response.data.errors || {}
+    } else {
+      console.error(err)
+    }
+  } finally {
+    loading.value = false
+  }
+}
 </script>

@@ -13,6 +13,12 @@
     <RouterLink :to="{ name: 'admin.permissions.index' }" class="text-blue-600 hover:underline">
       Permissões Usuários
     </RouterLink>
+    <br>
+    <RouterLink :to="{ name: 'admin.roles.index' }" class="text-blue-600 hover:underline">
+      Atribuições #
+    </RouterLink>
+
+    
     
   </div>
   

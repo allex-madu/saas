@@ -13,19 +13,37 @@ class RoleController extends Controller
      */
     public function index()
     {
-        // Busca todos os papéis
-        $roles = Role::all(); // Se estiver usando Spatie
+        $perPage = request()->get('per_page', 10);
+        $search = request()->get('search');
 
-        // Retorna os papéis em formato JSON
+        $query = Role::select('id', 'name', 'description', 'created_at') // ← description incluído aqui
+            ->orderBy('name');
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        $roles = $query->paginate($perPage);
+
         return response()->json([
-            'roles' => $roles->map(function($role) {
-                return [
-                    'value' => $role->id,
-                    'label' => $role->name,
-                ];
-            })
+            'data' => $roles->items(),
+            'meta' => [
+                'total' => $roles->total(),
+                'per_page' => $roles->perPage(),
+                'current_page' => $roles->currentPage(),
+                'last_page' => $roles->lastPage(),
+                'from' => $roles->firstItem(),
+                'to' => $roles->lastItem(),
+            ],
+            'links' => [
+                'next' => $roles->nextPageUrl(),
+                'prev' => $roles->previousPageUrl(),
+            ],
         ]);
     }
+
+
 
     
 
@@ -34,11 +52,16 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|unique:roles,name',
+            'description' => 'nullable|string', // ← adicione isso
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,name',
         ]);
 
-        $role = Role::create(['name' => $validated['name'], 'guard_name' => 'web']);
+        $role = Role::create([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null, // ← adicione isso
+            'guard_name' => 'web',
+        ]);
 
         if (!empty($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);
@@ -46,6 +69,7 @@ class RoleController extends Controller
 
         return response()->json(['role' => $role->load('permissions')], 201);
     }
+
 
     
 

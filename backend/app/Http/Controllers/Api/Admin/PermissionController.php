@@ -96,7 +96,7 @@ class PermissionController extends Controller
     }
 
 
-    public function grouped()
+   public function grouped()
     {
         $permissions = \Spatie\Permission\Models\Permission::all();
 
@@ -104,11 +104,12 @@ class PermissionController extends Controller
 
         foreach ($permissions as $permission) {
             $parts = explode('.', $permission->name);
-            $group = $parts[0] ?? 'Outros';
+            $group = $parts[0] ?? 'outros';
 
             if (!isset($grouped[$group])) {
                 $grouped[$group] = [
-                    'title' => ucfirst($group), // ex: 'Usuários'
+                    'title' => ucfirst($group),
+                    'name' => $group, // ← necessário para o componente
                     'children' => [],
                 ];
             }
@@ -119,7 +120,9 @@ class PermissionController extends Controller
             ];
         }
 
+        // Retorna como array de objetos com 'name', 'title', 'children'
         return response()->json(array_values($grouped));
     }
+
 
 }

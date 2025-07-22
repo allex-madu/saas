@@ -26,13 +26,13 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
 
         Route::apiResource('users', UserController::class);
-        Route::apiResource('roles', RoleController::class);
+        Route::apiResource('/role-management', RoleController::class);
         Route::get('/permissions/tree', [PermissionTreeController::class, 'index']);
         Route::get('/permissions/grouped', [PermissionController::class, 'grouped']);
         Route::apiResource('permissions', PermissionController::class);
         Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
         Route::get('/people', [PersonController::class, 'index']);
-        Route::get('roles', [UserRoleController::class, 'index']);
+        //Route::get('roles', [UserRoleController::class, 'index']);
 
         Route::get('permissions/grouped', function () {
             $permissions = \Spatie\Permission\Models\Permission::all();

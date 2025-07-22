@@ -45,7 +45,7 @@ export const menuItems = [
     child: [
       {
         childtitle: "Atribuições",
-        childlink: "admin.users",
+        childlink: { name: "admin.roles.index" },
       },
       {
         childtitle: "Permissões",
