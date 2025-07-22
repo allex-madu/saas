@@ -22,7 +22,7 @@
 
       <!-- Botões -->
       <div class="flex justify-end gap-2">
-        <Button variant="outline" @click="$router.back()">Cancelar</Button>
+        <Button type="button" variant="outline" @click="$router.back()">Cancelar</Button>
         <Button type="submit" :loading="loading">Salvar</Button>
       </div>
     </form>
@@ -35,7 +35,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAdminRoleStore } from '@/store/adminRoleStore'
-import PermissionTree from '@/components/PermissionTree.vue'
+import PermissionTree from '@/components/Permissions/PermissionTree.vue'
 
 
 import InputGroup from '@/components/InputGroup'
