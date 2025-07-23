@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
+
 
 class RoleController extends Controller
 {
@@ -43,10 +45,6 @@ class RoleController extends Controller
         ]);
     }
 
-
-
-    
-
    
     public function store(Request $request)
     {
@@ -66,38 +64,43 @@ class RoleController extends Controller
         if (!empty($validated['permissions'])) {
             $role->syncPermissions($validated['permissions']);
         }
-
         return response()->json(['role' => $role->load('permissions')], 201);
     }
 
 
     
 
-    public function show(Role $role)
+    public function show($id)
     {
-        return response()->json([
-            'role' => $role->load('permissions'),
-        ]);
+        $role = Role::with('permissions')->findOrFail($id);
+        return response()->json(['role' => $role]);
     }
+
 
    
 
     public function update(Request $request, Role $role)
     {
         $validated = $request->validate([
-            'name' => 'required|string|unique:roles,name,' . $role->id,
+            'name' => ['required'],
+            'description' => 'nullable|string',
             'permissions' => 'array',
             'permissions.*' => 'exists:permissions,name',
         ]);
 
-        $role->update(['name' => $validated['name']]);
+        $role->update([
+            'name' => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'guard_name' => 'web',
+        ]);
 
-        if (isset($validated['permissions'])) {
-            $role->syncPermissions($validated['permissions']);
-        }
+        $role->refresh();
+
+        $role->syncPermissions($validated['permissions'] ?? []);
 
         return response()->json(['role' => $role->load('permissions')]);
     }
+
 
    
     public function destroy(Role $role)

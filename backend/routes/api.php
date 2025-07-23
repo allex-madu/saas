@@ -26,7 +26,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
 
         Route::apiResource('users', UserController::class);
-        Route::apiResource('/role-management', RoleController::class);
+        Route::apiResource('role-management', RoleController::class)->parameters(['role-management' => 'role']);
         Route::get('/permissions/tree', [PermissionTreeController::class, 'index']);
         Route::get('/permissions/grouped', [PermissionController::class, 'grouped']);
         Route::apiResource('permissions', PermissionController::class);
