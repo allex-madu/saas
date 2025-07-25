@@ -10,7 +10,7 @@ class PermissionTreeController extends Controller
     public function index()
     {
         // Garante que o usuário tem permissão para visualizar a estrutura de permissões
-        //$this->authorize('viewAny', Permission::class);
+        $this->authorize('viewAny', Permission::class);
 
         return response()->json(Permission::treeStructure());
     }

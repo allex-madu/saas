@@ -50,8 +50,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-
-
   // Actions
   const login = async (email, password) => {
   loading.value = true

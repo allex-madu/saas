@@ -119,4 +119,4 @@ Este projeto utiliza o framework Laravel sob a licença [MIT](https://opensource
 
 ---
 
-## ✝️ Soli Deo Gloria
+## Soli Deo Gloria

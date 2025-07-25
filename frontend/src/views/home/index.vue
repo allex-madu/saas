@@ -83,8 +83,6 @@
       </div>
     </div>
 
-
-
     <div class="grid grid-cols-12 gap-5">
       <div class="lg:col-span-8 col-span-12">
         <Card>
@@ -205,8 +203,6 @@ const columnCharthomeComputed = computed(() => {
 
 
 const auth = useAuthStore()
-
-
 
 
 const handleLogout = async () => {

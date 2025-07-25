@@ -13,7 +13,7 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        //$this->authorize('viewAny', Permission::class); // Autoriza visualização geral
+        $this->authorize('viewAny', Permission::class); // Autoriza visualização geral
 
         $perPage = request()->get('per_page', 10);
         $search = request()->get('search');
@@ -51,7 +51,7 @@ class PermissionController extends Controller
      */
     public function store(Request $request)
     {
-        //$this->authorize('create', Permission::class); // Autoriza criação
+        $this->authorize('create', Permission::class); // Autoriza criação
 
         // Validação dos dados recebidos
         $validated = $request->validate([
@@ -77,7 +77,7 @@ class PermissionController extends Controller
      */
     public function show(Permission $permission)
     {
-        //$this->authorize('view', $permission); // Autoriza visualização específica
+        $this->authorize('view', $permission); // Autoriza visualização específica
 
         return response()->json([
             'permission' => $permission,
@@ -89,7 +89,7 @@ class PermissionController extends Controller
      */
     public function update(Request $request, Permission $permission)
     {
-        //$this->authorize('update', $permission); // Autoriza atualização
+        $this->authorize('update', $permission); // Autoriza atualização
 
         // Validação com exceção para o nome atual
         $validated = $request->validate([
@@ -111,7 +111,7 @@ class PermissionController extends Controller
      */
     public function destroy(Permission $permission)
     {
-        //$this->authorize('delete', $permission); // Autoriza exclusão
+        $this->authorize('delete', $permission); // Autoriza exclusão
 
         $permission->delete();
 
@@ -123,7 +123,7 @@ class PermissionController extends Controller
      */
     public function grouped()
     {
-        //$this->authorize('viewAny', Permission::class); // Autoriza visualização geral
+        $this->authorize('viewAny', Permission::class); // Autoriza visualização geral
 
         $permissions = \Spatie\Permission\Models\Permission::all();
 

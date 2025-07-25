@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        //$this->authorize('viewAny', User::class); // 🔐 Autoriza listagem de usuários
+        $this->authorize('viewAny', User::class);
 
         $query = User::with(['roles', 'person']);
 
@@ -75,7 +75,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        //$this->authorize('create', User::class); // 🔐 Autoriza criação
+        $this->authorize('create', User::class);
 
         $user = User::create([
             'person_id' => $request->person_id,
@@ -95,7 +95,7 @@ class UserController extends Controller
     {
         $user = User::with(['person', 'roles'])->findOrFail($id);
 
-       // $this->authorize('view', $user); //Autoriza visualização individual
+        $this->authorize('view', $user);
 
         return response()->json([
             'user' => $user,
@@ -121,7 +121,7 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        //$this->authorize('update', $user); // 🔐 Autoriza atualização
+        $this->authorize('update', $user); 
 
         $user->email = $request->email;
 
@@ -152,7 +152,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        //$this->authorize('delete', $user); // 🔐 Autoriza exclusão
+        $this->authorize('delete', $user);
 
         $user->delete();
 
@@ -164,7 +164,7 @@ class UserController extends Controller
      */
     public function syncRoles(Request $request, User $user)
     {
-        //$this->authorize('update', $user); // 🔐 Autoriza vincular papéis
+        $this->authorize('update', $user);
 
         $request->validate([
             'roles' => 'array',
