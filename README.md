@@ -13,7 +13,6 @@ Sistema de gestão completo e modular voltado para o segmento de padarias, com f
 - **Roteamento:** Vue Router
 - **Estilo:** Tailwind CSS
 - **Template:** [DashCode](https://codedthemes.com/item/vue-dashcode/) (customizado)
-  - Suporte a menu lateral com até **3 níveis**
 - **Componentes reutilizáveis:**  
   - `InputGroup`, `VueSelect`, `Combobox`, entre outros
 - **Sidebar dinâmica:**
@@ -68,5 +67,87 @@ Sistema de gestão completo e modular voltado para o segmento de padarias, com f
 
 ---
 
-## 📁 Estrutura de Diretórios
+
+# Segurança Frontend + Backend – Sessão Recapitulativa
+
+## ✅ Proteções Implementadas no Projeto Pão Com
+
+### 🔐 Backend (Laravel 12)
+- **Middleware Sanctum ativo** para autenticação de rotas `/admin`:
+  ```php
+  Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+      // Rotas administrativas
+  });
+  ```
+
+- **Proteção por Roles (Spatie)**:
+  - Comentado temporariamente para testes:
+    ```php
+    // Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(...);
+    ```
+
+- **Uso de `authorize()` nos Controllers**:
+  - Aplicado para proteger métodos como `index()` com base em Policies.
+  - Exemplo:
+    ```php
+    $this->authorize('viewAny', Role::class);
+    ```
+
+- **Gate::policy() ou AuthServiceProvider**:
+  - Política de autorização registrada corretamente para `RolePolicy`.
+
+---
+
+### 🛡️ Frontend (Vue 3 + Pinia)
+- **Proteção por papel (meta.role)** nas rotas Vue Router:
+  ```js
+  meta: { requiresAuth: true, role: ['admin', 'super-admin'] }
+  ```
+
+- **Middleware `auth.js` personalizado**:
+  - Busca `auth.user.roles` e verifica se o usuário tem o papel necessário.
+  - Se não tiver, redireciona para `home`.
+
+- **Links escondidos por função**:
+  ```vue
+  <RouterLink v-if="auth.hasRole(['admin', 'super-admin'])" ... />
+  ```
+
+---
+
+### 🧪 Modo Debug de Permissões (Frontend)
+- **Botão `Debug ON` exibido apenas em `import.meta.env.DEV`**
+- **Flag `authStore.debugPermissions`** ativa exibição de links mesmo sem papel.
+- **Utilizado para testar `authorize()` no backend sem bloqueios no frontend.**
+
+---
+
+### 🖼️ Fluxo de Segurança (Resumo Visual)
+1. Frontend protege visualmente links e rotas (`meta.role` + `v-if`).
+2. Backend protege endpoints com `authorize()` + `Policies`.
+3. Middleware Laravel (auth + role) pode proteger rotas REST inteiras.
+4. Em modo `debugPermissions`, frontend mostra tudo, mas backend ainda bloqueia.
+
+---
+
+### ✅ Testes Realizados
+- Login com usuários sem role: links escondidos no frontend e erro 403 no backend.
+- Debug ativado: links aparecem, mas backend nega se não tiver role/política.
+- Teste de `authorize` com usuário sem permissão mostra:
+  ```json
+  { "message": "This action is unauthorized." }
+  ```
+
+---
+
+### 📄 Sugestão para `.env` de desenvolvimento:
+```env
+VITE_DEBUG_PERMISSIONS=true
+APP_ENV=local
+```
+
+---
+
+**Glória a Deus! 🙌 Sistema seguro com proteção dupla e modo debug funcional!**
+
 

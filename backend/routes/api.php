@@ -21,7 +21,8 @@ Route::prefix('v1')->group(function () {
     });
 
     // Rotas administrativas (autenticado e com papel admin/super-admin)
-    Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
+    //Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
+    Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
 
         // CRUD de usuários
         Route::apiResource('users', UserController::class);
