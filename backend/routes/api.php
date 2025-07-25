@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Admin\PermissionController;
 use App\Http\Controllers\Api\Admin\PermissionTreeController;
 use App\Http\Controllers\Api\Admin\UserController;
@@ -10,61 +10,63 @@ use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\UserRoleController;
 
 Route::prefix('v1')->group(function () {
-    
-    // Rota de login (não precisa de autenticação)
+
+    // Rota pública de login (sem autenticação)
     Route::post('/login', [AuthController::class, 'login']);
-    
-    // Rotas que precisam do usuário autenticado
-    Route::middleware('auth:sanctum', 'checkBackeryAccess')->group(function () 
-    {
+
+    // Rotas que requerem autenticação do usuário
+    Route::middleware(['auth:sanctum', 'checkBackeryAccess'])->group(function () {
         Route::get('/user', [AuthController::class, 'user']);
         Route::post('/logout', [AuthController::class, 'logout']);
-        
     });
 
-   
+    // Rotas administrativas (autenticado e com papel admin/super-admin)
     Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
 
+        // CRUD de usuários
         Route::apiResource('users', UserController::class);
-        Route::apiResource('role-management', RoleController::class)->parameters(['role-management' => 'role']);
+
+        // CRUD de papéis (roles)
+        Route::apiResource('role-management', RoleController::class)
+              ->parameters(['role-management' => 'role']);
+
+        // Permissões como árvore hierárquica
         Route::get('/permissions/tree', [PermissionTreeController::class, 'index']);
+
+        // Permissões agrupadas por módulo (ex: users, products, etc.)
         Route::get('/permissions/grouped', [PermissionController::class, 'grouped']);
+
+        // CRUD de permissões
         Route::apiResource('permissions', PermissionController::class);
+
+        // Sincronização de papéis de um usuário
         Route::post('/users/{user}/roles', [UserRoleController::class, 'syncRoles']);
+
+        // Listagem de pessoas vinculadas
         Route::get('/people', [PersonController::class, 'index']);
-        //Route::get('roles', [UserRoleController::class, 'index']);
 
-        Route::get('permissions/grouped', function () {
-            $permissions = \Spatie\Permission\Models\Permission::all();
-
-            $grouped = $permissions->groupBy(function ($permission) {
-                return explode('.', $permission->name)[0]; // ex: "users" de "users.view"
-                });
-
-                return response()->json($grouped);
-            });
-        });
-    
-    
+        Route::get('/roles', [RoleController::class, 'listAll']);
 
 
-    
+    });
+
 });
 
 /*
-
-
-Exemplo de rota protegida por role
-
-    Route::middleware(['auth:sanctum', 'role:gerente'])->get('/gerente/dashboard', function () {
-        return response()->json(['message' => 'Acesso liberado para gerente!']);
-    });
-
-Exemplo de rota protegida por permissão
-
-    Route::middleware(['auth:sanctum', 'permission:	update_products'])->post('/produtos', function () {
-        return response()->json(['message' => 'Permissão para editar produtos!']);
-    });
-
-    
+|--------------------------------------------------------------------------
+| Exemplos adicionais para referência
+|--------------------------------------------------------------------------
+|
+| Rota protegida por papel:
+|
+| Route::middleware(['auth:sanctum', 'role:gerente'])->get('/gerente/dashboard', function () {
+|     return response()->json(['message' => 'Acesso liberado para gerente!']);
+| });
+|
+| Rota protegida por permissão:
+|
+| Route::middleware(['auth:sanctum', 'permission:update_products'])->post('/produtos', function () {
+|     return response()->json(['message' => 'Permissão para editar produtos!']);
+| });
+|
 */

@@ -4,16 +4,19 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
 
 class UserRoleController extends Controller
 {
     public function index()
     {
+        // Verifica se o usuário tem permissão para visualizar a lista de usuários
+        //$this->authorize('viewAny', User::class);
+
+        // Carrega usuários com seus papéis e dados pessoais
         $users = User::with('roles', 'person')->get();
+
+        // Carrega todos os papéis disponíveis
         $roles = Role::all();
 
         return response()->json([
@@ -21,7 +24,4 @@ class UserRoleController extends Controller
             'roles' => $roles,
         ]);
     }
-
-
-
 }

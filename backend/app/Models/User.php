@@ -39,6 +39,9 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $guarded = [];
+    protected $guard_name = 'web';
+
     /**
      * Get the attributes that should be cast.
      *
