@@ -1,9 +1,9 @@
 <template>
   <div>
     <Card noborder>
-      <!-- Cabeçalho -->
+      <!-- Cabeçalho com título e barra de busca -->
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
-        <h5 class="text-lg font-semibold">Papéis</h5>
+        <h5 class="text-lg font-semibold">Atribuições</h5>
         <div class="flex items-center gap-2">
           <InputGroup
             v-model="searchTerm"
@@ -22,13 +22,18 @@
         </div>
       </div>
 
-      <!-- Estado vazio / erro -->
+      <!-- Loading visual -->
+      <div v-if="loading && roles.length === 0" class="text-center text-gray-500 py-6">
+        Carregando papéis...
+      </div>
+
+      <!-- Erro ou estado vazio -->
       <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
       <div v-else-if="!loading && roles.length === 0" class="p-4 text-center text-gray-500">
         Nenhum papel encontrado.
       </div>
 
-      <!-- Tabela -->
+      <!-- Tabela de papéis -->
       <vue-good-table
         v-if="!error && roles.length > 0"
         :columns="columns"
@@ -42,6 +47,7 @@
         @on-page-change="handlePageChange"
         @on-per-page-change="handlePerPageChange"
       >
+        <!-- Linhas personalizadas -->
         <template #table-row="props">
           <template v-if="props.column.field === 'name'">
             <span class="font-medium">{{ props.row.name }}</span>
@@ -76,6 +82,7 @@
           </template>
         </template>
 
+        <!-- Paginação inferior -->
         <template #pagination-bottom>
           <div class="py-4 px-3">
             <Pagination
@@ -93,6 +100,7 @@
 </template>
 
 <script setup>
+// Imports
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -110,37 +118,39 @@ import Dropdown from '@/components/Dropdown'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
 
-// Setup
+// Instâncias e reativos
 const router = useRouter()
 const toast = useToast()
 const roleStore = useAdminRoleStore()
 const { roles, loading, error, pagination, perPage } = storeToRefs(roleStore)
 
-// Search
+// Busca com debounce
 const searchTerm = ref('')
 const debouncedSearch = debounce(() => {
   roleStore.fetchRoles(1, searchTerm.value, perPage.value)
 }, 500)
 watch(searchTerm, debouncedSearch, { immediate: true })
 
+// Busca inicial
 onMounted(() => {
   roleStore.fetchRoles(1, '', perPage.value)
 })
 
-// Columns
+// Colunas da tabela
 const columns = [
   { label: 'Nome', field: 'name' },
   { label: 'Descrição', field: 'description' },
   { label: 'Ações', field: 'actions' },
 ]
 
-// Dropdown actions
+// Ações disponíveis no dropdown
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
-  { name: 'editar', icon: 'heroicons:pencil-square' },
+  { name: 'editar', icon: 'heroicons-outline:pencil' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
+// Lida com cada ação do dropdown
 function handleAction(action, role) {
   switch (action) {
     case 'ver':
@@ -166,7 +176,7 @@ function handleAction(action, role) {
             toast.success(`Papel "${role.name}" deletado com sucesso!`)
             await roleStore.fetchRoles(1, searchTerm.value, perPage.value)
           } catch (error) {
-            toast.error('Erro ao deletar o papel.')
+            toast.error(error?.response?.data?.message || 'Erro ao deletar o papel.')
           }
         }
       })
@@ -174,6 +184,7 @@ function handleAction(action, role) {
   }
 }
 
+// Paginação e troca de itens por página
 function handlePageChange(page) {
   roleStore.fetchRoles(page, searchTerm.value, perPage.value)
 }

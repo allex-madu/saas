@@ -12,7 +12,7 @@ export const useRolesStore = defineStore('rolesStore', () => {
   const fetchRoles = async () => {
     loading.value = true
     try {
-      const response = await api.get('/api/v1/admin/roles')
+      const response = await api.get('/api/v1/admin/role-management')
       roles.value = response.data.data
     } catch (err) {
       error.value = 'Erro ao carregar papéis.'
@@ -32,17 +32,17 @@ export const useRolesStore = defineStore('rolesStore', () => {
   }
 
   const createRole = async (data) => {
-    await api.post('/api/v1/admin/roles', data)
+    await api.post('/api/v1/admin/role-management', data)
     await fetchRoles()
   }
 
   const updateRole = async (id, data) => {
-    await api.put(`/api/v1/admin/roles/${id}`, data)
+    await api.put(`/api/v1/admin/role-management/${id}`, data)
     await fetchRoles()
   }
 
   const deleteRole = async (id) => {
-    await api.delete(`/api/v1/admin/roles/${id}`)
+    await api.delete(`/api/v1/admin/role-management/${id}`)
     await fetchRoles()
   }
 

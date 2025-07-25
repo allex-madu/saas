@@ -1,17 +1,5 @@
 <template>
   <main class="app-wrapper">
-
-
-    <!-- Btn Debug exibe links escondidos no front -->
-<div v-if="isDev" class="fixed top-7 left-40 z-[9999] mr-40">
-  <button
-      @click="authStore.debugPermissions = !authStore.debugPermissions"
-      class="bg-red-600 text-white px-1 rounded shadow"
-    >
-      {{ authStore.debugPermissions ? 'Debug ON' : 'Debug OFF' }}
-    </button>
-  </div>
-
     <Header :class="window.width > 1280 ? switchHeaderClass() : ''" />
     <!-- end header -->
 
@@ -81,7 +69,6 @@ import window from "@/mixins/window";
 import MobileSidebar from "@/components/Sidebar/MobileSidebar.vue";
 import FooterMenu from "@/components/Footer/FooterMenu.vue";
 import { useThemeSettingsStore } from "@/store/themeSettings";
-import { useAuthStore } from "@/store/authStore"
 
 export default {
   mixins: [window],
@@ -96,14 +83,8 @@ export default {
   },
   data() {
     return {
-      themeSettingsStore: useThemeSettingsStore(),
-      authStore: useAuthStore(),
-      isDev: import.meta.env.DEV,
-
+      themeSettingsStore: useThemeSettingsStore()
     };
-  },
-  created() {
-    this.authStore.debugPermissions = false // se quiser ativar já ao carregar
   },
   methods: {
     switchHeaderClass() {

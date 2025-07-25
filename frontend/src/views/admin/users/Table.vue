@@ -165,7 +165,7 @@ const columns = [
 
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
-  { name: 'editar', icon: 'heroicons:pencil-square' },
+  { name: 'editar', icon: 'heroicons-outline:pencil' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 

@@ -1,85 +1,83 @@
 <template>
-
-  <div>
-    <div class="mb-5 -mt-3">
-     <Button
-        text="Voltar"
-        icon="heroicons-outline:arrow-left"
-        @click="$router.back()"
-        btnClass="bg-primary-500 hover:bg-primary-600 text-white"
-      />
+  <EntityShowCard
+    title="Detalhes do Usuário"
+    :loading="loading"
+    :error="error"
+    :notFound="!user"
+    notFoundMessage="Usuário não encontrado."
+  >
+    <!-- Avatar e dados básicos -->
+    <div class="flex items-center gap-4 mb-6">
+      <div class="w-14 h-14 rounded-full overflow-hidden">
+        <img
+          class="w-full h-full object-cover"
+          :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(user.person?.name || 'User')}&background=random`"
+          alt="Avatar"
+        />
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-50">
+          {{ user.person?.name || 'Sem Nome' }}
+        </h3>
+        <p class="text-sm text-slate-500 dark:text-slate-300">{{ user.email }}</p>
+      </div>
     </div>
-    <Card title="Detalhes do Usuário">
-      <div class="w-full p-8 bg-[#F5F7FC] dark:bg-slate-700 rounded-lg">
-        <div v-if="loading" class="text-gray-500 dark:text-slate-300 py-4">
-          Carregando...
+
+    <!-- Papéis -->
+    <div class="mb-4">
+      <p class="text-sm text-slate-500 dark:text-slate-300 font-medium">Papéis</p>
+      <div class="flex flex-wrap gap-2 mt-1">
+        <span
+          v-if="user.roles?.length"
+          v-for="role in user.roles"
+          :key="role.id"
+          class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded"
+        >
+          {{ role.name }}
+        </span>
+        <span v-else class="text-slate-400 text-sm">Nenhum papel atribuído.</span>
+      </div>
+    </div>
+
+    <!-- Datas -->
+    <div class="bg-slate-100 dark:bg-slate-700 rounded px-4 pt-4 pb-1 flex flex-wrap justify-between mt-6">
+      <div class="mr-3 mb-3 space-y-2">
+        <div class="text-xs font-medium text-slate-600 dark:text-slate-300">
+          Dt. Criação
         </div>
-
-        <div v-else-if="error" class="text-red-500 py-4">
-          {{ error }}
-        </div>
-
-        <div v-else-if="user" class="space-y-5 text-slate-700 dark:text-slate-300">
-          <!-- Header com nome e data fictícia -->
-          <div class="flex items-start justify-between">
-            <div class="w-12 h-12">
-              <img
-                class="rounded-full w-full h-full object-cover"
-                :src="`https://ui-avatars.com/api/?name=${encodeURIComponent(user.person?.name || 'User')}&background=random`"
-                alt="user avatar"
-              />
-            </div>
-          </div>
-
-          <!-- Nome -->
-          <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-50">
-            {{ user.person?.name || 'Sem Nome' }}
-          </h3>
-
-          <!-- Email -->
-          <div>
-            <p class="text-sm text-slate-500 dark:text-slate-300 font-medium">Email</p>
-            <p class="text-base text-slate-900 dark:text-white">{{ user.email }}</p>
-          </div>
-
-          <!-- Papéis -->
-          <div>
-            <p class="text-sm text-slate-500 dark:text-slate-300 font-medium">Tipo</p>
-            <div class="flex flex-wrap gap-2 mt-1">
-              <span
-                v-if="user.roles?.length"
-                v-for="role in user.roles"
-                :key="role.id"
-                class="bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded"
-              >
-                {{ role.name }}
-              </span>
-              <span v-else class="text-slate-400 text-sm">Nenhum papel atribuído.</span>
-            </div>
-          </div>
-        </div>
-
-        <div v-else class="text-gray-500 dark:text-slate-300 py-4">
-          Usuário não encontrado.
+        <div class="text-xs text-slate-600 dark:text-slate-300">
+          {{ formatDate(user.created_at) }}
         </div>
       </div>
-    </Card>
-  </div>
+
+      <div class="mr-3 mb-3 space-y-2">
+        <div class="text-xs font-medium text-slate-600 dark:text-slate-300">
+          Atualizado em
+        </div>
+        <div class="text-xs text-slate-600 dark:text-slate-300">
+          {{ formatDate(user.updated_at) }}
+        </div>
+      </div>
+    </div>
+  </EntityShowCard>
 </template>
 
 <script setup>
+// Imports
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '@/plugins/axios'
-import Card from '@/components/Card'
-import Button from "@/components/Button";
 
+// Componente reutilizável
+import EntityShowCard from '@/components/Card/EntityShowCard'
 
+// Estado
 const route = useRoute()
 const user = ref(null)
 const loading = ref(false)
 const error = ref(null)
 
+// Busca usuário
 async function fetchUser() {
   loading.value = true
   error.value = null
@@ -94,5 +92,18 @@ async function fetchUser() {
   }
 }
 
+// Formata data
+function formatDate(dateStr) {
+  if (!dateStr) return '-'
+  return new Date(dateStr).toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+// Inicialização
 onMounted(fetchUser)
 </script>

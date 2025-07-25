@@ -12,6 +12,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!user.value)
   const isSuperAdmin = computed(() => user.value?.is_super_admin === true)
 
+  const debugPermissions = ref(false)
+
+
   // Helpers
 
   /*
@@ -25,6 +28,9 @@ export const useAuthStore = defineStore('auth', () => {
   */
   const hasRole = (rolesToCheck) => {
     try {
+       // Ignora checagem se estiver em modo debug
+      if (debugPermissions.value) return true
+
       if (!user.value?.roles) return false
 
       const userRoles = user.value.roles.map(role => role.name)
@@ -107,6 +113,7 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     error,
     loading,
+    debugPermissions,
 
     // Getters
     isAuthenticated,

@@ -31,15 +31,12 @@
               >Progress</span
             >
             <apexchart
-              type="donut"
-              height="113"
-              :options="
-                this.$store.themeSettingsStore.isDark
-                  ? donutTwoDark.chartOptions
-                  : donutTwo.chartOptions
-              "
-              :series="donutTwo.series"
-            />
+            type="donut"
+            height="113"
+            :options="isDark ? donutTwoDark.chartOptions : donutTwo.chartOptions"
+            :series="donutTwo.series"
+          />
+
           </div>
         </Card>
       </div>
@@ -143,7 +140,8 @@
             <button type="button" class="btn btn-dark btn-sm">Add More</button>
           </template>
           <div class="-mx-6 custom-calender">
-            <v-calendar is-expanded :is-dark="this.$store.themeSettingsStore.isDark" />
+            <v-calendar is-expanded :is-dark="isDark" />
+
           </div>
           <ul class="divide-y divide-slate-100 dark:divide-slate-700">
             <li v-for="(item, i) in meets" :key="i" class="block py-[10px]">
@@ -375,120 +373,120 @@
     </div>
   </div>
 </template>
-<script>
-import Icon from "@/components/Icon";
-import Card from "@/components/Card";
-import { donutTwo, donutTwoDark } from "../../home/Analytics-Component/data";
-import { message, TodoList, trackingParcel } from "../../../constant/data";
-import DropEvent from "../../home/Analytics-Component/DropEvent";
-import SelectMonth from "../../home/Analytics-Component/SelectMonth";
-import Teamtable from "../../home/Analytics-Component/Teamtable";
-import Checkbox from "@/components/Checkbox";
-// Image Import
-import sk from "@/assets/images/svg/sk.svg"
-import path from "@/assets/images/svg/path.svg"
-import file1 from "@/assets/images/icon//file-1.svg"
-import file2 from "@/assets/images/icon//pdf-1.svg"
-import zip from "@/assets/images/icon//zip-1.svg"
-import pdf from "@/assets/images/icon//pdf-2.svg"
-import file3 from "@/assets/images/icon//scr-1.svg"
+<script setup>
+import { ref, computed } from 'vue'
+import Icon from '@/components/Icon'
+import Card from '@/components/Card'
+import DropEvent from '../../home/Analytics-Component/DropEvent'
+import SelectMonth from '../../home/Analytics-Component/SelectMonth'
+import Teamtable from '../../home/Analytics-Component/Teamtable'
+import Checkbox from '@/components/Checkbox'
 
-export default {
-  components: {
-    Icon,
-    Card,
-    Checkbox,
-    DropEvent,
-    SelectMonth,
-    Teamtable,
-  },
-  data() {
-    return {
-      donutTwo,
-      donutTwoDark,
-      message,
-      TodoList,
-      trackingParcel,
-      statistics: [
-        {
-          title: "Total Task",
-          count: "64",
-          bg: "bg-info-500",
-          text: "text-info-500",
-          percent: "25.67% ",
-          icon: "heroicons-outline:menu-alt-1",
-        },
-        {
-          title: "Completed ",
-          count: "45",
+import { useThemeSettingsStore } from '@/store/themeSettings'
+import { donutTwo, donutTwoDark } from '../../home/Analytics-Component/data'
+import { message as messageData, TodoList, trackingParcel } from '@/constant/data'
 
-          bg: "bg-warning-500",
-          text: "text-warning-500",
-          percent: "8.67%",
-          icon: "heroicons-outline:chart-pie",
-        },
-        {
-          title: "Hours",
-          count: "190",
-          bg: "bg-primary-500",
-          text: "text-primary-500",
-          percent: "1.67%  ",
-          icon: "heroicons-outline:clock",
-        },
-        {
-          title: "Spendings",
-          count: "$3,564",
-          bg: "bg-success-500",
-          text: "text-success-500",
-          percent: "11.67%  ",
-          icon: "heroicons-outline:calculator",
-        },
-      ],
-      meets: [
-        {
-          img: sk,
-          title: "Meeting with client",
-          date: "01 Nov 2021",
-          meet: "Zoom meeting",
-        },
-        {
-          img: path,
-          title: "Design meeting (team)",
-          date: "01 Nov 2021",
-          meet: "Skyp meeting",
-        },
-      ],
-      files: [
-        {
-          img: file1,
-          title: "Dashboard.fig",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file2,
-          title: "Ecommerce.pdf",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: zip,
-          title: "Job portal_app.zip",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: pdf,
-          title: "Ecommerce.pdf",
-          date: "06 June 2021 / 155MB",
-        },
-        {
-          img: file3,
-          title: "Screenshot.jpg",
-          date: "06 June 2021 / 155MB",
-        },
-      ],
-    };
+// Imagens
+import sk from '@/assets/images/svg/sk.svg'
+import path from '@/assets/images/svg/path.svg'
+import file1 from '@/assets/images/icon/file-1.svg'
+import file2 from '@/assets/images/icon/pdf-1.svg'
+import zip from '@/assets/images/icon/zip-1.svg'
+import pdf from '@/assets/images/icon/pdf-2.svg'
+import file3 from '@/assets/images/icon/scr-1.svg'
+
+// Stores
+const themeSettingsStore = useThemeSettingsStore()
+const isDark = computed(() => themeSettingsStore.isDark)
+
+// Dados
+const statistics = ref([
+  {
+    title: 'Total Task',
+    count: '64',
+    bg: 'bg-info-500',
+    text: 'text-info-500',
+    percent: '25.67% ',
+    icon: 'heroicons-outline:menu-alt-1',
   },
-};
+  {
+    title: 'Completed ',
+    count: '45',
+    bg: 'bg-warning-500',
+    text: 'text-warning-500',
+    percent: '8.67%',
+    icon: 'heroicons-outline:chart-pie',
+  },
+  {
+    title: 'Hours',
+    count: '190',
+    bg: 'bg-primary-500',
+    text: 'text-primary-500',
+    percent: '1.67%  ',
+    icon: 'heroicons-outline:clock',
+  },
+  {
+    title: 'Spendings',
+    count: '$3,564',
+    bg: 'bg-success-500',
+    text: 'text-success-500',
+    percent: '11.67%  ',
+    icon: 'heroicons-outline:calculator',
+  },
+])
+
+const meets = ref([
+  {
+    img: sk,
+    title: 'Meeting with client',
+    date: '01 Nov 2021',
+    meet: 'Zoom meeting',
+  },
+  {
+    img: path,
+    title: 'Design meeting (team)',
+    date: '01 Nov 2021',
+    meet: 'Skyp meeting',
+  },
+])
+
+const files = ref([
+  {
+    img: file1,
+    title: 'Dashboard.fig',
+    date: '06 June 2021 / 155MB',
+  },
+  {
+    img: file2,
+    title: 'Ecommerce.pdf',
+    date: '06 June 2021 / 155MB',
+  },
+  {
+    img: zip,
+    title: 'Job portal_app.zip',
+    date: '06 June 2021 / 155MB',
+  },
+  {
+    img: pdf,
+    title: 'Ecommerce.pdf',
+    date: '06 June 2021 / 155MB',
+  },
+  {
+    img: file3,
+    title: 'Screenshot.jpg',
+    date: '06 June 2021 / 155MB',
+  },
+])
+
+const message = ref(messageData)
+const todoList = ref(TodoList)
+const tracking = ref(trackingParcel)
+
+function removeTodo(id) {
+  todoList.value = todoList.value.filter((item) => item.id !== id)
+}
 </script>
+
 <style lang="scss">
 .custom-calender {
   .vc-pane-container,

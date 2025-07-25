@@ -170,7 +170,7 @@ const routes = [
         meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
       },
 
-      {/*  assignments ( atribuições ) */
+      {/*  ASSIGNMENTS ( atribuições ) */
         path: 'admin/roles',
         name: 'admin.roles.index',
         component: () => import('@/views/admin/roles/Table.vue'),
@@ -179,12 +179,25 @@ const routes = [
       {
         path: 'admin/roles/create',
         name: 'admin.roles.create',
-        component: () => import('@/views/admin/roles/RoleForm.vue'), // ou RoleForm.vue
+        component: () => import('@/views/admin/roles/Form.vue'), // ou RoleForm.vue
         meta: {
           requiresAuth: true,
           role: ['admin', 'super-admin']
         }
       },
+      {
+        path: 'admin/roles/:id/edit',
+        name: 'admin.roles.edit',
+        component: () => import('@/views/admin/roles/Form.vue'),
+        meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
+      },
+      {
+        path: 'admin/roles/:id',
+        name: 'admin.roles.show',
+        component: () => import('@/views/admin/roles/Show.vue'),
+        meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
+      },
+
 
 
 

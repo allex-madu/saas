@@ -1,12 +1,9 @@
 <template>
   <div>
     <Card noborder>
-      <!-- Cabeçalho com botão "Novo" alinhado à direita -->
+      <!-- Cabeçalho -->
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
-        <!-- Título à esquerda -->
         <h5 class="text-lg font-semibold">Permissões</h5>
-
-        <!-- Ações à direita -->
         <div class="flex items-center gap-2">
           <InputGroup
             v-model="searchTerm"
@@ -16,7 +13,6 @@
             merged
             class="ml-1"
           />
-
           <Button
             text="Novo"
             icon="heroicons-outline:plus"
@@ -26,7 +22,7 @@
         </div>
       </div>
 
-      <!-- Estado: Erro ou sem resultados -->
+      <!-- Estado vazio ou erro -->
       <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
       <div v-else-if="!loading && permissions.length === 0" class="p-4 text-center text-gray-500">
         Nenhuma permissão encontrada.
@@ -86,8 +82,8 @@
           </template>
         </template>
 
-        <!-- Paginação personalizada -->
-        <template #pagination-bottom="props">
+        <!-- Paginação -->
+        <template #pagination-bottom>
           <div class="py-4 px-3">
             <Pagination
               :total="pagination.total"
@@ -111,9 +107,9 @@ import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
 import { usePermissionStore } from '@/store/permissionsStore'
-import Button from "@/components/Button"
 
-// Componentes
+// Components
+import Button from '@/components/Button'
 import Card from '@/components/Card'
 import InputGroup from '@/components/InputGroup'
 import Pagination from '@/components/Pagination'
@@ -121,13 +117,13 @@ import Dropdown from '@/components/Dropdown'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
 
-// Stores e router
+// Instâncias
 const router = useRouter()
 const toast = useToast()
 const permissionStore = usePermissionStore()
 const { permissions, loading, error, pagination, perPage } = storeToRefs(permissionStore)
 
-// Busca
+// Busca com debounce
 const searchTerm = ref('')
 const debouncedSearch = debounce(() => {
   permissionStore.fetchPermissions(1, searchTerm.value, perPage.value)
@@ -149,11 +145,11 @@ const columns = [
 // Ações do dropdown
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
-  { name: 'editar', icon: 'heroicons:pencil-square' },
+  { name: 'editar', icon: 'heroicons-outline:pencil' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
-// Handler das ações
+// Manipulador de ações
 function handleAction(action, permission) {
   switch (action) {
     case 'ver':

@@ -25,7 +25,7 @@
 
         <!-- Botões -->
         <div class="flex justify-end gap-2">
-          <Button variant="outline" @click="$router.back()">Cancelar</Button>
+          <Button type="button" variant="outline" @click="$router.back()">Cancelar</Button>
           <Button type="submit" :loading="loading">Salvar</Button>
         </div>
       </form>
