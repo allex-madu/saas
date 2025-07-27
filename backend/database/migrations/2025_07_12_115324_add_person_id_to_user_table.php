@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::table('users', function (Blueprint $table) {
-            $table->bigInteger('person_id')->unsigned();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('is_verified')->default(false);
-            $table->date('verified_date')->nullable();
-            $table->foreignId('person_id')->unique()->constrained('people')->onDelete('cascade');
-        });
+        Schema::table('users', function (Blueprint $table) {
+        $table->foreignId('person_id')->constrained('people')->onDelete('cascade');
+        $table->boolean('is_active')->default(true);
+        $table->boolean('is_verified')->default(false);
+        $table->date('verified_date')->nullable();
+});
+
     }
 
     /**
