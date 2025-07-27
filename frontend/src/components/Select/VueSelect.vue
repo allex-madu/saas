@@ -1,12 +1,16 @@
 <template>
   <div
     class="fromGroup relative"
-    :class="`${error ? 'has-error' : ''} ${horizontal ? 'flex' : ''} ${validate ? 'is-valid' : ''}`"
+    :class="{
+      'has-error': error,
+      'flex': horizontal,
+      'is-valid': validate
+    }"
   >
     <label
       v-if="label"
-      :class="`${classLabel} inline-block input-label`"
       :for="name"
+      :class="`${classLabel} inline-block input-label`"
     >
       {{ label }}
     </label>
@@ -22,6 +26,8 @@
           :multiple="multiple"
           :options="options"
           :placeholder="placeholder"
+          :label="optionLabel"
+          :track-by="trackBy"
         />
       </div>
 
@@ -66,69 +72,67 @@
   </div>
 </template>
 
-<script>
-import vSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
+<script setup>
+import { computed } from 'vue'
+import vSelect from 'vue-select'
+import 'vue-select/dist/vue-select.css'
 import Icon from '@/components/Icon/index.vue'
 
-export default {
-  components: {
-    vSelect,
-    Icon,
+const props = defineProps({
+  modelValue: [String, Array, Object],
+  name: String,
+  label: String,
+  placeholder: {
+    type: String,
+    default: 'Selecione uma opção',
   },
-  props: {
-    modelValue: {
-      default: "",
-    },
-    name: String,
-    label: String,
-    placeholder: {
-      type: String,
-      default: "Selecione uma opção",
-    },
-    classLabel: {
-      type: String,
-      default: "",
-    },
-    error: String,
-    validate: String,
-    msgTooltip: {
-      type: Boolean,
-      default: false,
-    },
-    isReadonly: {
-      type: Boolean,
-      default: false,
-    },
-    disabled: {
-      type: Boolean,
-      default: false,
-    },
-    horizontal: {
-      type: Boolean,
-      default: false,
-    },
-    description: String,
-    multiple: {
-      type: Boolean,
-      default: false,
-    },
-    options: {
-      type: Array,
-      default: () => [],
-    },
+  classLabel: {
+    type: String,
+    default: '',
   },
-  computed: {
-    localValue: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", value);
-      },
-    },
+  error: String,
+  validate: String,
+  msgTooltip: {
+    type: Boolean,
+    default: false,
   },
-};
+  isReadonly: {
+    type: Boolean,
+    default: false,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  horizontal: {
+    type: Boolean,
+    default: false,
+  },
+  description: String,
+  multiple: {
+    type: Boolean,
+    default: false,
+  },
+  options: {
+    type: Array,
+    default: () => [],
+  },
+  optionLabel: {
+    type: String,
+    default: 'label',
+  },
+  trackBy: {
+    type: String,
+    default: 'value',
+  },
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const localValue = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+})
 </script>
 
 <style lang="scss">

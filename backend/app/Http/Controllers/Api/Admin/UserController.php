@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Person;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -71,21 +72,35 @@ class UserController extends Controller
     }
 
     /**
-     * Cria um novo usuário e atribui papéis.
+     * Cria um novo usuário com pessoa associada e atribui papéis.
      */
     public function store(StoreUserRequest $request)
     {
         $this->authorize('create', User::class);
 
+        // Cria a pessoa vinculada ao usuário
+        $person = Person::create([
+            'name' => $request->name,
+            'nickname' => $request->nickname ?? null,
+            'document' => $request->document ?? null,
+            'email' => $request->email,
+            // adicione outros campos da tabela `persons` se necessário
+        ]);
+
+        // Cria o usuário com vínculo à pessoa
         $user = User::create([
-            'person_id' => $request->person_id,
+            'person_id' => $person->id,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
 
+        // Atribui os papéis ao usuário
         $user->syncRoles($request->roles);
 
-        return response()->json(['message' => 'Usuário criado com sucesso']);
+        return response()->json([
+            'message' => 'Usuário criado com sucesso',
+            'user' => $user->load('person', 'roles'),
+        ]);
     }
 
     /**

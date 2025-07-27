@@ -7,7 +7,9 @@
           v-model="form.name"
           type="text"
           placeholder="Digite o nome"
+          prependIcon="heroicons-outline:user"
           required
+          merged
         />
 
         <InputGroup
@@ -15,7 +17,9 @@
           v-model="form.email"
           type="email"
           placeholder="Digite o e-mail"
+          prependIcon="heroicons-outline:mail"
           required
+          merged
         />
 
         <InputGroup
@@ -23,22 +27,24 @@
           v-model="form.password"
           type="password"
           placeholder="Crie uma nova senha (ou deixe em branco)"
+          prependIcon="heroicons-outline:lock-closed"
+          merged
         />
 
         <!-- Papéis -->
         <div>
-          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Papéis</label>
+          <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-white">Atribuições</label>
           <VueSelect
             v-model="form.roles"
             :options="roles"
             multiple
-            placeholder="Selecione os papéis"
+            placeholder="Selecione as atribuições"
           />
         </div>
 
         <div class="flex justify-end gap-2">
-          <Button variant="outline" type="button" @click="router.back()">Cancelar</Button>
-          <Button type="submit" :loading="loading">Salvar</Button>
+          <Button btnClass="btn-dark" variant="outline" type="button" @click="router.back()">Cancelar</Button>
+          <Button btnClass="btn-primary" type="submit" :loading="loading">Salvar</Button>
         </div>
       </form>
     </Card>
@@ -50,7 +56,6 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/plugins/axios'
 import { useToast } from 'vue-toastification'
-
 import InputGroup from '@/components/InputGroup'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
