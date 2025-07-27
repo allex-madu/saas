@@ -84,6 +84,10 @@ class UserController extends Controller
             'nickname' => $request->nickname ?? null,
             'document' => $request->document ?? null,
             'email' => $request->email,
+            'phone' => $request->phone ?? null,
+            'city' => $request->city ?? null,
+            'address' => $request->address ?? null,
+            'nif' => $request->nif?? null,
             // adicione outros campos da tabela `persons` se necessário
         ]);
 
