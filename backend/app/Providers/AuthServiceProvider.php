@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\City;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Person;
@@ -19,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
         Permission::class => PermissionPolicy::class,  
         User::class => UserPolicy::class,
         Person::class => PersonPolicy::class,
+        City::class => CityPolicy::class,
     ];
 
     public function boot(): void

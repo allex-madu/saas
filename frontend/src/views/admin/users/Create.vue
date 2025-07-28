@@ -3,6 +3,7 @@
     <Card title="Criar Novo Usuário">
       <div class="space-y-4">
         <form @submit.prevent="handleSubmit" class="space-y-6">
+
           <!-- Nome -->
           <InputGroup
             label="Nome"
@@ -14,6 +15,57 @@
             merged
           />
           <span v-if="errors.name" class="text-sm text-red-500">{{ errors.name[0] }}</span>
+
+          <!-- CPF/CNPJ -->
+          <InputGroup
+            label="CPF/CNPJ"
+            v-model="form.nif"
+            type="text"
+            placeholder="Digite o CPF ou CNPJ"
+            prependIcon="heroicons-outline:identification"
+            required
+            merged
+          />
+          <span v-if="errors.cpf_cnpj" class="text-sm text-red-500">{{ errors.cpf_cnpj[0] }}</span>
+
+          <!-- Telefone -->
+          <InputGroup
+            label="Telefone"
+            v-model="form.phone"
+            type="text"
+            placeholder="Digite o telefone"
+            prependIcon="heroicons-outline:phone"
+            required
+            merged
+          />
+          <span v-if="errors.phone" class="text-sm text-red-500">{{ errors.phone[0] }}</span>
+
+           <!-- Endereço -->
+          <InputGroup
+            label="Endereço"
+            v-model="form.address"
+            type="text"
+            placeholder="Digite o endereço"
+            prependIcon="heroicons-outline:map"
+            required
+            merged
+          />
+          <span v-if="errors.address" class="text-sm text-red-500">{{ errors.address[0] }}</span>
+
+          <!-- Cidade -->
+          <VueSelect
+            label="Cidade"
+            v-model="form.city_id"
+            :options="cities"
+            :optionLabel="'name'"
+            :track-by="'id'"
+            name="city_id"
+            placeholder="Selecione a cidade"
+            :error="errors?.city_id?.[0]"
+            @search="searchCities"
+          />
+          <span v-if="errors.city_id" class="text-sm text-red-500">{{ errors.city_id[0] }}</span>
+         
 
           <!-- Email -->
           <InputGroup
@@ -76,17 +128,25 @@ import { useAdminUserStore } from '@/store/adminUserStore'
 
 const router = useRouter()
 const toast = useToast()
+import { debounce } from 'lodash'
+
 
 // Store e estados reativos
 const store = useAdminUserStore()
-const { roles, errors, loading } = toRefs(store)
-const { createUser, fetchRoles } = store
+const { roles, errors, loading, cities } = toRefs(store)
+const { createUser, fetchRoles, searchCities } = store
+
 
 // Dados do formulário
 const form = ref({
   name: '',
   email: '',
   password: '',
+  nif: '',
+  phone: '',
+  city_id: null,
+  address: '',
+  active: { label: 'Sim', value: true }, 
   roles: [],
 })
 
@@ -101,11 +161,23 @@ onMounted(async () => {
   }
 })
 
+
+
+  const onSearchCity = debounce(async (term) => {
+    if (term.length >= 2) {
+      await searchCities(term)
+      console.log('Cidades carregadas:', cities.value)
+    } else {
+      cities.value = []
+    }
+  }, 300)
+
 // Submete o formulário
 const handleSubmit = async () => {
   try {
     const payload = {
       ...form.value,
+      active: form.value.active?.value ?? true,
       roles: form.value.roles
         .filter(role => role?.value !== null && role?.value !== undefined)
         .map(role => Number(role.value)), // transforma para IDs inteiros

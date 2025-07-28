@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\CityController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Admin\PermissionController;
@@ -47,6 +48,8 @@ Route::prefix('v1')->group(function () {
         Route::get('/people', [PersonController::class, 'index']);
 
         Route::get('/roles', [RoleController::class, 'listAll']);
+
+        Route::get('/cities', [CityController::class, 'index']);
 
 
     });

@@ -12,6 +12,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
   const loading = ref(false)
   const error = ref(null)
   const errors = ref({})
+  const cities = ref([])
 
   let lastFetchId = 0 // Controle de concorrência para evitar sobrescrita de resposta antiga
 
@@ -63,6 +64,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
+
   // Envia requisição de criação de usuário
   async function createUser(form) {
     loading.value = true
@@ -70,17 +72,26 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     errors.value = {}
 
     try {
-      await api.post('/api/v1/admin/users', form)
-    } catch (err) {
-      // Trata erros de validação (422)
-      if (err.response?.status === 422) {
-        errors.value = err.response.data.errors || {}
+      // Prepara payload formatando os dados corretamente
+      const payload = {
+        ...form,
+        roles: form.roles?.map(role => role.value), // IDs dos papéis
+        active: form.active?.value ?? true, // garante booleano
+        city_id: form.city_id?.id ?? null, // extrai ID da cidade selecionada
       }
-      throw err
-    } finally {
-      loading.value = false
+
+        await api.post('/api/v1/admin/users', payload)
+      } catch (err) {
+        // Trata erros de validação (422)
+        if (err.response?.status === 422) {
+          errors.value = err.response.data.errors || {}
+        }
+        throw err
+      } finally {
+        loading.value = false
+      }
     }
-  }
+  
 
   // Busca lista de papéis e adapta para uso no <VueSelect>
   async function fetchRoles() {
@@ -101,6 +112,20 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
+  async function searchCities(term = '') {
+    try {
+      const response = await api.get('/api/v1/admin/cities', {
+        params: { search: term }
+      })
+      cities.value = response.data.data || []
+    } catch (err) {
+      console.error('Erro ao buscar cidades:', err)
+      cities.value = []
+      throw err
+    }
+  }
+
+
   return {
     users,
     roles,
@@ -110,9 +135,11 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     error,
     errors,
     perPage,
+    cities,
     fetchUsers,
     createUser,
     deleteUser,
     fetchRoles,
+    searchCities, 
   }
 })
