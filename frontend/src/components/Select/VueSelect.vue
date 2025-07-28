@@ -30,12 +30,18 @@
         :placeholder="placeholder"
         :label="optionLabel"
         :track-by="trackBy"
+        :filterable="false"
         @search="$emit('search', $event)"
       >
         <!-- Slot para mensagem personalizada quando não houver opções -->
         <template #no-options>
           <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-            Digite pelo menos 2 letras para buscar...
+            Digite pelo menos 2 letras para realizar a busca...
+          </div>
+        </template>
+        <template #no-results>
+          <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            Nenhum registro encontrado com esses parâmetros.
           </div>
         </template>
       </vSelect>

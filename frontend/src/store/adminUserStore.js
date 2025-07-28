@@ -118,8 +118,8 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
         params: { search: term }
       })
       cities.value = response.data.data || []
+      console.log(cities.value)
     } catch (err) {
-      console.error('Erro ao buscar cidades:', err)
       cities.value = []
       throw err
     }
