@@ -16,7 +16,7 @@ class SuperAdminSeeder extends Seeder
     public function run(): void
     {
         $person = Person::create([
-            'name' => 'Allex',
+            'name' => 'Super',
             'email' => 'alexsuper@gmail.com',
             'nickname' => 'Alex Super',
             'nif' => '40.908.122/0001-21',

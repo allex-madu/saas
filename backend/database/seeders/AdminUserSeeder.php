@@ -12,9 +12,9 @@ class AdminUserSeeder extends Seeder
     public function run(): void
     {
        $person = Person::create([
-            'name' => 'Allex',
+            'name' => 'Admin',
             'email' => 'allex@gmail.com',
-            'nickname' => 'Allex Dev',
+            'nickname' => 'Allex Admin',
             'nif' => '11.901.522/0001-21',
             'phone' => '(43) 99873-6040',
             'address' => 'Rua São Pedro, Vila Jurandir',
