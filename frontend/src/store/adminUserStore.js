@@ -3,7 +3,6 @@ import { ref } from 'vue'
 import api from '@/plugins/axios'
 
 export const useAdminUserStore = defineStore('adminUsers', () => {
-  // Estado reativo principal
   const users = ref([])
   const roles = ref([])
   const pagination = ref({})
@@ -14,9 +13,9 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
   const errors = ref({})
   const cities = ref([])
 
-  let lastFetchId = 0 // Controle de concorrência para evitar sobrescrita de resposta antiga
+  let lastFetchId = 0
 
-  // Busca lista de usuários com paginação e busca
+  // Lista usuários com paginação e busca
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
     error.value = null
@@ -25,14 +24,9 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
 
     try {
       const response = await api.get('/api/v1/admin/users', {
-        params: {
-          page,
-          search,
-          per_page: perPage.value,
-        },
+        params: { page, search, per_page: perPage.value },
       })
 
-      // Ignora se a resposta for ultrapassada por uma mais recente
       if (fetchId !== lastFetchId) return
 
       const res = response.data
@@ -53,7 +47,25 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Remove usuário da base e atualiza lista local
+  // Cria novo usuário
+  async function createUser(form) {
+    loading.value = true
+    error.value = null
+    errors.value = {}
+
+    try {
+      await api.post('/api/v1/admin/users', form)
+    } catch (err) {
+      if (err.response?.status === 422) {
+        errors.value = err.response.data.errors || {}
+      }
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Remove usuário da base e atualiza a lista
   async function deleteUser(id) {
     try {
       await api.delete(`/api/v1/admin/users/${id}`)
@@ -64,44 +76,15 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-
-  // Envia requisição de criação de usuário
-  async function createUser(form) {
-    loading.value = true
-    error.value = null
-    errors.value = {}
-
-    try {
-      // Prepara payload formatando os dados corretamente
-      const payload = {
-        ...form,
-        roles: form.roles?.map(role => role.value), // IDs dos papéis
-        active: form.active?.value ?? true, // garante booleano
-        city_id: form.city_id?.id ?? null, // extrai ID da cidade selecionada
-      }
-
-        await api.post('/api/v1/admin/users', payload)
-      } catch (err) {
-        // Trata erros de validação (422)
-        if (err.response?.status === 422) {
-          errors.value = err.response.data.errors || {}
-        }
-        throw err
-      } finally {
-        loading.value = false
-      }
-    }
-  
-
-  // Busca lista de papéis e adapta para uso no <VueSelect>
+  // Busca papéis e adapta para VueSelect
   async function fetchRoles() {
     try {
       const response = await api.get('/api/v1/admin/roles')
 
       roles.value = (response.data.roles || []).map(role => ({
         ...role,
-        label: role.name, // usado pelo VueSelect
-        value: role.id,   // usado pelo VueSelect
+        label: role.name,
+        value: Number(role.id), // garante inteiro
       }))
 
       return roles.value
@@ -112,19 +95,18 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
+  // Busca cidades via termo
   async function searchCities(term = '') {
     try {
       const response = await api.get('/api/v1/admin/cities', {
         params: { search: term }
       })
       cities.value = response.data.data || []
-      console.log(cities.value)
     } catch (err) {
       cities.value = []
       throw err
     }
   }
-
 
   return {
     users,
@@ -140,6 +122,6 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     createUser,
     deleteUser,
     fetchRoles,
-    searchCities, 
+    searchCities,
   }
 })

@@ -40,7 +40,7 @@
           />
           <span v-if="errors.phone" class="text-sm text-red-500">{{ errors.phone[0] }}</span>
 
-           <!-- Endereço -->
+          <!-- Endereço -->
           <InputGroup
             label="Endereço"
             v-model="form.address"
@@ -62,10 +62,9 @@
             name="city_id"
             placeholder="Selecione a cidade"
             :error="errors?.city_id?.[0]"
-            @search="searchCities"
+            @search="onSearchCity"
           />
           <span v-if="errors.city_id" class="text-sm text-red-500">{{ errors.city_id[0] }}</span>
-         
 
           <!-- Email -->
           <InputGroup
@@ -108,8 +107,9 @@
           <!-- Botões -->
           <div class="flex justify-end gap-2">
             <Button btnClass="btn-dark" type="button" variant="outline" @click="$router.back()">Cancelar</Button>
-            <Button btnClass="btn-primary" type="button" :loading="loading" @click="handleSubmit">Salvar</Button>
+            <Button btnClass="btn-primary" type="submit" :loading="loading">Salvar</Button>
           </div>
+
         </form>
       </div>
     </Card>
@@ -120,6 +120,7 @@
 import { ref, onMounted, toRefs } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import { debounce } from 'lodash'
 import InputGroup from '@/components/InputGroup'
 import Button from '@/components/Button'
 import Card from '@/components/Card'
@@ -128,16 +129,13 @@ import { useAdminUserStore } from '@/store/adminUserStore'
 
 const router = useRouter()
 const toast = useToast()
-import { debounce } from 'lodash'
-
 
 // Store e estados reativos
 const store = useAdminUserStore()
 const { roles, errors, loading, cities } = toRefs(store)
 const { createUser, fetchRoles, searchCities } = store
 
-
-// Dados do formulário
+// Formulário inicial
 const form = ref({
   name: '',
   email: '',
@@ -146,45 +144,46 @@ const form = ref({
   phone: '',
   city_id: null,
   address: '',
-  active: { label: 'Sim', value: true }, 
+  active: { label: 'Sim', value: true },
   roles: [],
 })
 
-// Carrega os papéis uma vez ao montar
+// Carrega os papéis na montagem
 onMounted(async () => {
   if (!roles.value.length) {
     try {
       await fetchRoles()
-    } catch (e) {
+    } catch {
       toast.error('Erro ao carregar papéis.')
     }
   }
 })
 
+// Busca cidades ao digitar no select
+const onSearchCity = debounce(async (term) => {
+  if (term.length >= 2) {
+    await searchCities(term)
+  } else {
+    cities.value = []
+  }
+}, 300)
 
-
-  const onSearchCity = debounce(async (term) => {
-    if (term.length >= 2) {
-      await searchCities(term)
-      console.log('Cidades carregadas:', cities.value)
-    } else {
-      cities.value = []
-    }
-  }, 300)
-
-// Submete o formulário
+// Envia os dados para a store
 const handleSubmit = async () => {
+  if (loading.value) return // ← evita múltiplos envios
+
   try {
     const payload = {
       ...form.value,
       active: form.value.active?.value ?? true,
+      city_id: form.value.city_id?.id ?? null,
       roles: form.value.roles
         .filter(role => role?.value !== null && role?.value !== undefined)
-        .map(role => Number(role.value)), // transforma para IDs inteiros
+        .map(role => Number(role.value)),
     }
 
     await createUser(payload)
-    toast.success('Usuário registrado com sucesso')
+    toast.success('Usuário registrado com sucesso', { id: 'user-create' })
     router.push({ name: 'admin.users' })
   } catch (err) {
     if (err.response?.status !== 422) {
