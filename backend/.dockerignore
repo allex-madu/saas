@@ -1,17 +1,14 @@
-# Ignore node_modules do backend (se houver)
-node_modules/
-
-# Ignore vendor do Composer (não precisa ser copiado para o contêiner)
+# Dependências PHP
 vendor/
 
-# Ignore arquivos de logs e cache
+# Cache e logs Laravel
 storage/
 public/
 
-# Ignore arquivos de configuração local
+# Configurações locais
 *.env
 *.local
 
-# Ignore arquivos temporários de IDE
+# IDEs
 .vscode/
 .idea/
