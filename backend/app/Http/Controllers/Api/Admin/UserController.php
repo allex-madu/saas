@@ -152,9 +152,14 @@ class UserController extends Controller
 
         $user->save();
 
-        if ($request->has('name')) {
-            $user->person()->update(['name' => $request->name]);
-        }
+        $user->person()->update([
+            'name' => $request->name,
+            'nif' => $request->nif,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'city_id' => $request->city_id,
+        ]);
+
 
         if ($request->has('roles')) {
             $user->syncRoles($request->roles);
