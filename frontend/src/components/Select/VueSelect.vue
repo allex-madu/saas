@@ -16,22 +16,35 @@
     </label>
 
     <div class="relative">
-      <div v-if="!$slots.default">
-        <vSelect
-          v-model="localValue"
-          :name="name"
-          :id="name"
-          :readonly="isReadonly"
-          :disabled="disabled"
-          :multiple="multiple"
-          :options="options"
-          :placeholder="placeholder"
-          :label="optionLabel"
-          :track-by="trackBy"
-        />
-      </div>
+      <slot v-if="$slots.default"></slot>
 
-      <slot></slot>
+      <vSelect
+        v-else
+        v-model="localValue"
+        :name="name"
+        :id="name"
+        :readonly="isReadonly"
+        :disabled="disabled"
+        :multiple="multiple"
+        :options="options"
+        :placeholder="placeholder"
+        :label="optionLabel"
+        :track-by="trackBy"
+        :filterable="false"
+        @search="$emit('search', $event)"
+      >
+        <!-- Slot para mensagem personalizada quando não houver opções -->
+        <template #no-options>
+          <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            Digite pelo menos 2 letras para realizar a busca...
+          </div>
+        </template>
+        <template #no-results>
+          <div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
+            Nenhum registro encontrado com esses parâmetros.
+          </div>
+        </template>
+      </vSelect>
 
       <div class="flex text-xl absolute right-[14px] top-1/2 -translate-y-1/2">
         <span v-if="error" class="text-danger-500">
@@ -71,6 +84,7 @@
     </span>
   </div>
 </template>
+
 
 <script setup>
 import { computed } from 'vue'
@@ -127,7 +141,8 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'search'])
+
 
 const localValue = computed({
   get: () => props.modelValue,

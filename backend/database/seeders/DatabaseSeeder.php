@@ -14,8 +14,15 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            //PermissionSeederTree::class,// permissões da arvore
-            SuperUserPermissionsSeeder::class,// todas as permissoes para o superUsuario
+            StateSeeder::class, 
+            CitySeeder::class,
+            RoleSeeder::class,
+            SuperAdminSeeder::class, 
+            AdminUserSeeder::class, 
+            UserSeederAlex::class, 
+            PermissionSeederTree::class, // arvore de permissões
+            SuperUserPermissionsSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

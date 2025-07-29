@@ -82,7 +82,11 @@ class UserController extends Controller
         $person = Person::create([
             'name' => $request->name,
             'nickname' => $request->nickname ?? null,
-            'document' => $request->document ?? null,
+            'nif' => $request->nif ?? null, 
+            'phone' => $request->phone ?? null,
+            'address' => $request->address ?? null,
+            'city_id' => $request->city_id ?? null,
+            'active' => $request->active ?? true,
             'email' => $request->email,
             'phone' => $request->phone ?? null,
             'city' => $request->city ?? null,

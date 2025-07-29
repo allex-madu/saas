@@ -12,12 +12,12 @@ class UserSeederAlex extends Seeder
     public function run(): void
     {
        $person = Person::create([
-            'name' => 'Allex',
+            'name' => 'User',
             'email' => 'allex@gmail.com',
             'nickname' => 'Allex Dev',
             'nif' => '53.308.122/0002-22',
             'phone' => '(43) 99873-6040',
-            'address' => 'Rua São Pedro, Vila Jurandir',
+            'address' => 'Rua São Pedro, Vila Jursuariandir',
             'reference' => 'Perto da praça',
             'number' => 11,
             'zip_code' => '18460-009',
