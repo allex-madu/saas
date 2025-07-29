@@ -130,9 +130,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = User::with('person')->findOrFail($id);
-
-        //$this->authorize('update', $user); 
+        $user = User::with(['person.city.state', 'roles'])->findOrFail($id);
 
         return response()->json([
             'user' => $user,

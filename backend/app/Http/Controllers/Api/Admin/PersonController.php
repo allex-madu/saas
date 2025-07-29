@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\City;
 use App\Models\Person;
 use Illuminate\Http\Request;
 
@@ -41,4 +42,11 @@ class PersonController extends Controller
             }),
         ]);
     }
+
+
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
 }

@@ -23,8 +23,15 @@ class City extends Model
             ->join('states', 'states.id', '=', 'cities.state_id')
             ->select([
                 'cities.id',
-                DB::raw("concat(cities.title, ' - ', states.letter) as name")
+                DB::raw("CONCAT(cities.title, ' - ', states.letter) as name")
             ]);
     }
+
+
+    public function state()
+    {
+        return $this->belongsTo(State::class);
+    }
+
 
 }

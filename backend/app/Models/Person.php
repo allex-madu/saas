@@ -30,4 +30,9 @@ class Person extends Model
     {
         return $this->hasOne(User::class, 'person_id');
     }
+
+    public function city()
+    {
+        return $this->belongsTo(\App\Models\City::class);
+    }
 }

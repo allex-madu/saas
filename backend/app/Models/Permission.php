@@ -35,12 +35,9 @@ class Permission extends SpatiePermission
                      ],
                   ]
                ],
-               
-
             ]
-            ],
-
-            [
+         ],
+         [
             'title' => 'Gerenciamento',
             'items' => [
                [
@@ -63,7 +60,6 @@ class Permission extends SpatiePermission
                ],
             ]
          ]
-
       ];
    }// end function
 }//end class

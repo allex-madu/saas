@@ -14,16 +14,14 @@ class CityController extends Controller
 
         $search = $request->get('search');
 
-        $cities = \App\Models\City::getCity()
+        $cities = City::getCity()
             ->when($search, fn ($query) =>
                 $query->where('cities.title', 'like', '%' . $search . '%')
             )
             ->orderBy('cities.title')
-            ->limit(20) // Limite para autocomplete
+            ->limit(20)
             ->get();
-            
 
         return response()->json(['data' => $cities]);
     }
-
 }

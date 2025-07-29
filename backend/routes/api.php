@@ -27,6 +27,7 @@ Route::prefix('v1')->group(function () {
 
         // CRUD de usuários
         Route::apiResource('users', UserController::class);
+        Route::get('users/{user}/edit', [UserController::class, 'edit']);
 
         // CRUD de papéis (roles)
         Route::apiResource('role-management', RoleController::class)
