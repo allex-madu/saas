@@ -1,13 +1,17 @@
-# Node modules e build
-node_modules/
-dist/
-build/
-.vite/
+# ------------------------------------
+# DEPENDÊNCIAS
+# ------------------------------------
+node_modules/        # Pasta de dependências do Node (não precisa copiar)
+dist/                # Build de produção
 
-# Configurações locais
-*.env
-*.local
+# ------------------------------------
+# CONFIGURAÇÕES LOCAIS
+# ------------------------------------
+*.env                # Variáveis de ambiente
+*.local              # Arquivos locais não versionados
 
-# IDEs
-.vscode/
-.idea/
+# ------------------------------------
+# ARQUIVOS DE SISTEMA / IDE
+# ------------------------------------
+.vscode/             # Configurações do VS Code
+.idea/               # Configurações do PHPStorm/WebStorm

@@ -1,36 +1,36 @@
 # ------------------------------------
 # LARAVEL (BACKEND)
 # ------------------------------------
-/backend/vendor/                  # dependências do composer
-/backend/storage/*                # ignora tudo em storage...
-!/backend/storage/app             # ...exceto essas pastas úteis
+/backend/vendor/
+/backend/storage/*
+!/backend/storage/app
 !/backend/storage/framework
 !/backend/storage/logs
-/backend/.env                     # variáveis de ambiente
-/backend/.phpunit.result.cache    # resultado de testes
+/backend/.env
+/backend/.phpunit.result.cache
 
 # ------------------------------------
 # VUE (FRONTEND)
 # ------------------------------------
-/frontend/node_modules/           # dependências do npm/yarn
-/frontend/dist/                   # build de produção
-/frontend/.env                    # variáveis do Vite
-/frontend/.output                 # Vite SSR output (caso use Nuxt/VitePress)
-/frontend/.vitepress              # se usar VitePress
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+/frontend/.output
+/frontend/.vitepress
 
 # ------------------------------------
 # DOCKER
 # ------------------------------------
-docker/.env                       # arquivo de ambiente do Docker
+/docker/.env
 
 # ------------------------------------
 # GERAL / SISTEMA
 # ------------------------------------
-.DS_Store                         # arquivos de sistema do macOS
-*.log                             # arquivos de log
-*.local                           # arquivos locais (ex: .env.local)
-*.lock                            # arquivos de lock genéricos (npm, yarn, etc)
-.env                              # caso crie algum na raiz
+.DS_Store
+*.log
+*.local
+*.lock
+.env
 
 # ------------------------------------
 # DOCUMENTOS LOCAIS (evite versionar)

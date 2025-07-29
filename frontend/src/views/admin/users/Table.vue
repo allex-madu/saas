@@ -9,12 +9,10 @@
 
         <!-- Ações à direita -->
         <div class="flex items-center gap-2">
-          <InputGroup
+          
+          <SearchInput
             v-model="searchTerm"
             placeholder="Buscar usuário"
-            type="text"
-            prependIcon="heroicons-outline:search"
-            merged
             class="ml-1 h-[40px]"
           />
 
@@ -122,7 +120,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import debounce from 'lodash.debounce'
 import { useRouter } from 'vue-router'
 import Card from '@/components/Card'
-import InputGroup from '@/components/InputGroup'
+import SearchInput from '@/components/InputGroup/SearchInput'
 import Dropdown from '@/components/Dropdown'
 import Pagination from '@/components/Pagination'
 import Icon from '@/components/Icon'
