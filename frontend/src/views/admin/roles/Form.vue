@@ -1,11 +1,14 @@
 <template>
   <div>
-    <Card title="Criar Novo Papel">
+    <Card :title="isEdit ? 'Editar Papel' : 'Criar Novo Papel'">
       <!-- Formulário principal -->
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Campos básicos -->
         <InputGroup label="Nome" v-model="form.name" type="text" required placeholder="Ex: admin" />
+        <span v-if="errors.name" class="text-sm text-red-500">{{ errors.name[0] }}</span>
+
         <InputGroup label="Descrição" v-model="form.description" type="text" placeholder="Descrição do papel" />
+        <span v-if="errors.description" class="text-sm text-red-500">{{ errors.description[0] }}</span>
 
         <!-- Árvore de permissões -->
         <div>
@@ -16,11 +19,8 @@
           </div>
         </div>
 
-        <!-- Botões de ação -->
-        <div class="flex justify-end gap-2">
-          <Button type="button" variant="outline" @click="$router.back()">Cancelar</Button>
-          <Button type="submit" :loading="loading">Salvar</Button>
-        </div>
+        <!-- Ações -->
+        <FormActions :isEdit="isEdit" :loading="loading" />
       </form>
     </Card>
   </div>
@@ -31,10 +31,11 @@ import { reactive, ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { useAdminRoleStore } from '@/store/adminRoleStore'
+
 import PermissionTree from '@/components/Permissions/PermissionTree.vue'
 import InputGroup from '@/components/InputGroup'
-import Button from '@/components/Button'
 import Card from '@/components/Card'
+import FormActions from '@/components/Form/FormActions'
 
 // Roteamento e store
 const route = useRoute()
@@ -57,11 +58,11 @@ const errors = ref({})
 const groupedPermissions = ref([])
 
 onMounted(async () => {
-  // Busca as permissões agrupadas
+  // Carrega permissões agrupadas
   await roleStore.fetchGroupedPermissions()
   groupedPermissions.value = roleStore.groupedPermissions
 
-  // Se for edição, busca os dados do papel
+  // Se for edição, busca dados do papel
   if (isEdit.value) {
     try {
       await roleStore.fetchRole(route.params.id)
@@ -70,16 +71,28 @@ onMounted(async () => {
       form.description = role.description
       form.permissions = role.permissions.map(p => p.name)
     } catch (err) {
-      toast.error('Erro ao carregar papel.')
-      console.error(err)
+      if (err.response?.status === 404) {
+        toast.error('Papel não encontrado.')
+        router.push({ name: 'admin.roles.index' })
+      } else {
+        toast.error('Erro ao carregar papel.')
+        console.error(err)
+      }
     }
   }
 })
 
-// Envia o formulário para criação ou atualização
+// Submissão do formulário
 const handleSubmit = async () => {
   loading.value = true
   errors.value = {}
+
+  // Validação simples
+  if (!form.name.trim()) {
+    toast.error('O nome do papel é obrigatório.')
+    loading.value = false
+    return
+  }
 
   try {
     form.name = form.name.trim()
@@ -96,6 +109,7 @@ const handleSubmit = async () => {
     router.push({ name: 'admin.roles.index' })
   } catch (err) {
     toast.error(isEdit.value ? 'Erro ao atualizar papel.' : 'Erro ao criar papel.')
+
     if (err.response?.status === 422) {
       errors.value = err.response.data.errors || {}
     } else {

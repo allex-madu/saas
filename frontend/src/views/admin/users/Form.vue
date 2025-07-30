@@ -102,26 +102,22 @@
         <span v-if="errors.roles" class="text-sm text-red-500">{{ errors.roles[0] }}</span>
 
         <!-- Ações -->
-        <div class="flex justify-between items-center gap-2">
-          <Button btnClass="btn-dark" type="button" variant="outline" @click="router.back()">Cancelar</Button>
-          <Button btnClass="btn-primary" type="submit" :loading="loading">
-            {{ isEdit ? 'Salvar Alterações' : 'Salvar' }}
-          </Button>
-        </div>
+        <FormActions :isEdit="isEdit" :loading="loading" />
+        
       </form>
     </Card>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { debounce } from 'lodash'
 import { useToast } from 'vue-toastification'
 import { useAdminUserStore } from '@/store/adminUserStore'
 
 import Card from '@/components/Card'
-import Button from '@/components/Button'
+import FormActions from '@/components/Form/FormActions'
 import InputGroup from '@/components/InputGroup'
 import VueSelect from '@/components/Select/VueSelect.vue'
 import api from '@/plugins/axios'

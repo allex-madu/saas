@@ -101,7 +101,7 @@ const routes = [
       {/* USERS */
         path: 'admin/users',
         name: 'admin.users',
-        component: () => import('@/views/admin/users/Index.vue'),
+        component: () => import('@/views/admin/users/Table.vue'),
         meta: {
           middleware: [auth],         
           role: ['admin'],
@@ -118,26 +118,6 @@ const routes = [
           title: 'Detalhes do Usuário',
         },
       },
-      // {
-      //   path: 'admin/users/create',
-      //   name: 'admin.users.create',
-      //   component: () => import('@/views/admin/users/Create.vue'),
-      //   meta: {
-      //     middleware: [auth],         
-      //     role: ['admin'],
-      //     title: 'Criar Usuário',
-      //   },
-      // },
-      // {
-      //   path: 'admin/users/edit/:id',
-      //   name: 'admin.users.edit',
-      //   component: () => import('@/views/admin/users/Edit.vue'),
-      //   meta: {
-      //     middleware: [auth],        
-      //     role: ['admin'],
-      //     title: 'Editar Usuário',
-      //   }
-      // },
       {
         path: '/admin/users/create',
         name: 'admin.users.create',
@@ -154,7 +134,7 @@ const routes = [
        {/* PERMISSIONS */
         path: 'admin/permissions',
         name: 'admin.permissions.index',
-        component: () => import('@/views/admin/permissions/Index.vue'),
+        component: () => import('@/views/admin/permissions/Table.vue'),
         meta: {
           middleware: [auth],         
           role: ['admin'],
@@ -170,7 +150,7 @@ const routes = [
       {
         path: 'admin/permissions/create',
         name: 'admin.permissions.create',
-        component: () => import('@/views/admin/permissions/Create.vue'),
+        component: () => import('@/views/admin/permissions/Form.vue'),
         meta: {
           requiresAuth: true,
           role: ['admin', 'super-admin']
@@ -179,7 +159,7 @@ const routes = [
       {
         path: 'permissions/:id/edit',
         name: 'admin.permissions.edit',
-        component: () => import('@/views/admin/permissions/Edit.vue'),
+        component: () => import('@/views/admin/permissions/Form.vue'),
         meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
       },
       

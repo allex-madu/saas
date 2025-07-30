@@ -5,13 +5,11 @@
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
         <h5 class="text-lg font-semibold">Permissões</h5>
         <div class="flex items-center gap-2">
-          <InputGroup
+          
+          <SearchInput
             v-model="searchTerm"
-            placeholder="Buscar"
-            type="text"
-            prependIcon="heroicons-outline:search"
-            merged
-            class="ml-1"
+            placeholder="Buscar usuário"
+            class="ml-1 h-[40px]"
           />
           <Button
             text="Novo"
@@ -111,7 +109,7 @@ import { usePermissionStore } from '@/store/permissionsStore'
 // Components
 import Button from '@/components/Button'
 import Card from '@/components/Card'
-import InputGroup from '@/components/InputGroup'
+import SearchInput from '@/components/InputGroup/SearchInput'
 import Pagination from '@/components/Pagination'
 import Dropdown from '@/components/Dropdown'
 import Icon from '@/components/Icon'

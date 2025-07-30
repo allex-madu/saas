@@ -5,14 +5,13 @@
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
         <h5 class="text-lg font-semibold">Atribuições</h5>
         <div class="flex items-center gap-2">
-          <InputGroup
+           
+          <SearchInput
             v-model="searchTerm"
-            placeholder="Buscar"
-            type="text"
-            prependIcon="heroicons-outline:search"
-            merged
-            class="ml-1"
+            placeholder="Buscar usuário"
+            class="ml-1 h-[40px]"
           />
+
           <Button
             text="Novo"
             icon="heroicons-outline:plus"
@@ -108,6 +107,7 @@ import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
 import { useAdminRoleStore } from '@/store/adminRoleStore'
+import SearchInput from '@/components/InputGroup/SearchInput'
 
 // Components
 import Button from '@/components/Button'

@@ -21,6 +21,7 @@ class UserController extends Controller
 
         $query = User::with(['roles', 'person']);
 
+        // Filtro por nome/email/nickname (usuário ou pessoa)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -33,14 +34,16 @@ class UserController extends Controller
             });
         }
 
+        // Filtro por papel
         if ($request->filled('role')) {
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
         }
 
+        // Paginação
         $perPage = $request->get('per_page', 10);
         $users = $query->paginate($perPage);
 
-        // Transforma os papéis para exibição
+        // Formata papéis para exibição
         $users->getCollection()->transform(function ($user) {
             $user->roles = $user->roles->map(fn($role) => [
                 'id' => $role->id,
@@ -49,6 +52,7 @@ class UserController extends Controller
             return $user;
         });
 
+        // Lista de papéis (extra para filtro ou formulário)
         $roles = Role::select('id', 'name')->get();
 
         return response()->json([
@@ -72,13 +76,13 @@ class UserController extends Controller
     }
 
     /**
-     * Cria um novo usuário com pessoa associada e atribui papéis.
+     * Cria um novo usuário com pessoa vinculada e papéis.
      */
     public function store(StoreUserRequest $request)
     {
         $this->authorize('create', User::class);
 
-        // Cria a pessoa vinculada ao usuário
+        // Criação da pessoa
         $person = Person::create([
             'name' => $request->name,
             'nickname' => $request->nickname ?? null,
@@ -88,17 +92,16 @@ class UserController extends Controller
             'city_id' => $request->city_id ?? null,
             'active' => $request->active ?? true,
             'email' => $request->email,
-            // adicione outros campos da tabela `persons` se necessário
         ]);
 
-        // Cria o usuário com vínculo à pessoa
+        // Criação do usuário
         $user = User::create([
             'person_id' => $person->id,
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
 
-        // Atribui os papéis ao usuário
+        // Atribuição de papéis
         $user->syncRoles($request->roles);
 
         return response()->json([
@@ -108,7 +111,7 @@ class UserController extends Controller
     }
 
     /**
-     * Exibe os dados de um usuário específico.
+     * Retorna os dados de um usuário específico.
      */
     public function show($id)
     {
@@ -122,10 +125,11 @@ class UserController extends Controller
     }
 
     /**
-     * Retorna dados do usuário para edição.
+     * Retorna os dados para o formulário de edição.
      */
     public function edit($id)
     {
+        // Inclui cidade e estado da pessoa
         $user = User::with(['person.city.state', 'roles'])->findOrFail($id);
 
         return response()->json([
@@ -134,12 +138,13 @@ class UserController extends Controller
     }
 
     /**
-     * Atualiza os dados e papéis de um usuário.
+     * Atualiza dados do usuário, pessoa e papéis.
      */
     public function update(UpdateUserRequest $request, User $user)
     {
         $this->authorize('update', $user); 
 
+        // Atualiza campos do próprio usuário
         $user->email = $request->email;
 
         if ($request->filled('password')) {
@@ -148,6 +153,7 @@ class UserController extends Controller
 
         $user->save();
 
+        // Atualiza dados da pessoa
         $user->person()->update([
             'name' => $request->name,
             'nif' => $request->nif,
@@ -156,7 +162,7 @@ class UserController extends Controller
             'city_id' => $request->city_id,
         ]);
 
-
+        // Atualiza papéis se enviados
         if ($request->has('roles')) {
             $user->syncRoles($request->roles);
         }
@@ -168,7 +174,7 @@ class UserController extends Controller
     }
 
     /**
-     * Remove um usuário do sistema.
+     * Exclui um usuário da base.
      */
     public function destroy($id)
     {
@@ -182,7 +188,7 @@ class UserController extends Controller
     }
 
     /**
-     * Sincroniza papéis atribuídos a um usuário.
+     * Sincroniza papéis de um usuário (rota auxiliar).
      */
     public function syncRoles(Request $request, User $user)
     {

@@ -4,34 +4,10 @@
     
     <!-- Botões de ação -->
     <div class="flex gap-2 mb-4">
-      <button
-        type="button"
-        class="bg-slate-800 text-white px-3 py-1 rounded"
-        @click="expandAll(true)"
-      >
-        Expandir
-      </button>
-      <button
-        type="button"
-        class="bg-slate-800 text-white px-3 py-1 rounded"
-        @click="expandAll(false)"
-      >
-        Recolher
-      </button>
-      <button
-        type="button"
-        class="bg-slate-800 text-white px-3 py-1 rounded"
-        @click="selectAll()"
-      >
-        Marcar Todos
-      </button>
-      <button
-        type="button"
-        class="bg-slate-800 text-white px-3 py-1 rounded"
-        @click="clearAll()"
-      >
-        Limpar
-      </button>
+      <Button @click="expandAll(true)" type="button" text="Expandir" btnClass="btn-dark btn-sm"/>
+      <Button @click="expandAll(false)" type="button" text="Recolher" btnClass="btn-dark btn-sm"/>
+      <Button @click="selectAll()" type="button" text="Todos" btnClass="btn-dark btn-sm"/>
+      <Button @click="clearAll()" type="button" text="Limpar" btnClass="btn-dark btn-sm"/>
     </div>
 
     <!-- Renderização da árvore de permissões -->
@@ -49,6 +25,7 @@
 <script setup>
 import { ref } from 'vue'
 import PermissionNode from './PermissionNode.vue'
+import Button from '@/components/Button'
 
 // Props do componente
 const props = defineProps({
