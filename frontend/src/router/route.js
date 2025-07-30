@@ -118,26 +118,39 @@ const routes = [
           title: 'Detalhes do Usuário',
         },
       },
+      // {
+      //   path: 'admin/users/create',
+      //   name: 'admin.users.create',
+      //   component: () => import('@/views/admin/users/Create.vue'),
+      //   meta: {
+      //     middleware: [auth],         
+      //     role: ['admin'],
+      //     title: 'Criar Usuário',
+      //   },
+      // },
+      // {
+      //   path: 'admin/users/edit/:id',
+      //   name: 'admin.users.edit',
+      //   component: () => import('@/views/admin/users/Edit.vue'),
+      //   meta: {
+      //     middleware: [auth],        
+      //     role: ['admin'],
+      //     title: 'Editar Usuário',
+      //   }
+      // },
       {
-        path: 'admin/users/create',
+        path: '/admin/users/create',
         name: 'admin.users.create',
-        component: () => import('@/views/admin/users/Create.vue'),
-        meta: {
-          middleware: [auth],         
-          role: ['admin'],
-          title: 'Criar Usuário',
-        },
+        component: () => import('@/views/admin/users/Form.vue'),
       },
       {
-        path: 'admin/users/edit/:id',
+        path: '/admin/users/:id/edit',
         name: 'admin.users.edit',
-        component: () => import('@/views/admin/users/Edit.vue'),
-        meta: {
-          middleware: [auth],        
-          role: ['admin'],
-          title: 'Editar Usuário',
-        }
+        component: () => import('@/views/admin/users/Form.vue'),
       },
+
+      
+      
        {/* PERMISSIONS */
         path: 'admin/permissions',
         name: 'admin.permissions.index',
@@ -169,6 +182,7 @@ const routes = [
         component: () => import('@/views/admin/permissions/Edit.vue'),
         meta: { requiresAuth: true, role: ['admin', 'super-admin'] },
       },
+      
 
       {/*  ASSIGNMENTS ( atribuições ) */
         path: 'admin/roles',

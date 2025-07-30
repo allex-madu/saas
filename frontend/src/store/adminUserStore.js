@@ -3,19 +3,20 @@ import { ref } from 'vue'
 import api from '@/plugins/axios'
 
 export const useAdminUserStore = defineStore('adminUsers', () => {
-  const users = ref([])
-  const roles = ref([])
-  const pagination = ref({})
-  const currentPage = ref(1)
-  const perPage = ref(10)
-  const loading = ref(false)
-  const error = ref(null)
-  const errors = ref({})
-  const cities = ref([])
+  // Estado principal
+  const users = ref([])                // Lista de usuários
+  const roles = ref([])                // Lista de papéis formatados
+  const cities = ref([])               // Lista de cidades (autocomplete)
+  const pagination = ref({})           // Dados de paginação da tabela
+  const currentPage = ref(1)           // Página atual
+  const perPage = ref(10)              // Itens por página
+  const loading = ref(false)           // Indicador de carregamento
+  const error = ref(null)              // Mensagem de erro genérica
+  const errors = ref({})               // Erros de validação (422)
 
-  let lastFetchId = 0
+  let lastFetchId = 0                  // Identificador de fetch para cancelar requisições antigas
 
-  // Lista usuários com paginação e busca
+  // 🔍 Lista usuários com paginação e busca
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
     error.value = null
@@ -27,11 +28,13 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
         params: { page, search, per_page: perPage.value },
       })
 
+      // Garante que apenas a última requisição atualize os dados
       if (fetchId !== lastFetchId) return
 
       const res = response.data
       users.value = res.data
 
+      // Atualiza a paginação
       pagination.value = {
         current_page: res.meta?.current_page ?? 1,
         last_page: res.meta?.last_page ?? 1,
@@ -47,7 +50,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Cria novo usuário
+  // ✅ Criação de novo usuário
   async function createUser(form) {
     loading.value = true
     error.value = null
@@ -56,6 +59,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     try {
       await api.post('/api/v1/admin/users', form)
     } catch (err) {
+      // Captura erros de validação
       if (err.response?.status === 422) {
         errors.value = err.response.data.errors || {}
       }
@@ -65,10 +69,30 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Remove usuário da base e atualiza a lista
+  // ✏️ Atualização de usuário existente
+  async function updateUser(id, form) {
+    loading.value = true
+    error.value = null
+    errors.value = {}
+
+    try {
+      await api.put(`/api/v1/admin/users/${id}`, form)
+    } catch (err) {
+      // Captura erros de validação
+      if (err.response?.status === 422) {
+        errors.value = err.response.data.errors || {}
+      }
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // 🗑️ Remove um usuário da base
   async function deleteUser(id) {
     try {
       await api.delete(`/api/v1/admin/users/${id}`)
+      // Remove da lista local para não precisar refazer o fetch
       users.value = users.value.filter(user => user.id !== id)
     } catch (err) {
       console.error('Erro ao deletar usuário:', err)
@@ -76,15 +100,16 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Busca papéis e adapta para VueSelect
+  // 📋 Busca papéis (roles) e adapta para VueSelect
   async function fetchRoles() {
     try {
       const response = await api.get('/api/v1/admin/roles')
 
+      // Mapeia para { label, value } que o VueSelect espera
       roles.value = (response.data.roles || []).map(role => ({
         ...role,
         label: role.name,
-        value: Number(role.id), // garante inteiro
+        value: Number(role.id),
       }))
 
       return roles.value
@@ -95,7 +120,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Busca cidades via termo
+  // 🌍 Autocomplete de cidades
   async function searchCities(term = '') {
     try {
       const response = await api.get('/api/v1/admin/cities', {
@@ -108,6 +133,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
+  // Exporta estado e ações
   return {
     users,
     roles,
@@ -120,6 +146,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     cities,
     fetchUsers,
     createUser,
+    updateUser,
     deleteUser,
     fetchRoles,
     searchCities,

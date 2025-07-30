@@ -88,10 +88,6 @@ class UserController extends Controller
             'city_id' => $request->city_id ?? null,
             'active' => $request->active ?? true,
             'email' => $request->email,
-            'phone' => $request->phone ?? null,
-            'city' => $request->city ?? null,
-            'address' => $request->address ?? null,
-            'nif' => $request->nif?? null,
             // adicione outros campos da tabela `persons` se necessário
         ]);
 
