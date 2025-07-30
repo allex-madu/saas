@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('bakery_id')->nullable()->constrained('bakeries')->cascadeOnDelete();
-            $table->boolean('is_super_admin')->default(false)->after('backery_id');
+            $table->boolean('is_super_admin')->default(false)->after('bakery_id');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['backery_id']);
+            $table->dropForeign(['bakery_id']);
             $table->dropColumn(['bakery_id', 'is_super_admin']);
         });
     }

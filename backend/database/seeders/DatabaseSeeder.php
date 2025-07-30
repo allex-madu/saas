@@ -15,16 +15,17 @@ class DatabaseSeeder extends Seeder
     {
         /* php artisan db:seed  */
         $this->call([
-            // StateSeeder::class, 
-            // CitySeeder::class,
-            // AdminUserSeeder::class, 
-            // UserSeederAlex::class, 
-            // PermissionSeederTree::class, // arvore de permissões
-            // SuperUserPermissionsSeeder::class,
-            // UserSeeder::class,
-            RoleSeeder::class,
-            SuperAdminSeeder::class, 
-            BakerySeeder::class,
+            StateSeeder::class,              // Criar estados
+            CitySeeder::class,               // Criar cidades
+            RoleSeeder::class,               // Criar roles (papéis)
+            PermissionSeederTree::class,     // Criar árvore de permissões
+            AdminUserSeeder::class,          // Criar usuário admin
+            SuperAdminSeeder::class,         // Criar super admin
+            SuperUserPermissionsSeeder::class, // Atribuir permissões ao super admin
+            UserSeederAlex::class,           // Criar usuário específico (Alex)
+            UserSeeder::class,               // Criar outros usuários
+            BakerySeeder::class,             // Criar padarias
         ]);
+
     }
 }
