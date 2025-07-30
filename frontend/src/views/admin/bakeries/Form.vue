@@ -2,7 +2,6 @@
   <div>
     <Card :title="isEdit ? 'Editar Padaria' : 'Criar Nova Padaria'">
       <form @submit.prevent="handleSubmit" class="space-y-6">
-
         <!-- Nome -->
         <InputGroup
           label="Nome"
@@ -118,20 +117,31 @@ const form = ref({
   admin_password_confirmation: '',
 })
 
-// Carrega padaria para edição (quando for necessário futuramente)
+// Opcional: função para resetar o form após criação
+const resetForm = () => {
+  form.value = {
+    name: '',
+    slug: '',
+    nif: '',
+    phone: '',
+    admin_name: '',
+    admin_email: '',
+    admin_password: '',
+    admin_password_confirmation: '',
+  }
+}
+
+// Carrega padaria para edição
 onMounted(async () => {
   if (isEdit.value) {
     try {
       const { data } = await api.get(`/api/v1/admin/bakeries/${route.params.id}`)
-
-      form.value.name = data.name
-      form.value.slug = data.slug
-      form.value.nif = data.nif
-      form.value.phone = data.phone
-      form.value.admin_name = data.admin_name
-      form.value.admin_email = data.admin_email
-
-      // limpa os campos de senha no modo edição
+      form.value.name = data.name || ''
+      form.value.slug = data.slug || ''
+      form.value.nif = data.nif || ''
+      form.value.phone = data.phone || ''
+      form.value.admin_name = data.admin_name || ''
+      form.value.admin_email = data.admin_email || ''
       form.value.admin_password = ''
       form.value.admin_password_confirmation = ''
     } catch (error) {
@@ -145,6 +155,17 @@ const handleSubmit = async () => {
   errors.value = {}
 
   try {
+    // Se for edição e a senha estiver em branco, remove antes de enviar
+    if (isEdit.value && !form.value.admin_password) {
+      delete form.value.admin_password
+      delete form.value.admin_password_confirmation
+    }
+
+    // Se a senha for informada, replica no campo de confirmação
+    if (form.value.admin_password) {
+      form.value.admin_password_confirmation = form.value.admin_password
+    }
+
     let response
     if (isEdit.value) {
       response = await api.put(`/api/v1/admin/bakeries/${route.params.id}`, form.value)
@@ -152,6 +173,7 @@ const handleSubmit = async () => {
     } else {
       response = await api.post('/api/v1/admin/bakeries', form.value)
       toast.success('Padaria criada com sucesso!')
+      resetForm()
     }
 
     router.push({ name: 'admin.bakeries.index' })

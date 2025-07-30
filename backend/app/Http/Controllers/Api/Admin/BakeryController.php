@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class BakeryController extends Controller
 {
@@ -38,6 +39,54 @@ class BakeryController extends Controller
     }
 
 
+    // public function store(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'name' => 'required|string|max:255',
+    //         'slug' => 'required|string|unique:bakeries,slug',
+    //         'nif' => 'nullable|string|unique:bakeries,nif',
+    //         'phone' => 'nullable|string|max:20',
+    //         'admin_name' => 'required|string|max:255',
+    //         'admin_email' => 'required|email|unique:users,email',
+    //         'admin_password' => 'required|string|min:8|confirmed',
+    //     ]);
+
+    //     $creatorId = auth()->id();
+
+    //     DB::transaction(function () use ($data, $creatorId) {
+    //         // Cria a padaria
+    //         $bakery = Bakery::create([
+    //             'name' => $data['name'],
+    //             'slug' => $data['slug'],
+    //             'nif' => $data['nif'] ?? null,
+    //             'phone' => $data['phone'] ?? null,
+    //             'created_by' => $creatorId,
+    //             'trial_until' => now()->addDays(7),
+    //         ]);
+
+    //         // Cria a pessoa com nome e e-mail do admin
+    //         $person = \App\Models\Person::create([
+    //             'name' => $data['admin_name'],
+    //             'email' => $data['admin_email'],
+    //             'nif' => $data['nif'] ?? null,
+    //         ]);
+
+    //         // Cria o usuário e vincula à pessoa
+    //         $admin = User::create([
+    //             'person_id' => $person->id,
+    //             'email' => $data['admin_email'],
+    //             'password' => Hash::make($data['admin_password']),
+    //             'bakery_id' => $bakery->id,
+    //         ]);
+
+    //         $admin->assignRole('admin');
+    //         $bakery->update(['admin_id' => $admin->id]);
+    //     });
+
+    //     return response()->json(['message' => 'Padaria e administrador criados com sucesso.'], 201);
+    // }
+
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -45,46 +94,53 @@ class BakeryController extends Controller
             'slug' => 'required|string|unique:bakeries,slug',
             'nif' => 'nullable|string|unique:bakeries,nif',
             'phone' => 'nullable|string|max:20',
+
             'admin_name' => 'required|string|max:255',
             'admin_email' => 'required|email|unique:users,email',
             'admin_password' => 'required|string|min:8|confirmed',
         ]);
 
-        $creatorId = auth()->id();
-
-        DB::transaction(function () use ($data, $creatorId) {
-            // Cria a padaria
+        DB::transaction(function () use ($data) {
+            // Cria padaria
             $bakery = Bakery::create([
                 'name' => $data['name'],
                 'slug' => $data['slug'],
                 'nif' => $data['nif'] ?? null,
                 'phone' => $data['phone'] ?? null,
-                'created_by' => $creatorId,
+                'created_by' => auth()->id(),
                 'trial_until' => now()->addDays(7),
             ]);
 
-            // Cria a pessoa com nome e e-mail do admin
-            $person = \App\Models\Person::create([
+            // Cria pessoa
+            $person = $bakery->admin()->create([
                 'name' => $data['admin_name'],
                 'email' => $data['admin_email'],
                 'nif' => $data['nif'] ?? null,
+            ])->person()->create([
+                'name' => $data['admin_name'],
+                'email' => $data['admin_email'],
             ]);
 
-            // Cria o usuário e vincula à pessoa
-            $admin = User::create([
-                'person_id' => $person->id,
+            // Cria usuário e associa à pessoa e padaria
+            $user = $person->user()->create([
                 'email' => $data['admin_email'],
                 'password' => Hash::make($data['admin_password']),
                 'bakery_id' => $bakery->id,
             ]);
 
-            $admin->assignRole('admin');
-            $bakery->update(['admin_id' => $admin->id]);
+            // Define o usuário como admin da padaria
+            $bakery->update(['admin_id' => $user->id]);
+
+            // Atribui papel
+            $user->assignRole('admin');
         });
 
-        return response()->json(['message' => 'Padaria e administrador criados com sucesso.'], 201);
+        return response()->json(['message' => 'Padaria criada com sucesso.'], 201);
     }
 
+
+
+  
 
     public function update(Request $request, $id)
     {
@@ -92,15 +148,27 @@ class BakeryController extends Controller
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'slug' => "required|string|unique:bakeries,slug,{$bakery->id}",
-            'nif' => "nullable|string|unique:bakeries,nif,{$bakery->id}",
+            'slug' => [
+                'required',
+                'string',
+                Rule::unique('bakeries', 'slug')->ignore($bakery->id),
+            ],
+            'nif' => [
+                'nullable',
+                'string',
+                Rule::unique('bakeries', 'nif')->ignore($bakery->id),
+            ],
             'phone' => 'nullable|string|max:20',
             'admin_name' => 'required|string|max:255',
-            'admin_email' => "required|email|unique:users,email,{$bakery->admin->id}",
+            'admin_email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($bakery->admin_id),
+            ],
             'admin_password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        DB::transaction(function () use ($bakery, $data) {
+        DB::transaction(function () use ($bakery, $data, $request) {
             // Atualiza padaria
             $bakery->update([
                 'name' => $data['name'],
@@ -119,16 +187,20 @@ class BakeryController extends Controller
 
             // Atualiza usuário
             $user = $bakery->admin;
-            $user->update([
-                'email' => $data['admin_email'],
-                'password' => $data['admin_password'] 
-                    ? Hash::make($data['admin_password']) 
-                    : $user->password,
-            ]);
+            $user->email = $data['admin_email'];
+
+            if ($request->filled('admin_password')) {
+                $user->password = Hash::make($request->input('admin_password'));
+            }
+
+            $user->save();
         });
 
         return response()->json(['message' => 'Padaria atualizada com sucesso.']);
     }
+
+
+
 
 
     public function show($id)
