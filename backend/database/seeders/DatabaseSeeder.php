@@ -13,16 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        /* php artisan db:seed  */
         $this->call([
-            StateSeeder::class, 
-            CitySeeder::class,
+            // StateSeeder::class, 
+            // CitySeeder::class,
+            // AdminUserSeeder::class, 
+            // UserSeederAlex::class, 
+            // PermissionSeederTree::class, // arvore de permissões
+            // SuperUserPermissionsSeeder::class,
+            // UserSeeder::class,
             RoleSeeder::class,
             SuperAdminSeeder::class, 
-            AdminUserSeeder::class, 
-            UserSeederAlex::class, 
-            PermissionSeederTree::class, // arvore de permissões
-            SuperUserPermissionsSeeder::class,
-            UserSeeder::class,
+            BakerySeeder::class,
         ]);
     }
 }

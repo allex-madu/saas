@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('backery_id')->nullable()->constrained('bakeries')->cascadeOnDelete();
+            $table->foreignId('bakery_id')->nullable()->constrained('bakeries')->cascadeOnDelete();
             $table->boolean('is_super_admin')->default(false)->after('backery_id');
         });
     }
@@ -24,7 +24,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['backery_id']);
-            $table->dropColumn(['backery_id', 'is_super_admin']);
+            $table->dropColumn(['bakery_id', 'is_super_admin']);
         });
     }
 };

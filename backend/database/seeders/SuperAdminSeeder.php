@@ -4,22 +4,25 @@ namespace Database\Seeders;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\Person;
 use App\Models\User;
 
-
 class SuperAdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+        // Gera um NIF aleatório no formato básico de CNPJ: 00.000.000/0000-00
+        $nif = sprintf('%02d.%03d.%03d/%04d-%02d', 
+            rand(10, 99), rand(100, 999), rand(100, 999),
+            rand(1000, 9999), rand(10, 99)
+        );
+
         $person = Person::create([
             'name' => 'Super',
             'email' => 'alexsuper@gmail.com',
             'nickname' => 'Alex Super',
-            'nif' => '40.908.122/0001-21',
+            'nif' => $nif,
             'phone' => '(43) 99873-6040',
             'address' => 'Rua São Pedro, Vila Jurandir',
             'reference' => 'Perto da praça',

@@ -1,42 +1,35 @@
 <template>
   <div>
     <Card noborder>
-      <!-- Cabeçalho com título e barra de busca -->
+      <!-- Cabeçalho -->
       <div class="md:flex justify-between pb-6 md:space-y-0 space-y-3 items-center">
-        <h5 class="text-lg font-semibold">Atribuições</h5>
+        <h5 class="text-lg font-semibold">Padarias</h5>
         <div class="flex items-center gap-2">
-           
           <SearchInput
             v-model="searchTerm"
-            placeholder="Buscar usuário"
+            placeholder="Buscar padaria"
             class="ml-1 h-[40px]"
           />
-
           <Button
             text="Novo"
             icon="heroicons-outline:plus"
             btnClass="btn-primary h-[40px] px-4"
-            @click="$router.push({ name: 'admin.roles.create' })"
+            @click="$router.push({ name: 'admin.bakeries.create' })"
           />
         </div>
       </div>
 
-      <!-- Loading visual -->
-      <div v-if="loading && roles.length === 0" class="text-center text-gray-500 py-6">
-        Carregando papéis...
-      </div>
-
-      <!-- Erro ou estado vazio -->
+      <!-- Estado vazio ou erro -->
       <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
-      <div v-else-if="!loading && roles.length === 0" class="p-4 text-center text-gray-500">
-        Nenhum papel encontrado.
+      <div v-else-if="!loading && bakeries.length === 0" class="p-4 text-center text-gray-500">
+        Nenhuma padaria encontrada.
       </div>
 
-      <!-- Tabela de papéis -->
+      <!-- Tabela -->
       <vue-good-table
-        v-if="!error && roles.length > 0"
+        v-if="!error && bakeries.length > 0"
         :columns="columns"
-        :rows="roles"
+        :rows="bakeries"
         :pagination-options="{ enabled: true, perPage }"
         styleClass="vgt-table bordered centered"
         :loading="loading"
@@ -46,16 +39,24 @@
         @on-page-change="handlePageChange"
         @on-per-page-change="handlePerPageChange"
       >
-        <!-- Linhas personalizadas -->
         <template #table-row="props">
-          <template v-if="props.column.field === 'name'">
+          <template v-if="props.column.field === 'id'">
+            <span>{{ props.row.id }}</span>
+          </template>
+
+          <template v-else-if="props.column.field === 'name'">
             <span class="font-medium">{{ props.row.name }}</span>
           </template>
 
-          <template v-else-if="props.column.field === 'description'">
-            <span>{{ props.row.description || '-' }}</span>
+          <template v-else-if="props.column.field === 'slug'">
+            <span class="text-sm text-gray-600 dark:text-gray-300">{{ props.row.slug }}</span>
           </template>
 
+          <template v-else-if="props.column.field === 'nif'">
+            <span>{{ props.row.nif || '-' }}</span>
+          </template>
+
+          <!-- Ações -->
           <template v-else-if="props.column.field === 'actions'">
             <Dropdown classMenuItems="w-[140px]">
               <span class="text-xl">
@@ -81,7 +82,7 @@
           </template>
         </template>
 
-        <!-- Paginação inferior -->
+        <!-- Paginação -->
         <template #pagination-bottom>
           <div class="py-4 px-3">
             <Pagination
@@ -99,69 +100,69 @@
 </template>
 
 <script setup>
-// Imports
 import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
-import { useAdminRoleStore } from '@/store/adminRoleStore'
-import SearchInput from '@/components/InputGroup/SearchInput'
+import { useAdminBakeryStore } from '@/store/adminBakeryStore'
 
 // Components
 import Button from '@/components/Button'
 import Card from '@/components/Card'
+import SearchInput from '@/components/InputGroup/SearchInput'
 import Pagination from '@/components/Pagination'
 import Dropdown from '@/components/Dropdown'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
 
-// Instâncias e reativos
+// Instâncias
 const router = useRouter()
 const toast = useToast()
-const roleStore = useAdminRoleStore()
-const { roles, loading, error, pagination, perPage } = storeToRefs(roleStore)
+const bakeryStore = useAdminBakeryStore()
+const { bakeries, loading, error, pagination, perPage } = storeToRefs(bakeryStore)
 
 // Busca com debounce
 const searchTerm = ref('')
 const debouncedSearch = debounce(() => {
-  roleStore.fetchRoles(1, searchTerm.value, perPage.value)
+  bakeryStore.fetchBakeries(1, searchTerm.value, perPage.value)
 }, 500)
 watch(searchTerm, debouncedSearch, { immediate: true })
 
-// Busca inicial
 onMounted(() => {
-  roleStore.fetchRoles(1, '', perPage.value)
+  bakeryStore.fetchBakeries(1, '', perPage.value)
 })
 
-// Colunas da tabela
+// Colunas
 const columns = [
+  { label: 'ID', field: 'id' },
   { label: 'Nome', field: 'name' },
-  { label: 'Descrição', field: 'description' },
+  { label: 'Slug', field: 'slug' },
+  { label: 'NIF', field: 'nif' },
   { label: 'Ações', field: 'actions' },
 ]
 
-// Ações disponíveis no dropdown
+// Ações do dropdown
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
   { name: 'editar', icon: 'heroicons-outline:pencil' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
-// Lida com cada ação do dropdown
-function handleAction(action, role) {
+// Manipulador de ações
+function handleAction(action, bakery) {
   switch (action) {
     case 'ver':
-      router.push({ name: 'admin.roles.show', params: { id: role.id } })
+      router.push({ name: 'admin.bakeries.show', params: { id: bakery.id } })
       break
     case 'editar':
-      router.push({ name: 'admin.roles.edit', params: { id: role.id } })
+      router.push({ name: 'admin.bakeries.edit', params: { id: bakery.id } })
       break
     case 'delete':
       Swal.fire({
         title: 'Tem certeza?',
-        text: `Deseja excluir o papel "${role.name}"?`,
+        text: `Deseja excluir a padaria "${bakery.name}"?`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Sim, excluir',
@@ -171,11 +172,11 @@ function handleAction(action, role) {
       }).then(async (result) => {
         if (result.isConfirmed) {
           try {
-            await roleStore.deleteRole(role.id)
-            toast.success(`Papel "${role.name}" deletado com sucesso!`)
-            await roleStore.fetchRoles(1, searchTerm.value, perPage.value)
+            await bakeryStore.deleteBakery(bakery.id)
+            toast.success(`Padaria "${bakery.name}" deletada com sucesso!`)
+            await bakeryStore.fetchBakeries(1, searchTerm.value, perPage.value)
           } catch (error) {
-            toast.error(error?.response?.data?.message || 'Erro ao deletar o papel.')
+            toast.error('Erro ao deletar a padaria.')
           }
         }
       })
@@ -183,12 +184,12 @@ function handleAction(action, role) {
   }
 }
 
-// Paginação e troca de itens por página
+// Paginação
 function handlePageChange(page) {
-  roleStore.fetchRoles(page, searchTerm.value, perPage.value)
+  bakeryStore.fetchBakeries(page, searchTerm.value, perPage.value)
 }
 
 function handlePerPageChange({ currentPerPage }) {
-  roleStore.fetchRoles(1, searchTerm.value, currentPerPage)
+  bakeryStore.fetchBakeries(1, searchTerm.value, currentPerPage)
 }
 </script>

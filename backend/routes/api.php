@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BakeryController as AdminBakeryController;
 use App\Http\Controllers\Api\Admin\CityController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Auth\AuthController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\Api\Admin\UserController;
 use App\Http\Controllers\Api\Admin\PersonController;
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\UserRoleController;
+use App\Http\Controllers\Api\Admin\BakeryController;
+
 
 Route::prefix('v1')->group(function () {
 
@@ -24,6 +27,8 @@ Route::prefix('v1')->group(function () {
     // Rotas administrativas (autenticado e com papel admin/super-admin)
     //Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
+
+        Route::apiResource('bakeries', BakeryController::class);
 
         // CRUD de usuários
         Route::apiResource('users', UserController::class);

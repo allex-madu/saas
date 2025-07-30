@@ -30,9 +30,9 @@ Sistema de gestão completo e modular voltado para o segmento de padarias, com f
 - **Controle de acesso:**  
   - **Spatie Roles & Permissions**
   - Papéis e permissões gerenciáveis pelo painel administrativo
-- **Multi-tenancy:** (em desenvolvimento)
-  - Usuários vinculados a padarias
-  - Isolamento de dados por padaria (escopos e filtros dinâmicos)
+- **Multi-tenancy:** em desenvolvimento
+  - Usuários vinculados a padarias (`bakery_id`)
+  - Isolamento de dados por padaria via escopo global (`BackeryScope`)
 
 ---
 
@@ -46,108 +46,56 @@ Sistema de gestão completo e modular voltado para o segmento de padarias, com f
 
 ---
 
-## ⚙️ Funcionalidades em Andamento
+## 🏢 Multi-Tenancy e Controle por Padaria
 
-- Cadastro de usuários vinculados a pessoas existentes
-- Busca de pessoas com **debounce** (autocomplete reativo)
-- Atribuição de **papéis (roles)** ao criar usuário
-- Menu lateral com submenus expandíveis **somente ao clique**
-- Melhorias no fluxo de criação:
-  - Validações em tempo real
-  - Tratamento de erros de API
-  - Feedback com `toast.success` e `toast.error`
+### 🧩 Visão Geral
 
----
+O sistema **Pão Com** é um SaaS multi-tenant onde **cada padaria tem seus próprios usuários e dados isolados**.
 
-## 📦 Tecnologias Utilizadas
-
-- **Vue 3**, **Pinia**, **Vue Router**, **Tailwind CSS**
-- **Laravel 12**, **Sanctum**, **Spatie Permissions**
-- **Docker** (ambiente de desenvolvimento com Nginx, PHP 8.3, MariaDB)
+- O **super-admin (você)** é o único com acesso a todas as padarias.
+- Cada padaria tem um **usuário admin**, que gerencia exclusivamente sua própria operação.
+- Todos os registros (usuários, produtos, pedidos, etc.) são automaticamente vinculados à `bakery_id`.
 
 ---
 
+### 🏗️ Fluxo de Criação de Padaria
 
-# Segurança Frontend + Backend – Sessão Recapitulativa
-
-## ✅ Proteções Implementadas no Projeto Pão Com
-
-### 🔐 Backend (Laravel 12)
-- **Middleware Sanctum ativo** para autenticação de rotas `/admin`:
-  ```php
-  Route::middleware(['auth:sanctum'])->prefix('admin')->group(function () {
-      // Rotas administrativas
-  });
-  ```
-
-- **Proteção por Roles (Spatie)**:
-  - Comentado temporariamente para testes:
-    ```php
-    // Route::middleware(['auth:sanctum', 'role:admin|super-admin'])->prefix('admin')->group(...);
-    ```
-
-- **Uso de `authorize()` nos Controllers**:
-  - Aplicado para proteger métodos como `index()` com base em Policies.
-  - Exemplo:
-    ```php
-    $this->authorize('viewAny', Role::class);
-    ```
-
-- **Gate::policy() ou AuthServiceProvider**:
-  - Política de autorização registrada corretamente para `RolePolicy`.
+1. O super-admin cria uma nova **padaria**.
+2. Um **usuário admin** é criado junto, com papel `admin` e vinculado à nova padaria.
+3. Esse usuário será o “pai” de todos os dados daquela padaria: ele poderá criar outros usuários, produtos, etc.
 
 ---
 
-### 🛡️ Frontend (Vue 3 + Pinia)
-- **Proteção por papel (meta.role)** nas rotas Vue Router:
-  ```js
-  meta: { requiresAuth: true, role: ['admin', 'super-admin'] }
-  ```
+### 🛡️ Isolamento e Segurança
 
-- **Middleware `auth.js` personalizado**:
-  - Busca `auth.user.roles` e verifica se o usuário tem o papel necessário.
-  - Se não tiver, redireciona para `home`.
-
-- **Links escondidos por função**:
-  ```vue
-  <RouterLink v-if="auth.hasRole(['admin', 'super-admin'])" ... />
-  ```
+- Todos os modelos usam escopos (`BackeryScope`) para restringir acesso à padaria do usuário.
+- Apenas o `super-admin` pode ver e gerenciar **todas** as padarias.
+- O frontend esconde menus e rotas de forma dinâmica com base no papel do usuário (`meta.role`, `v-if`).
+- Dados são protegidos no backend por políticas e escopos globais.
 
 ---
 
-### 🧪 Modo Debug de Permissões (Frontend)
-- **Botão `Debug ON` exibido apenas em `import.meta.env.DEV`**
-- **Flag `authStore.debugPermissions`** ativa exibição de links mesmo sem papel.
-- **Utilizado para testar `authorize()` no backend sem bloqueios no frontend.**
+### 🔄 Exemplo de Herança de Dados
+
+| Entidade     | Ação                                     | `bakery_id` atribuído? |
+|--------------|------------------------------------------|--------------------------|
+| Usuário      | Criado pelo admin da padaria             | ✅ Sim                   |
+| Produto      | Criado dentro da padaria                 | ✅ Sim                   |
+| Pedido       | Realizado por funcionário                | ✅ Sim                   |
+| Pessoa       | Associada ao cadastro de cliente/usuário | ✅ Sim                   |
 
 ---
 
-### 🖼️ Fluxo de Segurança (Resumo Visual)
-1. Frontend protege visualmente links e rotas (`meta.role` + `v-if`).
-2. Backend protege endpoints com `authorize()` + `Policies`.
-3. Middleware Laravel (auth + role) pode proteger rotas REST inteiras.
-4. Em modo `debugPermissions`, frontend mostra tudo, mas backend ainda bloqueia.
+### 🖼️ Diagrama: Fluxo de Criação de Padaria + Admin
 
----
+```mermaid
+flowchart TD
+    SA[Super Admin (você)] -->|Cria| P(Padaria)
+    P -->|Gera| A[Usuário Admin]
+    A -->|Cria| U1[Usuário Funcionário]
+    A -->|Cadastra| Pr[Produto]
+    A -->|Gera| Pe[Pedido]
+    U1 -->|Opera| Pe
 
-### ✅ Testes Realizados
-- Login com usuários sem role: links escondidos no frontend e erro 403 no backend.
-- Debug ativado: links aparecem, mas backend nega se não tiver role/política.
-- Teste de `authorize` com usuário sem permissão mostra:
-  ```json
-  { "message": "This action is unauthorized." }
-  ```
-
----
-
-### 📄 Sugestão para `.env` de desenvolvimento:
-```env
-VITE_DEBUG_PERMISSIONS=true
-APP_ENV=local
-```
-
----
-
-**Glória a Deus! 🙌 Sistema seguro com proteção dupla e modo debug funcional!**
-
-
+    classDef green fill:#dcfce7,stroke:#16a34a,color:#065f46;
+    class SA,P,A,U1,Pr,Pe green;

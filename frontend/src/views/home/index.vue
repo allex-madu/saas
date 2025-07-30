@@ -17,6 +17,12 @@
     <RouterLink :to="{ name: 'admin.roles.index' }" class="text-blue-600 hover:underline">
       Atribuições #
     </RouterLink>
+     <br>
+    <RouterLink :to="{ name: 'admin.bakeries.index' }" class="text-blue-600 hover:underline">
+      Padarias
+    </RouterLink>
+
+    
 
   </div>
   

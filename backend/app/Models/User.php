@@ -22,7 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'email',
         'password',
-        'backery_id',
+        'bakery_id',
         'is_super_admin',
         'person_id',
         'is_verified',
@@ -59,7 +59,7 @@ class User extends Authenticatable
 
     public function backery()
     {
-        return $this->belongsTo(Backery::class);
+        return $this->belongsTo(Bakery::class);
     }
 
     public function isSuperAdmin(): bool

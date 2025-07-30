@@ -194,6 +194,46 @@ const routes = [
 
 
 
+      { /* BAKERIES */
+        path: 'admin/bakeries',
+        name: 'admin.bakeries.index',
+        component: () => import('@/views/admin/bakeries/Table.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['super-admin'],
+          title: 'Padarias',
+        },
+      },
+      {
+        path: 'admin/bakeries/create',
+        name: 'admin.bakeries.create',
+        component: () => import('@/views/admin/bakeries/Form.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['super-admin'],
+          title: 'Nova Padaria',
+        },
+      },
+      {
+        path: 'admin/bakeries/:id/edit',
+        name: 'admin.bakeries.edit',
+        component: () => import('@/views/admin/bakeries/Form.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['super-admin'], // ou o que for necessário
+        },
+      },
+      {
+        path: 'admin/bakeries/:id',
+        name: 'admin.bakeries.show',
+        component: () => import('@/views/admin/bakeries/Show.vue'),
+        meta: {
+          requiresAuth: true,
+          role: ['super-admin'],
+          title: 'Detalhes da Padaria',
+        },
+      },
+
 
 
 
