@@ -1,12 +1,17 @@
 // src/stores/admin/adminBakeryStore.js
+
 import { defineStore } from 'pinia'
 import api from '@/plugins/axios'
 import { ref } from 'vue'
 
 export const useAdminBakeryStore = defineStore('adminBakeryStore', () => {
-  // Estado
+  // Lista de padarias
   const bakeries = ref([])
+
+  // Padaria selecionada (para edição/visualização)
   const selectedBakery = ref(null)
+
+  // Estado de carregamento e erro
   const loading = ref(false)
   const error = ref(null)
 
@@ -15,7 +20,7 @@ export const useAdminBakeryStore = defineStore('adminBakeryStore', () => {
   const perPage = ref(10)
   const currentPage = ref(1)
 
-  // Buscar lista de padarias
+  // Buscar padarias (com busca e paginação)
   const fetchBakeries = async (page = 1, search = '', per_page = 10) => {
     loading.value = true
     error.value = null
@@ -38,13 +43,14 @@ export const useAdminBakeryStore = defineStore('adminBakeryStore', () => {
     }
   }
 
-  // Buscar uma padaria por ID
+  // Buscar padaria por ID (para show/edit)
   const fetchBakery = async (id) => {
     loading.value = true
     error.value = null
     try {
       const response = await api.get(`/api/v1/admin/bakeries/${id}`)
-      selectedBakery.value = response.data.bakery
+      selectedBakery.value = response.data
+      //console.log('retorno controller => ', selectedBakery.value)
     } catch (err) {
       selectedBakery.value = null
       error.value = 'Erro ao carregar padaria'
@@ -84,11 +90,11 @@ export const useAdminBakeryStore = defineStore('adminBakeryStore', () => {
     }
   }
 
-  // Excluir padaria
-  const deleteBakery = async (id) => {
+  // Deletar padaria
+  const deleteBakery = async (id, page = currentPage.value) => {
     try {
       await api.delete(`/api/v1/admin/bakeries/${id}`)
-      await fetchBakeries(currentPage.value)
+      await fetchBakeries(page) // Atualiza a lista
     } catch (err) {
       console.error('Erro ao excluir padaria:', err)
       throw err

@@ -19,7 +19,7 @@
         </div>
       </div>
 
-      <!-- Estado vazio ou erro -->
+      <!-- Estado de erro ou vazio -->
       <div v-if="error" class="text-red-500 p-4">{{ error }}</div>
       <div v-else-if="!loading && bakeries.length === 0" class="p-4 text-center text-gray-500">
         Nenhuma padaria encontrada.
@@ -39,6 +39,7 @@
         @on-page-change="handlePageChange"
         @on-per-page-change="handlePerPageChange"
       >
+        <!-- Linhas da tabela -->
         <template #table-row="props">
           <template v-if="props.column.field === 'id'">
             <span>{{ props.row.id }}</span>
@@ -56,10 +57,10 @@
             <span>{{ props.row.nif || '-' }}</span>
           </template>
 
-          <!-- Ações -->
+          <!-- Coluna de ações -->
           <template v-else-if="props.column.field === 'actions'">
             <Dropdown classMenuItems="w-[140px]">
-              <span class="text-xl">
+              <span class="text-xl" aria-label="Menu de ações">
                 <Icon icon="heroicons-outline:dots-vertical" />
               </span>
               <template #menus>
@@ -73,7 +74,7 @@
                         : 'hover:bg-slate-900 hover:text-white dark:hover:bg-slate-600 dark:hover:bg-opacity-50'
                     ]"
                   >
-                    <span class="text-base"><Icon :icon="item.icon" /></span>
+                    <Icon :icon="item.icon" class="text-base" />
                     <span>{{ item.name }}</span>
                   </div>
                 </MenuItem>
@@ -104,11 +105,11 @@ import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
-import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
+import { storeToRefs } from 'pinia'
 import { useAdminBakeryStore } from '@/store/adminBakeryStore'
 
-// Components
+// Componentes reutilizáveis
 import Button from '@/components/Button'
 import Card from '@/components/Card'
 import SearchInput from '@/components/InputGroup/SearchInput'
@@ -123,18 +124,19 @@ const toast = useToast()
 const bakeryStore = useAdminBakeryStore()
 const { bakeries, loading, error, pagination, perPage } = storeToRefs(bakeryStore)
 
-// Busca com debounce
+// Termo de busca com debounce
 const searchTerm = ref('')
 const debouncedSearch = debounce(() => {
   bakeryStore.fetchBakeries(1, searchTerm.value, perPage.value)
 }, 500)
 watch(searchTerm, debouncedSearch, { immediate: true })
 
+// Ao montar
 onMounted(() => {
   bakeryStore.fetchBakeries(1, '', perPage.value)
 })
 
-// Colunas
+// Colunas da tabela
 const columns = [
   { label: 'ID', field: 'id' },
   { label: 'Nome', field: 'name' },
@@ -143,14 +145,14 @@ const columns = [
   { label: 'Ações', field: 'actions' },
 ]
 
-// Ações do dropdown
+// Ações disponíveis
 const actions = [
   { name: 'ver', icon: 'heroicons-outline:eye' },
   { name: 'editar', icon: 'heroicons-outline:pencil' },
   { name: 'delete', icon: 'heroicons-outline:trash' },
 ]
 
-// Manipulador de ações
+// Manipula as ações do menu
 function handleAction(action, bakery) {
   switch (action) {
     case 'ver':

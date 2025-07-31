@@ -42,16 +42,27 @@
 
         <hr class="border-gray-300 dark:border-slate-600 my-4" />
 
-        <!-- Admin Name -->
+        <!-- Informações do Administrador -->
+        <div v-if="isEdit" class="text-sm text-slate-500 dark:text-slate-300 mb-2">
+          <span class="text-slate-800 dark:text-slate-100">Administrador:</span>
+          <span v-if="adminInfo.name || adminInfo.email">
+            {{ adminInfo.name }}
+            <span v-if="adminInfo.email">({{ adminInfo.email }})</span>
+          </span>
+          <span v-else>—</span>
+        </div>
+
+        <!-- Nome do Admin -->
         <InputGroup
-          label="Nome do Administrador"
+          v-else
+          label="Nome do Admin"
           v-model="form.admin_name"
           prependIcon="heroicons-outline:user"
           required
         />
         <span v-if="errors.admin_name" class="text-sm text-red-500">{{ errors.admin_name[0] }}</span>
 
-        <!-- Email Admin -->
+        <!-- Email do Admin -->
         <InputGroup
           label="Email do Admin"
           v-model="form.admin_email"
@@ -71,7 +82,7 @@
         />
         <span v-if="errors.admin_password" class="text-sm text-red-500">{{ errors.admin_password[0] }}</span>
 
-        <!-- Confirmar senha -->
+        <!-- Confirmação de Senha -->
         <InputGroup
           label="Confirmar Senha"
           v-model="form.admin_password_confirmation"
@@ -79,9 +90,11 @@
           prependIcon="heroicons-outline:lock-closed"
           :required="!isEdit"
         />
-        <span v-if="errors.admin_password_confirmation" class="text-sm text-red-500">{{ errors.admin_password_confirmation[0] }}</span>
+        <span v-if="errors.admin_password_confirmation" class="text-sm text-red-500">
+          {{ errors.admin_password_confirmation[0] }}
+        </span>
 
-        <!-- Botões -->
+        <!-- Ações do formulário -->
         <FormActions :isEdit="isEdit" :loading="loading" />
       </form>
     </Card>
@@ -94,14 +107,17 @@ import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import api from '@/plugins/axios'
 
+// Componentes
 import InputGroup from '@/components/InputGroup'
 import Card from '@/components/Card'
 import FormActions from '@/components/Form/FormActions'
 
+// Instâncias
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
+// Estados
 const loading = ref(false)
 const errors = ref({})
 const isEdit = computed(() => !!route.params?.id)
@@ -117,7 +133,9 @@ const form = ref({
   admin_password_confirmation: '',
 })
 
-// Opcional: função para resetar o form após criação
+const adminInfo = ref({ name: '', email: '' })
+
+// Resetar formulário
 const resetForm = () => {
   form.value = {
     name: '',
@@ -129,49 +147,51 @@ const resetForm = () => {
     admin_password: '',
     admin_password_confirmation: '',
   }
+  adminInfo.value = { name: '', email: '' }
 }
 
-// Carrega padaria para edição
+// Buscar dados para edição
 onMounted(async () => {
   if (isEdit.value) {
     try {
       const { data } = await api.get(`/api/v1/admin/bakeries/${route.params.id}`)
+
       form.value.name = data.name || ''
       form.value.slug = data.slug || ''
       form.value.nif = data.nif || ''
       form.value.phone = data.phone || ''
-      form.value.admin_name = data.admin_name || ''
       form.value.admin_email = data.admin_email || ''
-      form.value.admin_password = ''
-      form.value.admin_password_confirmation = ''
+
+      adminInfo.value.name = data.admin_name || ''
+      adminInfo.value.email = data.admin_email || ''
     } catch (error) {
       console.error('Erro ao carregar padaria:', error)
     }
   }
 })
 
+// Submeter formulário
 const handleSubmit = async () => {
   loading.value = true
   errors.value = {}
 
   try {
-    // Se for edição e a senha estiver em branco, remove antes de enviar
+    // Se estiver editando e não houver senha, remover os campos
     if (isEdit.value && !form.value.admin_password) {
       delete form.value.admin_password
       delete form.value.admin_password_confirmation
     }
 
-    // Se a senha for informada, replica no campo de confirmação
+    // Confirmação automática da senha
     if (form.value.admin_password) {
       form.value.admin_password_confirmation = form.value.admin_password
     }
 
-    let response
     if (isEdit.value) {
-      response = await api.put(`/api/v1/admin/bakeries/${route.params.id}`, form.value)
+      await api.put(`/api/v1/admin/bakeries/${route.params.id}`, form.value)
       toast.success('Padaria atualizada com sucesso!')
     } else {
-      response = await api.post('/api/v1/admin/bakeries', form.value)
+      await api.post('/api/v1/admin/bakeries', form.value)
       toast.success('Padaria criada com sucesso!')
       resetForm()
     }

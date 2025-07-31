@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Models\Bakery;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -12,6 +11,7 @@ use Illuminate\Validation\Rule;
 
 class BakeryController extends Controller
 {
+    // Lista padarias com paginação e busca
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -21,8 +21,8 @@ class BakeryController extends Controller
 
         if ($search) {
             $query->where('name', 'like', "%{$search}%")
-                ->orWhere('slug', 'like', "%{$search}%")
-                ->orWhere('nif', 'like', "%{$search}%");
+                  ->orWhere('slug', 'like', "%{$search}%")
+                  ->orWhere('nif', 'like', "%{$search}%");
         }
 
         $bakeries = $query->orderByDesc('created_at')->paginate($perPage);
@@ -38,55 +38,7 @@ class BakeryController extends Controller
         ]);
     }
 
-
-    // public function store(Request $request)
-    // {
-    //     $data = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'slug' => 'required|string|unique:bakeries,slug',
-    //         'nif' => 'nullable|string|unique:bakeries,nif',
-    //         'phone' => 'nullable|string|max:20',
-    //         'admin_name' => 'required|string|max:255',
-    //         'admin_email' => 'required|email|unique:users,email',
-    //         'admin_password' => 'required|string|min:8|confirmed',
-    //     ]);
-
-    //     $creatorId = auth()->id();
-
-    //     DB::transaction(function () use ($data, $creatorId) {
-    //         // Cria a padaria
-    //         $bakery = Bakery::create([
-    //             'name' => $data['name'],
-    //             'slug' => $data['slug'],
-    //             'nif' => $data['nif'] ?? null,
-    //             'phone' => $data['phone'] ?? null,
-    //             'created_by' => $creatorId,
-    //             'trial_until' => now()->addDays(7),
-    //         ]);
-
-    //         // Cria a pessoa com nome e e-mail do admin
-    //         $person = \App\Models\Person::create([
-    //             'name' => $data['admin_name'],
-    //             'email' => $data['admin_email'],
-    //             'nif' => $data['nif'] ?? null,
-    //         ]);
-
-    //         // Cria o usuário e vincula à pessoa
-    //         $admin = User::create([
-    //             'person_id' => $person->id,
-    //             'email' => $data['admin_email'],
-    //             'password' => Hash::make($data['admin_password']),
-    //             'bakery_id' => $bakery->id,
-    //         ]);
-
-    //         $admin->assignRole('admin');
-    //         $bakery->update(['admin_id' => $admin->id]);
-    //     });
-
-    //     return response()->json(['message' => 'Padaria e administrador criados com sucesso.'], 201);
-    // }
-
-
+    // Criação de padaria com admin vinculado
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -101,7 +53,7 @@ class BakeryController extends Controller
         ]);
 
         DB::transaction(function () use ($data) {
-            // Cria padaria
+            // Cria padaria sem admin inicialmente
             $bakery = Bakery::create([
                 'name' => $data['name'],
                 'slug' => $data['slug'],
@@ -111,24 +63,19 @@ class BakeryController extends Controller
                 'trial_until' => now()->addDays(7),
             ]);
 
-            // Cria pessoa
-            $person = $bakery->admin()->create([
-                'name' => $data['admin_name'],
-                'email' => $data['admin_email'],
-                'nif' => $data['nif'] ?? null,
-            ])->person()->create([
+            // Cria pessoa e usuário vinculados
+            $person = \App\Models\Person::create([
                 'name' => $data['admin_name'],
                 'email' => $data['admin_email'],
             ]);
 
-            // Cria usuário e associa à pessoa e padaria
             $user = $person->user()->create([
                 'email' => $data['admin_email'],
                 'password' => Hash::make($data['admin_password']),
                 'bakery_id' => $bakery->id,
             ]);
 
-            // Define o usuário como admin da padaria
+            // Atualiza padaria com admin
             $bakery->update(['admin_id' => $user->id]);
 
             // Atribui papel
@@ -138,13 +85,10 @@ class BakeryController extends Controller
         return response()->json(['message' => 'Padaria criada com sucesso.'], 201);
     }
 
-
-
-  
-
+    // Atualização de dados da padaria + admin (e-mail/senha)
     public function update(Request $request, $id)
     {
-        $bakery = Bakery::findOrFail($id);
+        $bakery = Bakery::with('admin')->findOrFail($id);
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
@@ -159,7 +103,6 @@ class BakeryController extends Controller
                 Rule::unique('bakeries', 'nif')->ignore($bakery->id),
             ],
             'phone' => 'nullable|string|max:20',
-            'admin_name' => 'required|string|max:255',
             'admin_email' => [
                 'required',
                 'email',
@@ -168,7 +111,7 @@ class BakeryController extends Controller
             'admin_password' => 'nullable|string|min:8|confirmed',
         ]);
 
-        DB::transaction(function () use ($bakery, $data, $request) {
+        DB::transaction(function () use ($bakery, $data) {
             // Atualiza padaria
             $bakery->update([
                 'name' => $data['name'],
@@ -177,32 +120,23 @@ class BakeryController extends Controller
                 'phone' => $data['phone'] ?? null,
             ]);
 
-            // Atualiza pessoa
-            $person = $bakery->admin->person;
-            $person->update([
-                'name' => $data['admin_name'],
-                'email' => $data['admin_email'],
-                'nif' => $data['nif'] ?? null,
-            ]);
+            // Atualiza admin
+            $admin = $bakery->admin;
+            if ($admin) {
+                $admin->update(['email' => $data['admin_email']]);
 
-            // Atualiza usuário
-            $user = $bakery->admin;
-            $user->email = $data['admin_email'];
-
-            if ($request->filled('admin_password')) {
-                $user->password = Hash::make($request->input('admin_password'));
+                if (!empty($data['admin_password'])) {
+                    $admin->update([
+                        'password' => Hash::make($data['admin_password']),
+                    ]);
+                }
             }
-
-            $user->save();
         });
 
         return response()->json(['message' => 'Padaria atualizada com sucesso.']);
     }
 
-
-
-
-
+    // Detalhes para tela de visualização e formulário
     public function show($id)
     {
         $bakery = Bakery::with(['admin.person'])->findOrFail($id);
@@ -213,13 +147,28 @@ class BakeryController extends Controller
             'slug' => $bakery->slug,
             'nif' => $bakery->nif,
             'phone' => $bakery->phone,
+            'created_at' => $bakery->created_at,
+            'updated_at' => $bakery->updated_at,
+
+            'admin' => [
+                'name' => optional(optional($bakery->admin)->person)->name,
+                'email' => optional($bakery->admin)->email,
+            ],
+
             'admin_name' => optional(optional($bakery->admin)->person)->name,
             'admin_email' => optional($bakery->admin)->email,
         ]);
     }
 
+    // Exclusão simples
+    public function destroy($id)
+    {
+        $bakery = Bakery::findOrFail($id);
 
+        // Validações extras (ex: impedir exclusão se for padaria ativa) podem ser incluídas aqui
 
+        $bakery->delete();
 
-
+        return response()->json(['message' => 'Padaria removida com sucesso.']);
+    }
 }
