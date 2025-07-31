@@ -1,4 +1,3 @@
-// src/stores/admin/adminBakeryStore.js
 
 import { defineStore } from 'pinia'
 import api from '@/plugins/axios'
@@ -50,7 +49,6 @@ export const useAdminBakeryStore = defineStore('adminBakeryStore', () => {
     try {
       const response = await api.get(`/api/v1/admin/bakeries/${id}`)
       selectedBakery.value = response.data
-      //console.log('retorno controller => ', selectedBakery.value)
     } catch (err) {
       selectedBakery.value = null
       error.value = 'Erro ao carregar padaria'
