@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\Admin\BakeryController as AdminBakeryController;
 use App\Http\Controllers\Api\Admin\CityController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\Tenant\AuthController;
+use App\Http\Controllers\Api\Auth\Tenant\BakerySwitcherController;
 use App\Http\Controllers\Api\Admin\PermissionController;
 use App\Http\Controllers\Api\Admin\PermissionTreeController;
 use App\Http\Controllers\Api\Admin\UserController;
@@ -11,7 +11,6 @@ use App\Http\Controllers\Api\Admin\PersonController;
 use App\Http\Controllers\Api\Admin\RoleController;
 use App\Http\Controllers\Api\Admin\UserRoleController;
 use App\Http\Controllers\Api\Admin\BakeryController;
-
 
 Route::prefix('v1')->group(function () {
 
@@ -58,9 +57,33 @@ Route::prefix('v1')->group(function () {
         Route::get('/cities', [CityController::class, 'index']);
 
 
+
+
+
+    });// end admin super-admin
+
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('/my-bakeries', [BakerySwitcherController::class, 'myBakeries']);
     });
 
-});
+    
+
+
+    Route::middleware(['auth:sanctum', 'ensure.bakery'])->prefix('tenant')->group(function () {
+        Route::post('/set-active-bakery', [BakerySwitcherController::class, 'setActiveBakery']);
+        
+        // Aqui virão as rotas que usam bakery_id da sessão
+        // Exemplo: produtos, vendas, estoque etc.
+    
+    
+    });// end tenant
+
+
+
+
+
+}); // end v1
 
 /*
 |--------------------------------------------------------------------------

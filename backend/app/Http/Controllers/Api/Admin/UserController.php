@@ -39,6 +39,13 @@ class UserController extends Controller
             $query->whereHas('roles', fn($q) => $q->where('name', $request->role));
         }
 
+        // Filtro por padaria
+        if ($request->filled('bakery_id')) {
+            $query->whereHas('bakeries', function ($q) use ($request) {
+                $q->where('bakery_id', $request->bakery_id);
+            });
+        }
+
         // Paginação
         $perPage = $request->get('per_page', 10);
         $users = $query->paginate($perPage);

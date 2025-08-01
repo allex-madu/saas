@@ -3,7 +3,6 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\CheckBackeryAccess;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->statefulApi();
        
         $middleware->alias([
-            'checkBackeryAccess' => CheckBackeryAccess::class,
+            'checkBackeryAccess' => \App\Http\Middleware\CheckBackeryAccess::class,
+            'ensure.bakery' => \App\Http\Middleware\EnsureBakerySelected::class,
+            'SetActiveBakeryScope' => \App\Http\Middleware\SetActiveBakeryScope::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class

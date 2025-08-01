@@ -44,9 +44,13 @@
         <Mainnav
           v-if="themeSettingsStore.menuLayout === 'horizontal' && width > 1280"
         />
+
+
+
         <div
           class="nav-tools flex items-center lg:space-x-5 space-x-3 rtl:space-x-reverse"
         >
+          <BakerySwitcher />
           <LanguageVue />
           <SwitchDark />
           <MonochromeMode />
@@ -56,6 +60,9 @@
           <Profile v-if="width > 768" />
           <HandleMobileMenu v-if="width < 768" />
         </div>
+
+
+
       </div>
     </div>
   </header>
@@ -81,6 +88,8 @@ import MobileLogo from "./Navtools/MobileLogo.vue";
 import window from "@/mixins/window";
 import HandleMobileMenu from "./Navtools/HandleMobileMenu.vue";
 import { useThemeSettingsStore } from '@/store/themeSettings'
+import BakerySwitcher from "./Navtools/BakerySwitcher.vue";
+
 
 
 // Stores & Utils

@@ -1,22 +1,24 @@
 import { defineStore } from 'pinia'
+import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 import { ref } from 'vue'
 import api from '@/plugins/axios'
 
 export const useAdminUserStore = defineStore('adminUsers', () => {
   // Estado principal
-  const users = ref([])                // Lista de usuários
-  const roles = ref([])                // Lista de papéis formatados
-  const cities = ref([])               // Lista de cidades (autocomplete)
-  const pagination = ref({})           // Dados de paginação da tabela
-  const currentPage = ref(1)           // Página atual
-  const perPage = ref(10)              // Itens por página
-  const loading = ref(false)           // Indicador de carregamento
-  const error = ref(null)              // Mensagem de erro genérica
-  const errors = ref({})               // Erros de validação (422)
+  const activeBakeryStore = useActiveBakeryStore()
+  const users = ref([])                
+  const roles = ref([])              
+  const cities = ref([])              
+  const pagination = ref({})         
+  const currentPage = ref(1)         
+  const perPage = ref(10)              
+  const loading = ref(false)         
+  const error = ref(null)            
+  const errors = ref({})            
 
-  let lastFetchId = 0                  // Identificador de fetch para cancelar requisições antigas
+  let lastFetchId = 0                 
 
-  // 🔍 Lista usuários com paginação e busca
+  // Lista usuários com paginação e busca
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
     error.value = null
@@ -25,7 +27,12 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
 
     try {
       const response = await api.get('/api/v1/admin/users', {
-        params: { page, search, per_page: perPage.value },
+        params: { 
+          page, 
+          search, 
+          per_page: perPage.value,
+          bakery_id: activeBakeryStore.activeBakery?.id, // padaria ativa
+        },
       })
 
       // Garante que apenas a última requisição atualize os dados
@@ -50,7 +57,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // ✅ Criação de novo usuário
+  // Criação de novo usuário
   async function createUser(form) {
     loading.value = true
     error.value = null
@@ -69,7 +76,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // ✏️ Atualização de usuário existente
+  // Atualização de usuário existente
   async function updateUser(id, form) {
     loading.value = true
     error.value = null
@@ -88,7 +95,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // 🗑️ Remove um usuário da base
+  // Remove um usuário da base
   async function deleteUser(id) {
     try {
       await api.delete(`/api/v1/admin/users/${id}`)
@@ -100,7 +107,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // 📋 Busca papéis (roles) e adapta para VueSelect
+  //  Busca papéis (roles) e adapta para VueSelect
   async function fetchRoles() {
     try {
       const response = await api.get('/api/v1/admin/roles')
@@ -120,7 +127,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // 🌍 Autocomplete de cidades
+  // Autocomplete de cidades
   async function searchCities(term = '') {
     try {
       const response = await api.get('/api/v1/admin/cities', {

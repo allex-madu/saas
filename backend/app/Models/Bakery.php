@@ -10,37 +10,31 @@ class Bakery extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'nif',
-        'phone',
-        'created_by',
-        'trial_until',
-        'admin_id',
-    ];
+    protected $guarded = [];
 
     /**
-     * Usuários pertencentes à padaria.
+     * Relação N:N com usuários pertencentes à padaria.
      */
     public function users()
     {
-        return $this->hasMany(User::class);
+        return $this->belongsToMany(User::class)
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
     /**
-     * Usuário que criou a padaria (super-admin).
+     * Criador da padaria (geralmente o super admin).
      */
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    // app/Models/Bakery.php
-
+    /**
+     * Administrador principal da padaria.
+     */
     public function admin()
     {
         return $this->belongsTo(User::class, 'admin_id');
     }
-
 }

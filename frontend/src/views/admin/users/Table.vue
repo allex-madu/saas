@@ -125,11 +125,13 @@ import Dropdown from '@/components/Dropdown'
 import Pagination from '@/components/Pagination'
 import Icon from '@/components/Icon'
 import { MenuItem } from '@headlessui/vue'
+import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 import { useAdminUserStore } from '@/store/adminUserStore'
 import Swal from 'sweetalert2'
 import { useToast } from "vue-toastification"
 import Button from "@/components/Button"
 
+const activeBakeryStore = useActiveBakeryStore()
 const adminUserStore = useAdminUserStore()
 const router = useRouter()
 const store = useAdminUserStore()
@@ -199,6 +201,10 @@ function handleAction(action, user) {
       break
   }
 } 
+
+watch(() => activeBakeryStore.activeBakery, () => {
+  adminUserStore.fetchUsers()
+})
 
 function handlePageChange(page) {
   store.currentPage = page
