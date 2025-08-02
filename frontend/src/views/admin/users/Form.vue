@@ -115,6 +115,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { debounce } from 'lodash'
 import { useToast } from 'vue-toastification'
 import { useAdminUserStore } from '@/store/adminUserStore'
+import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 
 import Card from '@/components/Card'
 import FormActions from '@/components/Form/FormActions'
@@ -133,6 +134,7 @@ const loading = computed(() => store.loading)
 const errors = computed(() => store.errors)
 const cities = computed(() => store.cities)
 const roles = computed(() => store.roles)
+const bakeryStore = useActiveBakeryStore()
 
 const form = reactive({
   name: '',
@@ -212,6 +214,7 @@ const handleSubmit = async () => {
     city_id: form.city_id?.id || null,
     roles: form.roles.map(role => role.value),
     active: true,
+    bakery_id: bakeryStore.activeBakery?.id || null,
   }
 
   try {

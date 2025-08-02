@@ -68,7 +68,12 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     errors.value = {}
 
     try {
-      await api.post('/api/v1/admin/users', form)
+      const payload = {
+        ...form,
+        bakery_id: activeBakeryStore.activeBakery?.id,
+      }
+
+      await api.post('/api/v1/admin/users', payload)
     } catch (err) {
       if (err.response?.status === 422) {
         errors.value = err.response.data.errors || {}
@@ -78,6 +83,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
       loading.value = false
     }
   }
+
 
   // Atualização
   async function updateUser(id, form) {

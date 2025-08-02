@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Models\Person;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
@@ -89,6 +90,8 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
 
+        Log::debug('Payload recebido:', $request->all());
+
         // Cria a pessoa vinculada
         $person = Person::create([
             'name' => $request->name,
@@ -101,7 +104,7 @@ class UserController extends Controller
             'email' => $request->email,
         ]);
 
-        // Cria o usuário com vínculo à pessoa
+        // Cria o usuário vinculado à pessoa
         $user = User::create([
             'person_id' => $person->id,
             'email' => $request->email,
@@ -111,11 +114,31 @@ class UserController extends Controller
         // Atribui papéis (roles)
         $user->syncRoles($request->roles);
 
+        // Log para debug do contexto da padaria
+        Log::debug('Active bakery do usuário logado:', [
+            'user_id' => $request->user()->id,
+            'bakeries' => $request->user()->bakeries->pluck('id'),
+            'request_bakery_id' => $request->bakery_id,
+        ]);
+
+        // Associa o novo usuário à padaria ativa
+        $bakeryId = $request->input('bakery_id');
+
+        if ($bakeryId) {
+            $user->bakeries()->attach([
+                $bakeryId => ['role' => 'user'], // ou 'admin' se apropriado
+            ]);
+        }
+
         return response()->json([
             'message' => 'Usuário criado com sucesso',
             'user' => $user->load('person', 'roles'),
         ]);
     }
+
+
+
+
 
     /**
      * Exibe os dados de um usuário específico.
