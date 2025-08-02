@@ -3,22 +3,25 @@
 namespace Database\Seeders;
 
 use App\Models\Person;
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Criar 20 usuários
-        for ($i = 0; $i < 20; $i++) {
+        // Garante que a role 'usuario' exista (evita erro na atribuição)
+        if (!\Spatie\Permission\Models\Role::where('name', 'usuario')->exists()) {
+            \Spatie\Permission\Models\Role::create(['name' => 'usuario']);
+        }
+
+        for ($i = 1; $i <= 20; $i++) {
             $person = Person::factory()->create();
 
-            $user = User::create([
-                'person_id' => $person->id,
-                'email' => $person->email, // ou diferente se quiser
-                'password' => Hash::make('12345678'), // senha padrão
+            $user = $person->user()->create([
+                'email' => $person->email,
+                'password' => Hash::make('12345678'),
             ]);
 
             $user->assignRole('usuario');

@@ -4,6 +4,7 @@ export default async function auth({ next, to }) {
   const auth = useAuthStore()
   const requiredRoles = to.meta.role || []
 
+  // Garante que o usuário está autenticado
   if (!auth.user) {
     const ok = await auth.fetchUser()
     if (!ok) return next({ name: 'Login' })
@@ -11,16 +12,13 @@ export default async function auth({ next, to }) {
 
   const userRoles = (auth.user?.roles || []).map(role => role.name)
 
-  // Se modo debug de permissões estiver ativado, ignora checagem de role
-  if (auth.debugPermissions) {
-    console.warn('[DEBUG] Ignorando verificação de roles para rota:', to.name)
-    return next()
-  }
+  // Ignora validações se estiver em modo debug
+  if (auth.debugPermissions) return next()
 
-  // Permite tudo para super-admin
+  // Super-admin tem acesso total
   if (userRoles.includes('super-admin')) return next()
 
-  // Bloqueia se não tiver pelo menos um dos roles exigidos
+  // Bloqueia se não possuir nenhuma das roles exigidas
   if (requiredRoles.length && !requiredRoles.some(role => userRoles.includes(role))) {
     return next({ name: 'home' })
   }

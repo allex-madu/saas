@@ -1,3 +1,5 @@
+// ... imports ...
+
 // CSS externos
 import "animate.css"
 import "flatpickr/dist/flatpickr.css"
@@ -38,7 +40,6 @@ import { setupThemeFromLocalStorage } from "@/utils/theme"
 // Stores
 import { useAuthStore } from "@/store/authStore"
 import { useThemeSettingsStore } from "@/store/themeSettings"
-import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 
 // Instância Pinia
 const pinia = createPinia()
@@ -62,10 +63,8 @@ const app = createApp(App)
   .use(VCalendar)
   .use(VueQueryPlugin)
 
-// Global store (evita erro com $store antigo)
 app.config.globalProperties.$store = {}
 
-// Store de autenticação
 const auth = useAuthStore()
 
 // Sincroniza logout entre abas
@@ -74,34 +73,22 @@ window.addEventListener("storage", (e) => {
     auth.user = null;
     console.log("Logout detectado em outra aba. Limpando usuário local.")
   }
-});
+})
 
-// Inicialização do app (tema, csrf, auth)
 async function initializeApp() {
   try {
-    await api.get("/sanctum/csrf-cookie");
+    await api.get("/sanctum/csrf-cookie")
 
-    // Autenticação
-    await auth.fetchUser();
+    // Centralizado aqui 
+    await auth.onLoginSuccess()
 
-    // Tema
-    const themeSettingsStore = useThemeSettingsStore();
-    setupThemeFromLocalStorage(themeSettingsStore);
-
-    // Bakery ativa
-    const activeBakeryStore = useActiveBakeryStore();
-
-    
-    activeBakeryStore.loadActiveBakeryFromStorage()
-    await activeBakeryStore.fetchMyBakeries()
-
-activeBakeryStore
+    const themeSettingsStore = useThemeSettingsStore()
+    setupThemeFromLocalStorage(themeSettingsStore)
   } catch (error) {
-    console.error("Erro durante a inicialização do aplicativo:", error);
+    console.error("Erro durante a inicialização do aplicativo:", error)
   } finally {
-    app.mount("#app");
+    app.mount("#app")
   }
 }
 
-// Start
-initializeApp();
+initializeApp()

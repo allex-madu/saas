@@ -1,24 +1,26 @@
 import { defineStore } from 'pinia'
 import { useActiveBakeryStore } from '@/store/activeBakeryStore'
+import { useAuthStore } from '@/store/authStore'
 import { ref } from 'vue'
 import api from '@/plugins/axios'
 
 export const useAdminUserStore = defineStore('adminUsers', () => {
-  // Estado principal
   const activeBakeryStore = useActiveBakeryStore()
-  const users = ref([])                
-  const roles = ref([])              
-  const cities = ref([])              
-  const pagination = ref({})         
-  const currentPage = ref(1)         
-  const perPage = ref(10)              
-  const loading = ref(false)         
-  const error = ref(null)            
-  const errors = ref({})            
+  const authStore = useAuthStore()
 
-  let lastFetchId = 0                 
+  const users = ref([])
+  const roles = ref([])
+  const cities = ref([])
+  const pagination = ref({})
+  const currentPage = ref(1)
+  const perPage = ref(10)
+  const loading = ref(false)
+  const error = ref(null)
+  const errors = ref({})
 
-  // Lista usuários com paginação e busca
+  let lastFetchId = 0
+
+  // Lista usuários com filtros e paginação
   async function fetchUsers(page = 1, search = '') {
     loading.value = true
     error.value = null
@@ -26,22 +28,24 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     const fetchId = ++lastFetchId
 
     try {
-      const response = await api.get('/api/v1/admin/users', {
-        params: { 
-          page, 
-          search, 
-          per_page: perPage.value,
-          bakery_id: activeBakeryStore.activeBakery?.id, // padaria ativa
-        },
-      })
+      const params = {
+        page,
+        search,
+        per_page: perPage.value,
+      }
 
-      // Garante que apenas a última requisição atualize os dados
+      // Aplica filtro por padaria apenas se não for super-admin
+      if (!authStore.isSuperAdmin && activeBakeryStore.activeBakery?.id) {
+        params.bakery_id = activeBakeryStore.activeBakery.id
+      }
+
+      const response = await api.get('/api/v1/admin/users', { params })
+
       if (fetchId !== lastFetchId) return
 
       const res = response.data
       users.value = res.data
 
-      // Atualiza a paginação
       pagination.value = {
         current_page: res.meta?.current_page ?? 1,
         last_page: res.meta?.last_page ?? 1,
@@ -57,7 +61,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Criação de novo usuário
+  // Criação
   async function createUser(form) {
     loading.value = true
     error.value = null
@@ -66,7 +70,6 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     try {
       await api.post('/api/v1/admin/users', form)
     } catch (err) {
-      // Captura erros de validação
       if (err.response?.status === 422) {
         errors.value = err.response.data.errors || {}
       }
@@ -76,7 +79,7 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Atualização de usuário existente
+  // Atualização
   async function updateUser(id, form) {
     loading.value = true
     error.value = null
@@ -85,7 +88,6 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     try {
       await api.put(`/api/v1/admin/users/${id}`, form)
     } catch (err) {
-      // Captura erros de validação
       if (err.response?.status === 422) {
         errors.value = err.response.data.errors || {}
       }
@@ -95,11 +97,10 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Remove um usuário da base
+  // Exclusão
   async function deleteUser(id) {
     try {
       await api.delete(`/api/v1/admin/users/${id}`)
-      // Remove da lista local para não precisar refazer o fetch
       users.value = users.value.filter(user => user.id !== id)
     } catch (err) {
       console.error('Erro ao deletar usuário:', err)
@@ -107,12 +108,11 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  //  Busca papéis (roles) e adapta para VueSelect
+  // Papéis (roles) para formulário
   async function fetchRoles() {
     try {
       const response = await api.get('/api/v1/admin/roles')
 
-      // Mapeia para { label, value } que o VueSelect espera
       roles.value = (response.data.roles || []).map(role => ({
         ...role,
         label: role.name,
@@ -127,11 +127,11 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Autocomplete de cidades
+  // Cidades (autocomplete)
   async function searchCities(term = '') {
     try {
       const response = await api.get('/api/v1/admin/cities', {
-        params: { search: term }
+        params: { search: term },
       })
       cities.value = response.data.data || []
     } catch (err) {
@@ -140,7 +140,6 @@ export const useAdminUserStore = defineStore('adminUsers', () => {
     }
   }
 
-  // Exporta estado e ações
   return {
     users,
     roles,

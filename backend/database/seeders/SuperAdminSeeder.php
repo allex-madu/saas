@@ -12,15 +12,22 @@ class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Gera um NIF aleatório no formato básico de CNPJ: 00.000.000/0000-00
+        $email = 'alexsuper@gmail.com';
+
+        // Remove registros anteriores com o mesmo e-mail
+        User::where('email', $email)->delete();
+        Person::where('email', $email)->delete();
+
+        // Gera um NIF aleatório no formato básico de CNPJ
         $nif = sprintf('%02d.%03d.%03d/%04d-%02d', 
             rand(10, 99), rand(100, 999), rand(100, 999),
             rand(1000, 9999), rand(10, 99)
         );
 
+        // Criação da pessoa vinculada ao super admin
         $person = Person::create([
             'name' => 'Super',
-            'email' => 'alexsuper@gmail.com',
+            'email' => $email,
             'nickname' => 'Alex Super',
             'nif' => $nif,
             'phone' => '(43) 99873-6040',
@@ -31,13 +38,15 @@ class SuperAdminSeeder extends Seeder
             'city_id' => '3531'
         ]);
 
+        // Criação do usuário super admin
         $user = User::create([
             'person_id' => $person->id,
-            'email' => 'alexsuper@gmail.com',
+            'email' => $email,
             'password' => Hash::make('12345678'),
             'is_super_admin' => true,
         ]);
 
+        // Atribui papel
         $user->assignRole('super-admin');
     }
 }

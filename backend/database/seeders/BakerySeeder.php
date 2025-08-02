@@ -20,11 +20,15 @@ class BakerySeeder extends Seeder
         }
 
         DB::transaction(function () use ($superAdmin) {
+            // ========== Padaria Central ==========
+            $email1 = 'carlos@padariacentral.com';
+            Person::where('email', $email1)->delete();
+            User::where('email', $email1)->delete();
+            Bakery::where('slug', 'padaria-central')->delete();
 
-            // ---------- Padaria 1 ----------
             $person1 = Person::create([
                 'name' => 'Carlos Central',
-                'email' => 'carlos@padariacentral.com',
+                'email' => $email1,
                 'nickname' => 'Carlos',
                 'nif' => '12.345.678/0001-01',
                 'phone' => '(11) 99999-1111',
@@ -32,12 +36,13 @@ class BakerySeeder extends Seeder
                 'reference' => 'Perto da praça',
                 'number' => 123,
                 'zip_code' => '12345-000',
-                'city_id' => 1,
+                'city_id' => 3531,
             ]);
 
             $admin1 = $person1->user()->create([
-                'email' => $person1->email,
-                'password' => Hash::make('senha123'),
+                'email' => $email1,
+                'password' => Hash::make('12345678'),
+                'is_super_admin' => false,
             ]);
 
             $admin1->assignRole('admin');
@@ -52,14 +57,18 @@ class BakerySeeder extends Seeder
                 'trial_until' => now()->addDays(7),
             ]);
 
-            $admin1->update([
-                'bakery_id' => $bakery1->id,
-            ]);
+            // Associa admin à padaria via tabela pivô
+            $admin1->bakeries()->attach($bakery1->id);
 
-            // ---------- Padaria 2 ----------
+            // ========== Padaria do Bairro ==========
+            $email2 = 'maria@padariabairro.com';
+            Person::where('email', $email2)->delete();
+            User::where('email', $email2)->delete();
+            Bakery::where('slug', 'padaria-do-bairro')->delete();
+
             $person2 = Person::create([
                 'name' => 'Maria Bairro',
-                'email' => 'maria@padariabairro.com',
+                'email' => $email2,
                 'nickname' => 'Maria',
                 'nif' => '98.765.432/0001-02',
                 'phone' => '(11) 98888-2222',
@@ -67,12 +76,13 @@ class BakerySeeder extends Seeder
                 'reference' => 'Próximo ao mercado',
                 'number' => 456,
                 'zip_code' => '54321-000',
-                'city_id' => 1,
+                'city_id' => 3531,
             ]);
 
             $admin2 = $person2->user()->create([
-                'email' => $person2->email,
-                'password' => Hash::make('senha123'),
+                'email' => $email2,
+                'password' => Hash::make('12345678'),
+                'is_super_admin' => false,
             ]);
 
             $admin2->assignRole('admin');
@@ -87,9 +97,8 @@ class BakerySeeder extends Seeder
                 'trial_until' => now()->addDays(7),
             ]);
 
-            $admin2->update([
-                'bakery_id' => $bakery2->id,
-            ]);
+            // Associa admin à padaria via tabela pivô
+            $admin2->bakeries()->attach($bakery2->id);
         });
     }
 }

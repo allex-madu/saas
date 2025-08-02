@@ -11,28 +11,14 @@ export const useAuthStore = defineStore('auth', () => {
   // Getters
   const isAuthenticated = computed(() => !!user.value)
   const isSuperAdmin = computed(() => user.value?.is_super_admin === true)
-
   const debugPermissions = ref(false)
 
-
   // Helpers
-
-  /*
-    hasRole  
-    exemplo de uso | ideal para menus, botões, componentes ou controle de rotas visíveis.
-    
-    <template>
-      <Button v-if="auth.hasRole('admin')">Botão só para admin</Button>
-      <Button v-if="auth.hasRole(['admin', 'super-admin'])">Botão para ambos</Button>
-    </template>
-  */
   const hasRole = (rolesToCheck) => {
     try {
-      // Ignora checagem se estiver em modo debug
       if (debugPermissions.value) return true
 
       const userRoles = (user.value?.roles || []).map(role => role.name)
-      console.log(userRoles)
 
       if (typeof rolesToCheck === 'string') {
         return userRoles.includes(rolesToCheck)
@@ -49,26 +35,40 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Centraliza o pós-login
+  const onLoginSuccess = async () => {
+    try {
+      await fetchUser()
+
+      // Importação dinâmica para evitar referência circular
+      const { useActiveBakeryStore } = await import('@/store/activeBakeryStore')
+      const activeBakeryStore = useActiveBakeryStore()
+
+      await activeBakeryStore.fetchMyBakeries()
+      activeBakeryStore.loadActiveBakeryFromStorage()
+    } catch (err) {
+      console.error('Erro em onLoginSuccess:', err)
+    }
+  }
 
   // Actions
   const login = async (email, password) => {
-  loading.value = true
-  error.value = null
-  try {
-    await api.get('/sanctum/csrf-cookie')
-    await api.post('/api/v1/login', { email, password })
-    
-    await fetchUser() // <- define o `user.value` corretamente
-    return true
-  } catch (err) {
-    error.value = 'Falha ao fazer login'
-    console.error('Erro no login:', err)
-    return false
-  } finally {
-    loading.value = false
-  }
-}
+    loading.value = true
+    error.value = null
+    try {
+      await api.get('/sanctum/csrf-cookie')
+      await api.post('/api/v1/login', { email, password })
 
+      await onLoginSuccess()
+      return true
+    } catch (err) {
+      error.value = 'Falha ao fazer login'
+      console.error('Erro no login:', err)
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
 
   const fetchUser = async () => {
     loading.value = true
@@ -123,6 +123,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     login,
     fetchUser,
-    logout
+    logout,
+    onLoginSuccess,
   }
 })
