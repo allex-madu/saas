@@ -79,8 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
       return true
     } catch (err) {
       if (err.response?.status === 401) {
-        user.value = null
-        console.warn('Sessão expirou')
+        // Já tratado pelo interceptor, então silencia o erro aqui
         return false
       }
       error.value = 'Erro ao buscar usuário'
@@ -90,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = false
     }
   }
+
 
   const logout = async () => {
     loading.value = true

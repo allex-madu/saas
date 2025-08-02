@@ -4,7 +4,7 @@ import guest from "@/middleware/guest";
 const routes = [
   {
     path: "/",
-    name: "Login",
+    name: "login",
     component: () => import("@/views/auth/login/index.vue"),
   },
   {
