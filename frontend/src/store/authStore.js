@@ -28,12 +28,11 @@ export const useAuthStore = defineStore('auth', () => {
   */
   const hasRole = (rolesToCheck) => {
     try {
-       // Ignora checagem se estiver em modo debug
+      // Ignora checagem se estiver em modo debug
       if (debugPermissions.value) return true
 
-      if (!user.value?.roles) return false
-
-      const userRoles = user.value.roles.map(role => role.name)
+      const userRoles = (user.value?.roles || []).map(role => role.name)
+      console.log(userRoles)
 
       if (typeof rolesToCheck === 'string') {
         return userRoles.includes(rolesToCheck)
@@ -49,6 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
       return false
     }
   }
+
 
   // Actions
   const login = async (email, password) => {

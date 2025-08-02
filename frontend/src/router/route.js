@@ -135,11 +135,7 @@ const routes = [
         path: 'admin/permissions',
         name: 'admin.permissions.index',
         component: () => import('@/views/admin/permissions/Table.vue'),
-        meta: {
-          middleware: [auth],         
-          role: ['admin'],
-          title: 'Lista de Permissões',
-        }
+         meta: { requiresAuth: true, role: ['admin'] }
       },
       {
         path: 'admin/permissions/:id',

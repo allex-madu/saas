@@ -8,6 +8,18 @@ export const useActiveBakeryStore = defineStore('activeBakery', () => {
   const activeBakery = ref(null)
   const loading = ref(false)
 
+  function loadActiveBakeryFromStorage() {
+  const saved = localStorage.getItem('activeBakery')
+    if (saved) {
+      try {
+        activeBakery.value = JSON.parse(saved)
+      } catch (e) {
+        console.error('Erro ao restaurar padaria ativa do localStorage', e)
+      }
+    }
+  }
+
+
   const fetchMyBakeries = async () => {
     try {
       loading.value = true
@@ -28,16 +40,10 @@ export const useActiveBakeryStore = defineStore('activeBakery', () => {
 
   const setActiveBakery = (bakery) => {
     activeBakery.value = bakery
-    localStorage.setItem('activeBakeryId', bakery.id)
+    localStorage.setItem('activeBakery', JSON.stringify(bakery))
   }
 
-  const loadActiveBakeryFromStorage = () => {
-    const id = localStorage.getItem('activeBakeryId')
-    if (id && myBakeries.value.length > 0) {
-      const found = myBakeries.value.find(b => b.id == id)
-      if (found) activeBakery.value = found
-    }
-  }
+  
 
   return {
     myBakeries,

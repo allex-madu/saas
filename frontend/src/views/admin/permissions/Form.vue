@@ -39,11 +39,13 @@ import api from '@/plugins/axios'
 import InputGroup from '@/components/InputGroup'
 import Card from '@/components/Card'
 import FormActions from '@/components/Form/FormActions'
+import { usePermissionStore } from '@/store/permissionsStore'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
+const permissionStore = usePermissionStore()
 const loading = ref(false)
 const errors = ref({})
 const isEdit = computed(() => !!route.params?.id)
@@ -76,25 +78,26 @@ const handleSubmit = async () => {
   errors.value = {}
 
   try {
-    let response
-    if (isEdit.value) {
-      response = await api.put(`/api/v1/admin/permissions/${route.params.id}`, form.value)
-      toast.success(`Permissão atualizada com sucesso!`)
-    } else {
-      response = await api.post('/api/v1/admin/permissions', form.value)
-      toast.success(`Permissão "${response.data.permission.name}" criada com sucesso!`)
-    }
+  let permission
 
+    if (isEdit.value) {
+      permission = await permissionStore.updatePermission(route.params.id, form.value)
+      toast.success('Permissão atualizada com sucesso!')
+    } else {
+      permission = await permissionStore.createPermission(form.value)
+      toast.success(`Permissão "${permission.name}" criada com sucesso!`)
+    }
     router.push({ name: 'admin.permissions.index' })
+
   } catch (err) {
     toast.error(isEdit.value ? 'Erro ao atualizar permissão.' : 'Erro ao criar permissão.')
-    if (err.response?.status === 422) {
-      errors.value = err.response.data.errors || {}
+    if (err.validation) {
+      errors.value = err.validation
     } else {
       console.error(err)
     }
-  } finally {
-    loading.value = false
   }
+
+
 }
 </script>

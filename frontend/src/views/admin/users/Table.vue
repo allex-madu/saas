@@ -202,9 +202,17 @@ function handleAction(action, user) {
   }
 } 
 
-watch(() => activeBakeryStore.activeBakery, () => {
-  adminUserStore.fetchUsers()
-})
+watch(
+  () => activeBakeryStore.activeBakery,
+  (newVal) => {
+    if (newVal) {
+      adminUserStore.fetchUsers(1, searchTerm.value, perPage.value)
+    }
+  },
+  // garante que dispare somente quando padaria ativa estiver pronta
+  { immediate: true } 
+)
+
 
 function handlePageChange(page) {
   store.currentPage = page

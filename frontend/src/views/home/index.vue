@@ -21,6 +21,7 @@
     <RouterLink :to="{ name: 'admin.bakeries.index' }" class="text-blue-600 hover:underline">
       Padarias
     </RouterLink>
+    
 
     
 

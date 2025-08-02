@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Spatie\Permission\Models\Permission as SpatiePermission;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Permission extends SpatiePermission
 {
@@ -13,6 +14,13 @@ class Permission extends SpatiePermission
       'description',
       'guard_name',
    ];
+
+
+   public function bakery(): BelongsTo
+   {
+      return $this->belongsTo(Bakery::class);
+   }
+
 
 
    public static function treeStructure(): array

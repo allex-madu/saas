@@ -90,9 +90,12 @@ async function initializeApp() {
 
     // Bakery ativa
     const activeBakeryStore = useActiveBakeryStore();
-    await activeBakeryStore.fetchMyBakeries();
-    activeBakeryStore.loadActiveBakeryFromStorage();
 
+    
+    activeBakeryStore.loadActiveBakeryFromStorage()
+    await activeBakeryStore.fetchMyBakeries()
+
+activeBakeryStore
   } catch (error) {
     console.error("Erro durante a inicialização do aplicativo:", error);
   } finally {

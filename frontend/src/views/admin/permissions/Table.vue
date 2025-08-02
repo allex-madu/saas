@@ -104,6 +104,7 @@ import { useToast } from 'vue-toastification'
 import Swal from 'sweetalert2'
 import { storeToRefs } from 'pinia'
 import debounce from 'lodash.debounce'
+import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 import { usePermissionStore } from '@/store/permissionsStore'
 
 // Components
@@ -118,6 +119,7 @@ import { MenuItem } from '@headlessui/vue'
 // Instâncias
 const router = useRouter()
 const toast = useToast()
+const activeBakeryStore = useActiveBakeryStore()
 const permissionStore = usePermissionStore()
 const { permissions, loading, error, pagination, perPage } = storeToRefs(permissionStore)
 
@@ -131,6 +133,18 @@ watch(searchTerm, debouncedSearch, { immediate: true })
 onMounted(() => {
   permissionStore.fetchPermissions(1, '', perPage.value)
 })
+
+watch(
+  () => activeBakeryStore.activeBakery,
+  (newVal) => {
+    if (newVal) {
+      permissionStore.fetchPermissions(1, searchTerm.value, perPage.value)
+    }
+  },
+  { immediate: true }
+)
+
+
 
 // Colunas
 const columns = [
@@ -189,4 +203,7 @@ function handlePageChange(page) {
 function handlePerPageChange({ currentPerPage }) {
   permissionStore.fetchPermissions(1, searchTerm.value, currentPerPage)
 }
+
+
+
 </script>

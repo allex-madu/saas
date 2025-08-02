@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Permission;
+use Illuminate\Support\Facades\Auth;
 
 class PermissionController extends Controller
 {
@@ -13,12 +14,13 @@ class PermissionController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', Permission::class); // Autoriza visualização geral
+        $this->authorize('viewAny', Permission::class);
 
         $perPage = request()->get('per_page', 10);
         $search = request()->get('search');
+        $bakeryId = request()->get('bakery_id');
+        $user = Auth::user();
 
-        // Consulta com filtro opcional por nome
         $query = Permission::select('id', 'name', 'description', 'guard_name', 'created_at', 'updated_at')
             ->orderBy('name');
 
@@ -26,9 +28,19 @@ class PermissionController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
 
+        // Filtro obrigatório por padaria para quem não for super-admin
+        if (!auth()->user()->hasRole('super-admin')) {
+            if ($bakeryId) {
+                $query->where('bakery_id', $bakeryId);
+            } else {
+                // Garante que um admin sem bakery_id não veja nada
+                $query->whereRaw('1 = 0');
+            }
+        }
+
+
         $permissions = $query->paginate($perPage);
 
-        // Retorno padronizado com dados, metadados e links de paginação
         return response()->json([
             'data' => $permissions->items(),
             'meta' => [
@@ -45,6 +57,8 @@ class PermissionController extends Controller
             ],
         ]);
     }
+
+
 
     /**
      * Cria uma nova permissão.

@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia'
 import api from '@/plugins/axios'
 import { ref } from 'vue'
+import { useActiveBakeryStore } from '@/store/activeBakeryStore'
 
 // Store de permissões
 export const usePermissionStore = defineStore('permissionStore', () => {
@@ -18,11 +19,20 @@ export const usePermissionStore = defineStore('permissionStore', () => {
 
   // Buscar lista de permissões com paginação e busca
   const fetchPermissions = async (page = 1, search = '', per_page = 10) => {
-    loading.value = true
-    error.value = null
+  loading.value = true
+  error.value = null
+
+  const activeBakeryStore = useActiveBakeryStore()
+  const bakeryId = activeBakeryStore.activeBakery?.id
+
     try {
       const response = await api.get('/api/v1/admin/permissions', {
-        params: { page, per_page, search }
+        params: {
+          page,
+          per_page,
+          search,
+          ...(bakeryId ? { bakery_id: bakeryId } : {}) // só envia se existir
+        }
       })
 
       permissions.value = response.data.data
@@ -39,6 +49,7 @@ export const usePermissionStore = defineStore('permissionStore', () => {
     }
   }
 
+
   // Buscar uma permissão específica por ID
   const fetchPermission = async (id) => {
     loading.value = true
@@ -54,6 +65,46 @@ export const usePermissionStore = defineStore('permissionStore', () => {
       loading.value = false
     }
   }
+
+  const createPermission = async (form) => {
+    loading.value = true
+    error.value = null
+    const activeBakeryStore = useActiveBakeryStore()
+    const bakeryId = activeBakeryStore.activeBakery?.id
+
+    try {
+      const response = await api.post('/api/v1/admin/permissions', {
+        ...form,
+        ...(bakeryId ? { bakery_id: bakeryId } : {})
+      })
+      return response.data.permission
+    } catch (err) {
+      if (err.response?.status === 422) {
+        throw { validation: err.response.data.errors }
+      }
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const updatePermission = async (id, form) => {   
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.put(`/api/v1/admin/permissions/${id}`, form)
+      return response.data.permission
+    } catch (err) {
+      if (err.response?.status === 422) {
+        throw { validation: err.response.data.errors }
+      }
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
 
   // Excluir permissão por ID
   const deletePermission = async (id) => {
@@ -77,6 +128,8 @@ export const usePermissionStore = defineStore('permissionStore', () => {
     currentPage,
     fetchPermissions,
     fetchPermission,
+    createPermission,  
+    updatePermission,
     deletePermission,
   }
 })
